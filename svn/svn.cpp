@@ -222,8 +222,8 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *bat
 //	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
 //	}
-	ret->username = apr_pstrdup(pool, p->info.username.latin1());
-	ret->password = apr_pstrdup(pool, p->info.password.latin1());
+	ret->username = apr_pstrdup(pool, p->info.username.utf8());
+	ret->password = apr_pstrdup(pool, p->info.password.utf8());
 	ret->may_save = true;
 	*cred = ret;
 	return SVN_NO_ERROR;
