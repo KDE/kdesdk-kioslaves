@@ -85,9 +85,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 }
 
 static svn_error_t *
-open_tmp_file (apr_file_t **fp,
-               void *callback_baton)
-{
+open_tmp_file (apr_file_t **fp, void *callback_baton) {
   kio_svn_callback_baton_t *cb = callback_baton;
   const char *truepath;
   const char *ignored_filename;
@@ -102,8 +100,7 @@ open_tmp_file (apr_file_t **fp,
   truepath = svn_path_join (truepath, "tempfile", cb->pool);
 
   /* Open a unique file;  use APR_DELONCLOSE. */  
-  SVN_ERR (svn_io_open_unique_file (fp, &ignored_filename,
-                                    truepath, ".tmp", TRUE, cb->pool));
+  SVN_ERR (svn_io_open_unique_file (fp, &ignored_filename, truepath, ".tmp", TRUE, cb->pool));
 
   return SVN_NO_ERROR;
 }
@@ -134,6 +131,7 @@ void kio_svnProtocol::get(const KURL& url ){
 
 	QString target = url.url().replace( 0, 3, "http" );
 	kdDebug() << "myURL: " << target << endl;
+	
 	//find the requested revision
 	svn_opt_revision_t rev;
 	int idx = target.findRev( "?rev=" );
@@ -148,6 +146,8 @@ void kio_svnProtocol::get(const KURL& url ){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
+		target = target.left( idx );
+		kdDebug() << "new target : " << target << endl;
 	} else {
 		kdDebug() << "no revision given. searching HEAD " << endl;
 		rev.kind = svn_opt_revision_head;
@@ -185,11 +185,31 @@ void kio_svnProtocol::stat(const KURL & url){
 	svn_node_kind_t kind;
 	const char *auth_dir;
 	svn_revnum_t revnum;
-	svn_opt_revision_t revision;
-	revision.kind = svn_opt_revision_head;
 	apr_pool_t *subpool = svn_pool_create (pool);
 
 	QString target = url.url().replace( 0, 3, "http" );
+
+	//find the requested revision
+/*	svn_opt_revision_t rev;
+	int idx = target.findRev( "?rev=" );
+	if ( idx != -1 ) {
+		QString revstr = target.mid( idx+5 );
+		kdDebug() << "revision string found " << revstr  << endl;
+		if ( revstr == "HEAD" ) {
+			rev.kind = svn_opt_revision_head;
+			kdDebug() << "revision searched : HEAD" << endl;
+		} else {
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = revstr.toLong();
+			kdDebug() << "revision searched : " << rev.value.number << endl;
+		}
+		target = target.left( idx );
+		kdDebug() << "new target : " << target << endl;
+	} else {
+		kdDebug() << "no revision given. searching HEAD " << endl;
+		rev.kind = svn_opt_revision_head;
+	}
+*/
 	//init
 	svn_ra_init_ra_libs(&ra_baton,subpool);
 	//find RA libs
@@ -251,9 +271,28 @@ void kio_svnProtocol::listDir(const KURL & url){
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	apr_hash_t *dirents;
-	svn_opt_revision_t rev;
-	rev.kind = svn_opt_revision_head;
 	QString target = url.url().replace( 0, 3, "http" );
+	
+	//find the requested revision
+	svn_opt_revision_t rev;
+	int idx = target.findRev( "?rev=" );
+	if ( idx != -1 ) {
+		QString revstr = target.mid( idx+5 );
+		kdDebug() << "revision string found " << revstr  << endl;
+		if ( revstr == "HEAD" ) {
+			rev.kind = svn_opt_revision_head;
+			kdDebug() << "revision searched : HEAD" << endl;
+		} else {
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = revstr.toLong();
+			kdDebug() << "revision searched : " << rev.value.number << endl;
+		}
+		target = target.left( idx );
+		kdDebug() << "new target : " << target << endl;
+	} else {
+		kdDebug() << "no revision given. searching HEAD " << endl;
+		rev.kind = svn_opt_revision_head;
+	}
 
 	svn_client_ls (&dirents, target, &rev, false, *ctx, subpool);
 
