@@ -78,7 +78,8 @@ fi
 AC_SUBST(SVNCONFIG)
 if test -x "$SVNCONFIG"; then
 	SVNLD="`$SVNCONFIG --ldflags`"
-	SVN_LIB="`$SVNCONFIG --libs --cppflags` -lsvn_client-1"
+	SVN_LIB="`$SVNCONFIG --libs` -lsvn_client-1"
+	SVN_CPPFLAGS="`$SVNCONFIG --cppflags`"
 	dnl ugly hack for subversion svn-config problems in 0.14.x, to be removed when svn-config is fixed
 	SVN_INCLUDE="`$SVNCONFIG --includes` -I$_SVNCONFIG/include/subversion-1/"
 	AC_MSG_RESULT(yes)
@@ -103,6 +104,7 @@ else
 	done
 	if test $SVN_INCLUDE ; then
 		AC_MSG_RESULT([found])
+		SVN_INCLUDE="-I$SVN_INCLUDE"
 	else
 		AC_MSG_RESULT([not found])
 		SVN_SUBDIR=
@@ -131,9 +133,9 @@ dnl		AC_MSG_ERROR([Subversion headers are required. Try --with-svn-include.])
 		SVN_SUBDIR=
 	fi
 fi
-SVN_LIB="-L$SVN_LIB $APR_LIBS -lsvn_client-1"
-SVN_INCLUDE="-I$SVN_INCLUDE $APR_INCLUDE"
-SVN_CPPFLAGS="$APR_CPPFLAGS"
+SVN_LIB="$SVN_LIB $APR_LIBS -lsvn_client-1"
+SVN_INCLUDE="$SVN_INCLUDE $APR_INCLUDE"
+SVN_CPPFLAGS="$APR_CPPFLAGS $SVN_CPPFLAGS"
 
 AC_SUBST(SVN_INCLUDE)
 AC_SUBST(SVN_LIB)
