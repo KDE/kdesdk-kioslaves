@@ -43,6 +43,7 @@
 #include <svn_path.h>
 #include <svn_utf.h>
 #include <svn_ra.h>
+#include <svn_time.h>
 
 #include <kmimetype.h>
 
@@ -87,10 +88,9 @@ compare_items_as_paths (const svn_item_t *a, const svn_item_t *b) {
 kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket)
 	: SlaveBase("kio_svn", pool_socket, app_socket){
 		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
-		svn_error_t *err;
 		apr_initialize();
 		pool = svn_pool_create (NULL);
-		err = svn_config_ensure (pool);
+		svn_error_t *err = svn_config_ensure (pool);
 		if ( err ) {
 			kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure ERROR" << endl;
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -101,13 +101,42 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 
 		ctx->prompt_func = kio_svnProtocol::checkAuth;
 		ctx->prompt_baton = this;
+	/*	ctx->notify_func = NULL;
+		ctx->notify_baton = NULL;
+		ctx->log_msg_func = NULL;
+		ctx->log_msg_baton = NULL;
+		ctx->cancel_func = NULL;*/
 
-		apr_array_header_t *providers = apr_array_make(pool, 2, sizeof(svn_auth_provider_object_t *));
+		apr_array_header_t *providers = apr_array_make(pool,10, sizeof(svn_auth_provider_object_t *));
 
 		svn_auth_provider_object_t *provider;
 
-		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		//disk cache
+		svn_client_get_simple_provider(&provider,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_username_provider(&provider,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 
+		//interactive prompt
+		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		
+		//SSL disk cache
+		svn_client_get_ssl_server_file_provider(&provider,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_ssl_client_file_provider(&provider,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_ssl_pw_file_provider(&provider,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		
+		//SSL interactive prompt, will it work ? //XXX test me
+		svn_client_get_ssl_server_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_ssl_client_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_ssl_pw_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 
 		svn_auth_open(&ctx->auth_baton, providers, pool);
@@ -127,7 +156,7 @@ svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt,
 //XXX readd me when debug is complete		p->info.keepPassword = true;
 	p->info.verifyPath=true;
 	kdDebug( ) << "auth current URL : " << p->myURL << endl;
-	p->info.url = KURL( p->myURL );
+	p->info.url = p->myURL;
 //	p->info.username = ( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
 	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
@@ -140,7 +169,7 @@ svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt,
 	return SVN_NO_ERROR;
 }
 
-void kio_svnProtocol::recordCurrentURL(const QString& url) {
+void kio_svnProtocol::recordCurrentURL(const KURL& url) {
 	myURL = url;
 }
 
@@ -162,7 +191,7 @@ void kio_svnProtocol::get(const KURL& url ){
 	nurl.setProtocol( "http" );
 	QString target = nurl.url();
 	kdDebug() << "myURL: " << target << endl;
-	recordCurrentURL( target );
+	recordCurrentURL( nurl );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -221,7 +250,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	KURL nurl = url;
 	nurl.setProtocol( "http" );
 	QString target = nurl.url();
-	recordCurrentURL( target );
+	recordCurrentURL( nurl );
 
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -314,7 +343,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	svn_pool_destroy( subpool );
 }
 
-void kio_svnProtocol::listDir(const KURL & url){
+void kio_svnProtocol::listDir(const KURL& url){
 	kdDebug() << "kio_svn::listDir(const KURL& url) : " << url.url() << endl ;
 
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -322,7 +351,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 	KURL nurl = url;
 	nurl.setProtocol( "http" );
 	QString target = nurl.url();
-	recordCurrentURL( target );
+	recordCurrentURL( nurl );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -434,7 +463,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 	QString srcsvn = nsrc.url();
 	QString destsvn = ndest.url();
 	
-	recordCurrentURL( srcsvn );
+	recordCurrentURL( nsrc );
 
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -477,7 +506,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 	KURL nurl = url;
 	nurl.setProtocol( "http" );
 	QString target = nurl.url();
-	recordCurrentURL( target );
+	recordCurrentURL( nurl );
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
@@ -502,7 +531,7 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 	KURL nurl = url;
 	nurl.setProtocol( "http" );
 	QString target = nurl.url();
-	recordCurrentURL( target );
+	recordCurrentURL( nurl );
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
@@ -531,7 +560,7 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) 
 	QString srcsvn = nsrc.url();
 	QString destsvn = ndest.url();
 	
-	recordCurrentURL( srcsvn );
+	recordCurrentURL( nsrc );
 
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -564,6 +593,102 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) 
 	finished();
 	svn_pool_destroy (subpool);
 }
+
+void kio_svnProtocol::special( const QByteArray& data ) {
+	kdDebug() << "kio_svnProtocol::special" << endl;
+
+	QDataStream stream(data, IO_ReadOnly);
+	int tmp;
+
+	stream >> tmp;
+
+	switch ( tmp ) {
+		case SVN_CHECKOUT: 
+			{
+				KURL repository, wc;
+				int revnumber;
+				QString revkind;
+				stream >> repository;
+				stream >> wc;
+				stream >> revnumber;
+				stream >> revkind;
+				kdDebug() << "kio_svnProtocol CHECKOUT from " << repository << " to " << wc << " at " << revnumber << " or " << revkind << endl;
+				checkout( repository, wc, revnumber, revkind );
+				break;
+			}
+		case SVN_UPDATE: 
+			{
+				kdDebug() << "kio_svnProtocol UPDATE" << endl;
+				break;
+			}
+		case SVN_COMMIT: 
+			{
+				kdDebug() << "kio_svnProtocol COMMIT" << endl;
+				break;
+			}
+		case SVN_LOG: 
+			{
+				kdDebug() << "kio_svnProtocol LOG" << endl;
+				break;
+			}
+		case SVN_IMPORT: 
+			{
+				kdDebug() << "kio_svnProtocol IMPORT" << endl;
+				break;
+			}
+		default:
+			{
+				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
+				break;
+			}
+	}
+}
+
+void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind ) {
+	kdDebug() << "kio_svn::checkout : " << repos.url() << " into " << wc.path() << " at revision " << revnumber << " or " << revkind << endl ;
+
+	apr_pool_t *subpool = svn_pool_create (pool);
+	KURL nurl = repos;
+	KURL dest = wc;
+	nurl.setProtocol( "http" );
+	dest.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+	QString dpath = dest.path();
+	
+	//find the requested revision
+	svn_opt_revision_t rev;
+	if ( revnumber != -1 ) {
+		rev.value.number = revnumber;
+		rev.kind = svn_opt_revision_number;
+	} else if ( !revkind.isNull() ) {
+		if ( revkind == "HEAD" ) rev.kind = svn_opt_revision_head;
+		else if ( revkind == "PREV" ) rev.kind = svn_opt_revision_previous;
+		else if ( revkind == "COMMITTED" ) rev.kind = svn_opt_revision_committed;
+		else {
+			rev.kind = svn_opt_revision_date;
+			char *rk = apr_pstrdup (subpool, revkind.local8Bit());
+			time_t tm = svn_parse_date(rk,NULL);
+			if ( tm != -1 )
+				apr_time_ansi_put(&(rev.value.date),tm);
+		}
+	}
+
+	svn_error_t *err = svn_client_checkout (target, dpath, &rev, true, ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+/*void kio_svnProtocol::slave_status() {
+	kdDebug() << "kio_svnProtocol::slave_status() " << endl;
+	slaveStatus(myURL.host(), true);
+}*/
 
 extern "C"
 {
