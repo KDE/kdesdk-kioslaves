@@ -22,19 +22,14 @@ INSTALL:
 you need the svn client library which is distributed by subversion. 
 on Debian : apt-get install libsvn0-dev will do everything you need.
 
-then you need kdenonbeta/admin and kdenonbeta/kio_svn :
-cvs -d :pserver:anonymous@anoncvs.kde.org:/home/kde co -l kdenonbeta
-cd kdenonbeta
-cvs -d :pserver:anonymous@anoncvs.kde.org:/home/kde co admin
-cvs up kio_svn
+you can pass the following arguments to configure to help it find your 
+subversion/apr installations :
 
-then compile it :
-make -f Makefile.cvs
-./configure --enable-svnsupport (optionnally --with-subversion-dir=/yoursvn_directory)
-make
-
-will compile it
-and make install with superkarma (sudo make install).
+--with-apr-config=FILE    Use the given path to apr-config when determining APR configuration; defaults to "apr-config"
+--with-apu-config=FILE    Use the given path to apu-config when determining APR util configuration; defaults to "apu-config"
+--with-subversion-dir=DIR where Subversion is installed
+--with-svn-include=DIR    Use the given path to the subversion headers.
+--with-svn-lib=DIR  	  Use the given path to the subversion libraries.
 
 BUGS:
 -----
