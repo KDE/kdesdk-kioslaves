@@ -53,16 +53,40 @@
 
 using namespace KIO;
 
+typedef struct
+{
+	  /* Holds the directory that corresponds to the REPOS_URL at RA->open()
+	   *      time. When callbacks specify a relative path, they are joined with
+	   *           this base directory. */
+	  const char *base_dir;
+          svn_wc_adm_access_t *base_access;
+     
+	  /* An array of svn_client_commit_item_t * structures, present only
+	   *      during working copy commits. */
+	  apr_array_header_t *commit_items;
+
+	  /* A hash of svn_config_t's, keyed off file name (i.e. the contents of
+	   *      ~/.subversion/config end up keyed off of 'config'). */
+	  apr_hash_t *config;
+
+	  /* The pool to use for session-related items. */
+	  apr_pool_t *pool;
+
+} svn_client__callback_baton_t;
+
 static svn_error_t *
-open_tmp_file (apr_file_t **fp, void *callback_baton, apr_pool *pool) {
-  svn_client__callback_baton_t *cb = callback_baton;
+open_tmp_file (apr_file_t **fp,
+               void *callback_baton,
+               apr_pool_t *pool)
+{
+  svn_client__callback_baton_t *cb = (svn_client__callback_baton_t *) callback_baton;
   const char *truepath;
   const char *ignored_filename;
 
   if (cb->base_dir)
     truepath = apr_pstrdup (pool, cb->base_dir);
   else
-    SVN_ERR (svn_io_temp_dir (&truepath, pool));
+    truepath = "";
 
   /* Tack on a made-up filename. */
   truepath = svn_path_join (truepath, "tempfile", pool);
@@ -315,7 +339,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	}
 	
 	//get it
-	ra_lib->check_path(&kind,session,"",rev.value.number,subpool);
+	ra_lib->check_path(session,"",rev.value.number,&kind,subpool);
 	kdDebug() << "Checked Path" << endl;
 	UDSEntry entry;
 	switch ( kind ) {

@@ -25,7 +25,7 @@ AC_SUBST(SVNCONFIG)
 if test -x "$SVNCONFIG"; then
 	SVN_SUBDIR=svn
 	SVNLD="`$SVNCONFIG --ldflags`"
-	SVNLIBS="`$SVNCONFIG --libs --cppflags`"
+	SVNLIBS="`$SVNCONFIG --libs --cppflags` -lsvn_client-1"
 	dnl ugly hack for subversion svn-config problems in 0.14.x, to be removed when svn-config is fixed
 	SVNINC="`$SVNCONFIG --includes` -I$_SVNCONFIG/include/subversion-1/"
 	AC_MSG_RESULT(yes)
