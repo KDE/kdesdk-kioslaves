@@ -98,13 +98,12 @@ else
 	SVN_INCLUDE=""
 	for VALUE in $SVN_INCLUDES ; do
 		if test -f $VALUE/subversion-1/svn_types.h ; then
-			SVN_INCLUDE=$VALUE
+			SVN_INCLUDE="-I$VALUE"
 			break
 		fi
 	done
 	if test $SVN_INCLUDE ; then
 		AC_MSG_RESULT([found])
-		SVN_INCLUDE="-I$SVN_INCLUDE"
 	else
 		AC_MSG_RESULT([not found])
 		SVN_SUBDIR=
@@ -122,7 +121,7 @@ dnl		AC_MSG_ERROR([Subversion headers are required. Try --with-svn-include.])
 	SVN_LIB=""
 	for VALUE in $SVN_LIBS ; do
 		if ls $VALUE/libsvn_client-1.* 1>/dev/null 2>&1; then
-			SVN_LIB=$VALUE
+			SVN_LIB="-L$VALUE"
 			break
 		fi
 	done
