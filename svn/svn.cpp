@@ -194,7 +194,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 	apr_terminate();
 }
 
-svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool) {
+svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **/*cred*/, void *baton, const char *realm, const char *username, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
 	kdDebug() << "kio_svnProtocol::checkAuth() for " << realm << endl;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_auth_cred_simple_t *ret = (svn_auth_cred_simple_t*)apr_pcalloc (pool, sizeof (*ret));
@@ -289,7 +289,6 @@ void kio_svnProtocol::stat(const KURL & url){
 	void *ra_baton, *session;
 	svn_ra_plugin_t *ra_lib;
 	svn_node_kind_t kind;
-	const char *auth_dir;
 	apr_pool_t *subpool = svn_pool_create (pool);
 
 	QString target = makeSvnURL( url);
@@ -502,7 +501,7 @@ bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& us
 	return true;
 }
 
-void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, bool overwrite) {
+void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int /*permissions*/, bool /*overwrite*/) {
 	kdDebug() << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -549,7 +548,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
+void kio_svnProtocol::mkdir( const KURL& url, int /*permissions*/ ) {
 	kdDebug() << "kio_svnProtocol::mkdir() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -573,7 +572,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::del( const KURL& url, bool isfile ) {
+void kio_svnProtocol::del( const KURL& url, bool /*isfile*/ ) {
 	kdDebug() << "kio_svnProtocol::del() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -597,7 +596,7 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) {
+void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool /*overwrite*/) {
 	kdDebug() << "kio_svnProtocol::rename() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -720,6 +719,14 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				wc_revert(wc);
 				break;
 			}
+		case SVN_STATUS: 
+			{
+				KURL wc;
+				stream >> wc;
+				kdDebug() << "kio_svnProtocol STATUS" << endl;
+				wc_status(wc);
+				break;
+			}
 		default:
 			{
 				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
@@ -819,7 +826,6 @@ void kio_svnProtocol::add(const KURL& wc) {
 	kdDebug() << "kio_svnProtocol::add() : " << wc.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = NULL;
 	bool nonrecursive = false;
 
 	KURL nurl = wc;
@@ -867,7 +873,6 @@ void kio_svnProtocol::wc_revert(const KURL& wc) {
 	kdDebug() << "kio_svnProtocol::revert() : " << wc.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = NULL;
 	bool nonrecursive = false;
 
 	KURL nurl = wc;
@@ -879,6 +884,36 @@ void kio_svnProtocol::wc_revert(const KURL& wc) {
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
 	svn_error_t *err = svn_client_revert(targets,nonrecursive,&ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::wc_status(const KURL& wc, bool checkRepos, bool fullRecurse, bool getAll, int revnumber, const QString& revkind) {
+	kdDebug() << "kio_svnProtocol::status() : " << wc.url() << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+
+	KURL nurl = wc;
+	nurl.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+
+	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
+	if ( revnumber != -1 ) {
+		rev.value.number = revnumber;
+		rev.kind = svn_opt_revision_number;
+	} else if ( !revkind.isNull() )
+		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
+
+	svn_revnum_t result_rev;
+	svn_error_t *err = svn_client_status(&result_rev,nurl.path().utf8(),&rev,kio_svnProtocol::status,this,fullRecurse,getAll,checkRepos,false,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -939,26 +974,26 @@ QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
 	return kproto;
 }
 
-svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char */*realm*/, apr_uint32_t /*failures*/, const svn_auth_ssl_server_cert_info_t */*cert_info*/, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
 	*cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
 	(*cred_p)->may_save = FALSE;
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **/*cred_p*/, void *, const char */*realm*/, svn_boolean_t /*may_save*/, apr_pool_t */*pool*/) {
 	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
 /*	*cred_p = apr_palloc (pool, sizeof(**cred_p));
 	(*cred_p)->cert_file = cert_file;*/
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **/*cred_p*/, void *, const char */*realm*/, svn_boolean_t /*may_save*/, apr_pool_t */*pool*/) {
 	//when ksvnd is ready make it prompt for the SSL certificate password ... XXX
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **file, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
+svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **/*file*/, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
 	QCString replyType;
 	QByteArray params;
 	QByteArray reply;
@@ -1038,6 +1073,25 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision;
 
 	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int)", params ) ) {
+		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+		return;
+	}
+}
+
+void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *status) {
+	kdDebug() << "STATUS : " << path << ", wc text status : " << status->text_status 
+									 << ", wc prop status : " << status->prop_status
+									 << ", repos text status : " << status->repos_text_status
+									 << ", repos prop status : " << status->repos_prop_status 
+									 << endl;
+
+	QByteArray params;
+	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
+
+	QDataStream stream(params, IO_WriteOnly);
+	stream << QString::fromUtf8( path ) << status->text_status << status->prop_status << status->repos_text_status << status->repos_prop_status;
+
+	if ( !p->dcopClient()->send( "kded","ksvnd","status(QString,int,int,int,int)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return;
 	}

@@ -66,8 +66,10 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void update( const KURL& wc, int revnumber, const QString& revkind );
 		void commit( const KURL& wc );
 		void add( const KURL& wc );
+		//these work using the working copy
 		void wc_delete( const KURL& wc );
 		void wc_revert( const KURL& wc );
+		void wc_status(const KURL& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
 
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool);
@@ -75,6 +77,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		static svn_error_t *clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *commitLogPrompt( const char **log_msg, const char **tmp_file, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool );
 		static void notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision);
+		static void status(void *baton, const char *path, svn_wc_status_t *status);
 
 		QString chooseProtocol ( const QString& kproto ) const; 
 		QString makeSvnURL ( const KURL& url ) const;
@@ -92,7 +95,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_IMPORT=5,
 			SVN_ADD=6,
 			SVN_DEL=7,
-			SVN_REVERT=8
+			SVN_REVERT=8,
+			SVN_STATUS=9
 		};
 
 	private:

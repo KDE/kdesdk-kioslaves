@@ -60,4 +60,15 @@ void KSvnd::notify(const QString& path, int action, int kind, const QString& mim
 	kapp->dcopClient()->emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int)", params );
 }
 
+void KSvnd::status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ) {
+	kdDebug() << "KDED/Subversion : status " << path << " " << text_status << " " << prop_status << " "
+			<< repos_text_status << " " << repos_prop_status << endl;
+	QByteArray params;
+
+	QDataStream stream(params, IO_WriteOnly);
+	stream << path << text_status << prop_status << repos_text_status << repos_prop_status;
+
+	kapp->dcopClient()->emitDCOPSignal( "subversionStatus(QString,int,int,int,int)", params );
+}
+
 #include "ksvnd.moc"

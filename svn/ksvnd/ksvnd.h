@@ -36,6 +36,7 @@ k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
   void notify(const QString&, int ,int, const QString& , int , int, long int);
+  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status );
 
 k_dcop_signals:
   //emitted whenever something happens using subversion ;)
