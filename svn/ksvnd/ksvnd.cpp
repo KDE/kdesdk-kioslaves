@@ -28,7 +28,7 @@
 #include "commitdlg.h"
 
 extern "C" {
-    KDEDModule *create_ksvnd(const QCString &name) {
+    KDE_EXPORT KDEDModule *create_ksvnd(const QCString &name) {
        return new KSvnd(name);
     }
 }

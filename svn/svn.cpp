@@ -1169,7 +1169,7 @@ void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *sta
 
 extern "C"
 {
-	int kdemain(int argc, char **argv)    {
+	KDE_EXPORT int kdemain(int argc, char **argv)    {
 		KInstance instance( "kio_svn" );
 
 		kdDebug(7101) << "*** Starting kio_svn " << endl;
