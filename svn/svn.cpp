@@ -791,6 +791,21 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				wc_resolve(url,recurse);
 				break;
 			}
+		case SVN_SWITCH:
+			{
+				KURL wc,url;
+				bool recurse;
+				int revnumber;
+				QString revkind;
+				stream >> wc;
+				stream >> url;
+				stream >> recurse;
+				stream >> revnumber;
+				stream >> revkind;
+				kdDebug() << "kio_svnProtocol SWITCH" << endl;
+				svn_switch(wc,url,revnumber,revkind,recurse);
+				break;
+			}
 		default:
 			{
 				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
@@ -806,6 +821,43 @@ void kio_svnProtocol::popupMessage( const QString& message ) {
 
 	if ( !dcopClient()->send( "kded","ksvnd","popupMessage(QString)", params ) )
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+}
+
+void kio_svnProtocol::svn_switch( const KURL& wc, const KURL& repos, int revnumber, const QString& revkind, bool recurse) {
+	kdDebug() << "kio_svn::switch : " << wc.path() << " at revision " << revnumber << " or " << revkind << endl ;
+
+	apr_pool_t *subpool = svn_pool_create (pool);
+
+	KURL nurl = repos;
+	KURL dest = wc;
+	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
+	dest.setProtocol( "file" );
+	recordCurrentURL( nurl );
+	QString source = dest.path();
+	QString target = makeSvnURL( repos );
+
+	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
+	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
+
+	//find the requested revision
+	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
+	svn_revnum_t *result_rev = ( svn_revnum_t* )apr_pcalloc( subpool, sizeof( *result_rev ) );
+
+	if ( revnumber != -1 ) {
+		rev.value.number = revnumber;
+		rev.kind = svn_opt_revision_number;
+	} else if ( !revkind.isNull() )
+		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
+
+	initNotifier(false, false, false, subpool);
+	svn_error_t *err = svn_client_switch (result_rev, path, url, &rev, recurse, &ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+	}
+
+	finished();
+	svn_pool_destroy (subpool);
 }
 
 void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revkind ) {
