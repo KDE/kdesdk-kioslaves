@@ -22,7 +22,7 @@
 #define KSVND_H
 
 #include <dcopclient.h>
-#include <kded/kdedmodule.h>
+#include <kdedmodule.h>
 
 class KSvnd : public KDEDModule
 {

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Service
+Name=KDED Subversion Module
+ServiceTypes=KDEDModule
+X-KDE-ModuleType=Library
+X-KDE-Library=ksvnd
+X-KDE-FactoryName=ksvnd
+X-KDE-Kded-autoload=false
+X-KDE-Kded-load-on-demand=true

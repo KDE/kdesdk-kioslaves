@@ -31,6 +31,7 @@
 #endif*/
 
 #include "ksvnd.h"
+#include "commitdialog.h"
 
 extern "C" {
     KDEDModule *create_ksvnd(const QCString &name)
@@ -48,8 +49,10 @@ KSvnd::~KSvnd()
 {
 }
 
-QString KSvnd::commitDialog( const QString& comment) const {
-
+const QString KSvnd::commitDialog( const QString& comment)
+{
+	CommitDialog *commitDlg = new CommitDialog();
+	commitDlg->show();
 }
 
 #include "ksvnd.moc"
