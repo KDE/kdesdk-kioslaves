@@ -59,6 +59,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void listDir(const KURL& url);
 		virtual void stat(const KURL& url);
 		virtual void mkdir(const KURL& url, int permissions);
+		virtual void mkdir(const KURL::List& list, int permissions);
 		virtual void del( const KURL& url, bool isfile );
 		virtual void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
 		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
@@ -97,7 +98,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_ADD=6,
 			SVN_DEL=7,
 			SVN_REVERT=8,
-			SVN_STATUS=9
+			SVN_STATUS=9,
+			SVN_MKDIR=10
 		};
 
 	private:

@@ -548,6 +548,34 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int /*permissions
 	svn_pool_destroy (subpool);
 }
 
+void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
+	kdDebug() << "kio_svnProtocol::mkdir(LIST) : " << list << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+
+	recordCurrentURL( list[ 0 ] );
+	
+	apr_array_header_t *targets = apr_array_make(subpool, list.count()+1, sizeof(const char *));
+
+	KURL::List::const_iterator it = list.begin(), end = list.end();
+	for ( ; it != end; ++it ) {
+		QString cur = ( *it ).url();
+		const char *_target = apr_pstrdup( subpool, cur.utf8() );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = _target;
+	}
+
+	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
 void kio_svnProtocol::mkdir( const KURL& url, int /*permissions*/ ) {
 	kdDebug() << "kio_svnProtocol::mkdir() : " << url.url() << endl;
 	
@@ -731,6 +759,14 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				wc_status(wc);
 				break;
 			}
+		case SVN_MKDIR: 
+			{
+				KURL::List list;
+				stream >> list;
+				kdDebug() << "kio_svnProtocol MKDIR" << endl;
+				mkdir(list,0);
+				break;
+			}
 		default:
 			{
 				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
@@ -780,12 +816,17 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	KURL dest = wc;
 	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
 	dest.setProtocol( "file" );
-	QString target = nurl.url();
 	recordCurrentURL( nurl );
-	QString dpath = dest.path();
+	QString source = dest.path();
+	QString target = nurl.url();
 
-	svn_error_t *err = svn_client_import(&commit_info,svn_path_canonicalize( dpath.utf8(), subpool ),svn_path_canonicalize( target.utf8(), subpool ),nonrecursive,&ctx,subpool);
+	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
+	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
+	kdDebug() << "DEBUG: " << path << " " << url << endl;
+
+	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,&ctx,subpool);
 	if ( err ) {
+		kdDebug() << "DEBUG: " << err->message << endl;
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
 		return;
