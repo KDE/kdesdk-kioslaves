@@ -137,7 +137,7 @@ void kio_svnProtocol::get(const KURL& url ){
 	//find the requested revision
 	int idx=-1;
 	svn_opt_revision_t rev;
-	if ( idx = target.findRev( "\?rev=" ) ) {
+/*	if ( idx = target.findRev( "\?rev=" ) ) {
 		QString revstr = target.mid( idx+5 );
 		if ( revstr == "HEAD" ) {
 			rev.kind = svn_opt_revision_head;
@@ -147,9 +147,9 @@ void kio_svnProtocol::get(const KURL& url ){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
-	} else {
+	} else {*/
 		rev.kind = svn_opt_revision_head;
-	}
+//	}
 
 	svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
 
@@ -210,7 +210,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	callbackbt->config = ( *ctx )->config;
 	
 	ra_lib->open(&session,target,cbtable,callbackbt,( *ctx )->config,subpool);
-	kdDebug() << "Session opened" << endl;
+	kdDebug() << "Session opened to " << target << endl;
 
 	//find number for HEAD
 	ra_lib->get_latest_revnum(session,&revnum,subpool);
@@ -223,11 +223,13 @@ void kio_svnProtocol::stat(const KURL & url){
 	UDSEntry entry;
 	switch ( kind ) {
 		case svn_node_file:
+			kdDebug() << "::stat result : file" << endl;
 			createUDSEntry(url.url(),"",0,false,0,entry);
 			statEntry( entry );
 			finished();
 			break;
 		case svn_node_dir:
+			kdDebug() << "::stat result : directory" << endl;
 			createUDSEntry(url.url(),"",0,true,0,entry);
 			statEntry( entry );
 			finished();
@@ -236,6 +238,7 @@ void kio_svnProtocol::stat(const KURL & url){
 		case svn_node_none:
 			//error XXX
 		default:
+			kdDebug() << "::stat result : UNKNOWN ==> WOW :)" << endl;
 			;
 	}
 	svn_pool_destroy( subpool );
