@@ -65,6 +65,9 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void update( const KURL& wc, int revnumber, const QString& revkind );
 		void commit( const KURL& wc );
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, apr_pool_t *pool);
+		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, /*const char *realm,*/ int failures, const svn_auth_ssl_server_cert_info_t *cert_info, apr_pool_t *pool);
+		static svn_error_t *clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, apr_pool_t *pool);
+		static svn_error_t *clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, apr_pool_t *pool);
 		QString chooseProtocol ( const QString& kproto ) const; 
 			
 		void recordCurrentURL(const KURL& url);
@@ -73,11 +76,11 @@ class kio_svnProtocol : public KIO::SlaveBase
 		KIO::AuthInfo info;
 
 		enum SVN_METHOD { 
-SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
-SVN_UPDATE=2, // KURL wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
-SVN_COMMIT=3, 
-SVN_LOG=4, 
-SVN_IMPORT=5
+			SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
+			SVN_UPDATE=2, // KURL wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
+			SVN_COMMIT=3, 
+			SVN_LOG=4, 
+			SVN_IMPORT=5
 		};
 
 	private:

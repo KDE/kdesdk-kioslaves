@@ -122,15 +122,14 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		}
 		svn_config_get_config (&ctx.config,NULL,pool);
 
-//		ctx.prompt_func = kio_svnProtocol::checkAuth;
-//		ctx.prompt_baton = this;
+		//for now but TODO
 		ctx.notify_func = NULL;
 		ctx.notify_baton = NULL;
 		ctx.log_msg_func = NULL;
 		ctx.log_msg_baton = NULL;
 		ctx.cancel_func = NULL;
 
-		apr_array_header_t *providers = apr_array_make(pool,3/*10*/, sizeof(svn_auth_provider_object_t *));
+		apr_array_header_t *providers = apr_array_make(pool, 9, sizeof(svn_auth_provider_object_t *));
 
 		svn_auth_provider_object_t *provider;
 
@@ -143,25 +142,26 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		//interactive prompt
 		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		//we always ask user+pass, no need for a user only question
 /*		svn_client_get_username_prompt_provider
  *		(&provider,kio_svnProtocol::checkAuth,this,2,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;*/
 		
-		//SSL disk cache
-/*		svn_client_get_ssl_server_file_provider(&provider,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_client_file_provider(&provider,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_pw_file_provider(&provider,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-	*/	
-		//SSL interactive prompt, will it work ? //XXX test me
-/*		svn_client_get_ssl_server_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_client_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_pw_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;*/
+		//SSL disk cache, keep that one, because it does nothing bad :)
+		svn_client_get_ssl_server_trust_file_provider (&provider, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+		svn_client_get_ssl_client_cert_file_provider (&provider, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+		svn_client_get_ssl_client_cert_pw_file_provider (&provider, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+		
+		//SSL interactive prompt, where things get hard
+		svn_client_get_ssl_server_trust_prompt_provider (&provider, kio_svnProtocol::trustSSLPrompt, NULL, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+		svn_client_get_ssl_client_cert_prompt_provider (&provider, kio_svnProtocol::clientCertSSLPrompt, NULL, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+		svn_client_get_ssl_client_cert_pw_prompt_provider (&provider, kio_svnProtocol::clientCertPasswdPrompt, NULL, pool);
+		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
 		svn_auth_open(&ctx.auth_baton, providers, pool);
 }
@@ -788,6 +788,25 @@ QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
 	else if ( kproto == "svn" ) return QString( "svn" );
 	else if ( kproto == "svn+file" ) return QString( "file" );
 	return kproto;
+}
+
+svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, /*const char *realm,*/ int failures, const svn_auth_ssl_server_cert_info_t *cert_info, apr_pool_t *pool) {
+	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
+	*cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
+	(*cred_p)->trust_permanently = FALSE;
+	return SVN_NO_ERROR;
+}
+
+svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, apr_pool_t *pool) {
+	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
+/*	*cred_p = apr_palloc (pool, sizeof(**cred_p));
+	(*cred_p)->cert_file = cert_file;*/
+	return SVN_NO_ERROR;
+}
+
+svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, apr_pool_t *pool) {
+	//when ksvnd is ready make it prompt for the SSL certificate password ... XXX
+	return SVN_NO_ERROR;
 }
 
 extern "C"
