@@ -84,6 +84,30 @@ kio_svnProtocol::~kio_svnProtocol(){
 	apr_terminate();
 }
 
+static svn_error_t *
+open_tmp_file (apr_file_t **fp,
+               void *callback_baton)
+{
+  kio_svn_callback_baton_t *cb = callback_baton;
+  const char *truepath;
+  const char *ignored_filename;
+
+  if (cb->base_dir)
+    truepath = apr_pstrdup (cb->pool, cb->base_dir);
+  else
+    /* ### TODO: need better tempfile support */
+    truepath = "";
+
+  /* Tack on a made-up filename. */
+  truepath = svn_path_join (truepath, "tempfile", cb->pool);
+
+  /* Open a unique file;  use APR_DELONCLOSE. */  
+  SVN_ERR (svn_io_open_unique_file (fp, &ignored_filename,
+                                    truepath, ".tmp", TRUE, cb->pool));
+
+  return SVN_NO_ERROR;
+}
+
 static svn_error_t *write_to_string(void *baton, const char *data, apr_size_t *len) {
 	kbaton *tb = ( kbaton* )baton;
 
@@ -179,13 +203,11 @@ void kio_svnProtocol::stat(const KURL & url){
 	cbtable->get_wc_prop = NULL;
 	cbtable->set_wc_prop = NULL;
 	cbtable->push_wc_prop = NULL;
-	cbtable->invalidate_wc_prop = NULL;
-	cbtable->auth_baton = ctx->auth_baton;
+	cbtable->auth_baton = ( *ctx )->auth_baton;
 
 	callbackbt->base_dir = target;
 	callbackbt->pool = subpool;
-	callbackbt->config = ctx->config;
-
+	callbackbt->config = ( *ctx )->config;
 	
 	ra_lib->open(&session,target,cbtable,callbackbt,( *ctx )->config,subpool);
 	kdDebug() << "Session opened" << endl;
