@@ -560,7 +560,7 @@ void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
 
 	KURL::List::const_iterator it = list.begin(), end = list.end();
 	for ( ; it != end; ++it ) {
-		QString cur = ( *it ).url();
+		QString cur = makeSvnURL( *it );
 		const char *_target = apr_pstrdup( subpool, cur.utf8() );
 		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = _target;
 	}
@@ -818,11 +818,11 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	dest.setProtocol( "file" );
 	recordCurrentURL( nurl );
 	QString source = dest.path();
-	QString target = nurl.url();
+	QString target;
+	target = makeSvnURL( repos );
 
 	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
 	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
-	kdDebug() << "DEBUG: " << path << " " << url << endl;
 
 	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,&ctx,subpool);
 	if ( err ) {
@@ -844,7 +844,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	KURL dest = wc;
 	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
 	dest.setProtocol( "file" );
-	QString target = nurl.url();
+	QString target = makeSvnURL( repos );
 	recordCurrentURL( nurl );
 	QString dpath = dest.path();
 	
@@ -1029,8 +1029,7 @@ QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
 		svnUrl = tpURL.url();
 		//hack : add one more / after file:/
 		int idx = svnUrl.find("/");
-		svnUrl.insert( idx, "/" );
-		kdDebug() << "SvnURL: " << svnUrl << endl;
+		svnUrl.insert( idx, "//" );
 		return svnUrl;
 	}
 	return kproto;
