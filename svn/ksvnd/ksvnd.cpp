@@ -51,14 +51,14 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return QString::null;
 }
 
-void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision) {
-	kdDebug() << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << endl; 
+void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
+	kdDebug() << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
 	QByteArray params;
 
 	QDataStream stream(params, IO_WriteOnly);
-	stream << path << action << kind << mime_type << content_state << prop_state << revision;
+	stream << path << action << kind << mime_type << content_state << prop_state << revision << userstring;
 
-	/*kapp->dcopClient()->*/emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int)", params );
+	emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int,QString)", params );
 }
 
 void KSvnd::status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ) {
@@ -69,7 +69,7 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 	QDataStream stream(params, IO_WriteOnly);
 	stream << path << text_status << prop_status << repos_text_status << repos_prop_status;
 
-	/*kapp->dcopClient()->*/emitDCOPSignal( "subversionStatus(QString,int,int,int,int)", params );
+	emitDCOPSignal( "subversionStatus(QString,int,int,int,int)", params );
 }
 
 void KSvnd::popupMessage( const QString& message ) {

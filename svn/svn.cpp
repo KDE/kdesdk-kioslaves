@@ -134,9 +134,6 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		}
 		svn_config_get_config (&ctx.config,NULL,pool);
 
-		//for now but TODO
-		ctx.notify_func = kio_svnProtocol::notify;
-		ctx.notify_baton = this; //pass this so that we can get a dcopClient from it
 		ctx.log_msg_func = kio_svnProtocol::commitLogPrompt;
 		ctx.log_msg_baton = this; //pass this so that we can get a dcopClient from it
 		//TODO
@@ -188,10 +185,26 @@ kio_svnProtocol::~kio_svnProtocol(){
 	QByteArray params;
 	QDataStream stream(params, IO_WriteOnly);
 	stream << module;
-//	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
+	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
 
 	svn_pool_destroy(pool);
 	apr_terminate();
+}
+
+void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppress_final_line, apr_pool_t *spool) {
+	ctx.notify_func = kio_svnProtocol::notify;
+	struct notify_baton *nb = ( struct notify_baton* )apr_palloc(spool, sizeof( *nb ) );
+	nb->master = this;
+	nb->received_some_change = FALSE;
+	nb->sent_first_txdelta = FALSE;
+	nb->is_checkout = is_checkout;
+	nb->is_export = is_export;
+	nb->suppress_final_line = suppress_final_line;
+	nb->in_external = FALSE;
+	nb->had_print_error = FALSE;
+	nb->pool = svn_pool_create (spool);
+
+	ctx.notify_baton = nb;
 }
 
 svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **/*cred*/, void *baton, const char *realm, const char *username, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
@@ -258,6 +271,7 @@ void kio_svnProtocol::get(const KURL& url ){
 		kdDebug() << "no revision given. searching HEAD " << endl;
 		rev.kind = svn_opt_revision_head;
 	}
+	initNotifier(false, false, false, subpool);
 
 	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target.utf8(),subpool ),&rev,&ctx, subpool);
 	if ( err ) {
@@ -425,6 +439,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 		rev.kind = svn_opt_revision_head;
 	}
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target.utf8(), subpool ), &rev, false, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -537,6 +552,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int /*permissions
 		rev.kind = svn_opt_revision_head;
 	}
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_copy(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -565,6 +581,7 @@ void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
 		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = _target;
 	}
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
@@ -589,6 +606,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int /*permissions*/ ) {
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
@@ -613,6 +631,7 @@ void kio_svnProtocol::del( const KURL& url, bool /*isfile*/ ) {
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_delete(&commit_info,targets,false/*force remove locally modified files in wc*/,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_CANNOT_DELETE, err->message );
@@ -660,6 +679,7 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool /*overwrite
 		rev.kind = svn_opt_revision_head;
 	}
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_move(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), false/*force remove locally modified files in wc*/, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_CANNOT_RENAME, err->message );
@@ -804,6 +824,7 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 	} else if ( !revkind.isNull() )
 		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_update (result_rev, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -836,6 +857,7 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
 	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,&ctx,subpool);
 	if ( err ) {
 		kdDebug() << "DEBUG: " << err->message << endl;
@@ -869,6 +891,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	} else if ( !revkind.isNull() )
 		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
+	initNotifier(true, false, false, subpool);
 	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target.utf8(), subpool ), svn_path_canonicalize ( dpath.utf8(), subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -894,6 +917,7 @@ void kio_svnProtocol::commit(const KURL& wc) {
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -915,6 +939,7 @@ void kio_svnProtocol::add(const KURL& wc) {
 	nurl.setProtocol( "file" );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_add(nurl.path().utf8(),nonrecursive,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -940,6 +965,7 @@ void kio_svnProtocol::wc_delete(const KURL& wc) {
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,&ctx,subpool);
 
 	if ( err ) {
@@ -966,6 +992,7 @@ void kio_svnProtocol::wc_revert(const KURL& wc) {
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_revert(targets,nonrecursive,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -996,6 +1023,7 @@ void kio_svnProtocol::wc_status(const KURL& wc, bool checkRepos, bool fullRecurs
 		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
 	svn_revnum_t result_rev;
+	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_status(&result_rev,nurl.path().utf8(),&rev,kio_svnProtocol::status,this,fullRecurse,getAll,checkRepos,false,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -1148,13 +1176,187 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision) {
 	kdDebug() << "NOTIFY : " << path << " updated at revision " << revision << " action : " << action << ", kind : " << kind << " , content_state : " << content_state << ", prop_state : " << prop_state << endl;
 
+	QString userstring;
+	struct notify_baton *nb = ( struct notify_baton* ) baton;
+
+	//// Convert notification to a user readable string
+	switch ( action ) {
+		case svn_wc_notify_add : //add
+			if (mime_type && (svn_mime_type_is_binary (mime_type)))
+				userstring = i18n( "A (bin) %1" ).arg( path );
+			else
+				userstring = i18n( "A %1" ).arg( path );
+			break;
+		case svn_wc_notify_copy: //copy
+			break;
+		case svn_wc_notify_delete: //delete
+			nb->received_some_change = TRUE;
+			userstring = i18n( "D %1" ).arg( path );
+			break;
+		case svn_wc_notify_restore : //restore
+			userstring=i18n( "Restored %1." ).arg( path );
+			break;
+		case svn_wc_notify_revert : //revert
+			userstring=i18n( "Reverted %1." ).arg( path );
+			break;
+		case svn_wc_notify_failed_revert: //failed revert
+			userstring=i18n( "Failed to revert %1.\nTry updating instead." ).arg( path );
+			break;
+		case svn_wc_notify_resolved: //resolved
+			userstring=i18n( "Resolved conflicted state of %1." ).arg( path );
+			break;
+		case svn_wc_notify_skip: //skip
+			if ( content_state == svn_wc_notify_state_missing )
+				userstring=i18n("Skipped missing target %1.").arg( path );
+			else 
+				userstring=i18n("Skipped  %1.").arg( path );
+			break;
+		case svn_wc_notify_update_delete: //update_delete
+			nb->received_some_change = TRUE;
+			userstring=i18n( "D %1" ).arg( path );
+			break;
+		case svn_wc_notify_update_add: //update_add
+			nb->received_some_change = TRUE;
+			userstring=i18n( "A %1" ).arg( path );
+			break;
+		case svn_wc_notify_update_update: //update_update
+			{
+				/* If this is an inoperative dir change, do no notification.
+				   An inoperative dir change is when a directory gets closed
+				   without any props having been changed. */
+				if (! ((kind == svn_node_dir)
+							&& ((prop_state == svn_wc_notify_state_inapplicable)
+								|| (prop_state == svn_wc_notify_state_unknown)
+								|| (prop_state == svn_wc_notify_state_unchanged)))) {
+					nb->received_some_change = TRUE;
+
+					if (kind == svn_node_file) {
+						if (content_state == svn_wc_notify_state_conflicted)
+							userstring = "C";
+						else if (content_state == svn_wc_notify_state_merged)
+							userstring = "G";
+						else if (content_state == svn_wc_notify_state_changed)
+							userstring = "U";
+					}
+
+					if (prop_state == svn_wc_notify_state_conflicted)
+						userstring += "C";
+					else if (prop_state == svn_wc_notify_state_merged)
+						userstring += "G";
+					else if (prop_state == svn_wc_notify_state_changed)
+						userstring += "U";
+					else
+						userstring += " ";
+
+					if (! ((content_state == svn_wc_notify_state_unchanged
+									|| content_state == svn_wc_notify_state_unknown)
+								&& (prop_state == svn_wc_notify_state_unchanged
+									|| prop_state == svn_wc_notify_state_unknown)))
+						userstring += QString( " " ) + path;
+				}
+				break;
+			}
+		case svn_wc_notify_update_completed: //update_completed
+			{
+				if (! nb->suppress_final_line) {
+					if (SVN_IS_VALID_REVNUM (revision)) {
+						if (nb->is_export) {
+							if ( nb->in_external ) 
+								userstring = i18n("Exported external at revision %1.").arg( revision );
+							else 
+								userstring = i18n("Exported revision %1.").arg( revision );
+						} else if (nb->is_checkout) {
+							if ( nb->in_external )
+								userstring = i18n("Checked out external at revision %1.").arg( revision );
+							else
+								userstring = i18n("Checked out revision %1.").arg( revision);
+						} else {
+							if (nb->received_some_change) {
+								if ( nb->in_external )
+									userstring=i18n("Updated external to revision %1.").arg( revision );
+								else 
+									userstring = i18n("Updated to revision %1.").arg( revision);
+							} else {
+								if ( nb->in_external )
+									userstring = i18n("External at revision %1.").arg( revision );
+								else
+									userstring = i18n("At revision %1.").arg( revision);
+							}
+						}
+					} else  /* no revision */ {
+						if (nb->is_export) {
+							if ( nb->in_external )
+								userstring = i18n("External export complete.");
+							else
+								userstring = i18n("Export complete.");
+						} else if (nb->is_checkout) {
+							if ( nb->in_external )
+								userstring = i18n("External checkout complete.");
+							else
+								userstring = i18n("Checkout complete.");
+						} else {
+							if ( nb->in_external )
+								userstring = i18n("External update complete.");
+							else
+								userstring = i18n("Update complete.");
+						}
+					}
+				}
+			}
+			if (nb->in_external)
+				nb->in_external = FALSE;
+			break;
+		case svn_wc_notify_update_external: //update_external
+			nb->in_external = TRUE;
+			userstring = i18n("Fetching external item into %1." ).arg( path );
+			break;
+		case svn_wc_notify_status_completed: //status_completed
+			if (SVN_IS_VALID_REVNUM (revision))
+				userstring = i18n( "Status against revision: %1.").arg( revision );
+			break;
+		case svn_wc_notify_status_external: //status_external
+             userstring = i18n("Performing status on external item at %1.").arg( path ); 
+			break;
+		case svn_wc_notify_commit_modified: //commit_modified
+			userstring = i18n( "Sending %1").arg( path );
+			break;
+		case svn_wc_notify_commit_added: //commit_added
+			if (mime_type && svn_mime_type_is_binary (mime_type)) {
+				userstring = i18n( "Adding (bin) %1.").arg( path );
+			} else {
+				userstring = i18n( "Adding %1.").arg( path );
+			}
+			break;
+		case svn_wc_notify_commit_deleted: //commit_deleted
+			userstring = i18n( "Deleting %1.").arg( path );
+			break; 
+		case svn_wc_notify_commit_replaced: //commit_replaced
+			userstring = i18n( "Replacing %1.").arg( path );
+			break;
+		case svn_wc_notify_commit_postfix_txdelta: //commit_postfix_txdelta
+			if (! nb->sent_first_txdelta) {
+				nb->sent_first_txdelta = TRUE;
+				userstring=i18n("Transmitting file data ");
+			} else {
+				userstring=".";
+			}
+			break;
+
+			break;
+		case svn_wc_notify_blame_revision: //blame_revision
+			break;
+		default:
+			break;
+	}
+	//// End convert
+
 	QByteArray params;
-	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
+	kio_svnProtocol *p = ( kio_svnProtocol* )nb->master;
 
 	QDataStream stream(params, IO_WriteOnly);
-	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision;
+	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision << userstring;
 
-	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int)", params ) ) {
+	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return;
 	}

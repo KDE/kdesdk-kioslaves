@@ -35,6 +35,7 @@
 #include <subversion-1/svn_wc.h>
 
 class QCString;
+class kio_svnProtocol;
 
 typedef struct kbaton {
 	svn_stream_t *target_stream;
@@ -47,6 +48,20 @@ typedef struct kio_svn_callback_baton_t {
 	apr_hash_t *config;
 	apr_pool_t *pool;
 } kio_svn_callback_baton_t;
+
+typedef struct notify_baton {
+  svn_boolean_t received_some_change;
+  svn_boolean_t is_checkout;
+  svn_boolean_t is_export;
+  svn_boolean_t suppress_final_line;
+  svn_boolean_t sent_first_txdelta;
+  svn_boolean_t in_external;
+  svn_boolean_t had_print_error; /* Used to not keep printing error messages
+                                    when we've already had one print error. */
+  apr_pool_t *pool; /* this pool is cleared after every notification,
+                       so don't keep anything here! */
+  kio_svnProtocol *master;
+} notify_baton;
 
 
 class kio_svnProtocol : public KIO::SlaveBase
@@ -83,6 +98,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 
 		QString chooseProtocol ( const QString& kproto ) const; 
 		QString makeSvnURL ( const KURL& url ) const;
+		void initNotifier(bool is_checkout, bool is_export, bool suppress_final_line, apr_pool_t *spool);
 			
 		void recordCurrentURL(const KURL& url);
 		void popupMessage( const QString& message );

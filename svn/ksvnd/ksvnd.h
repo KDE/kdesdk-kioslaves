@@ -35,13 +35,13 @@ public:
 k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
-  void notify(const QString&, int ,int, const QString& , int , int, long int);
+  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
   void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status );
   void popupMessage( const QString& message );
 
 k_dcop_signals:
   //emitted whenever something happens using subversion ;)
-  void subversionNotify(const QString&, int ,int, const QString& , int , int, long int);
+  void subversionNotify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 
 public slots:
 
