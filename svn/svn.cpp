@@ -711,6 +711,14 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				wc_delete(wc);
 				break;
 			}
+		case SVN_REVERT: 
+			{
+				KURL wc;
+				stream >> wc;
+				kdDebug() << "kio_svnProtocol REVERT" << endl;
+				wc_revert(wc);
+				break;
+			}
 		default:
 			{
 				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
@@ -844,6 +852,32 @@ void kio_svnProtocol::wc_delete(const KURL& wc) {
 
 	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,&ctx,subpool);
 
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::wc_revert(const KURL& wc) {
+	kdDebug() << "kio_svnProtocol::revert() : " << wc.url() << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+	bool nonrecursive = false;
+
+	KURL nurl = wc;
+	nurl.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+
+	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+
+	svn_error_t *err = svn_client_revert(targets,nonrecursive,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );

@@ -67,6 +67,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void commit( const KURL& wc );
 		void add( const KURL& wc );
 		void wc_delete( const KURL& wc );
+		void wc_revert( const KURL& wc );
 
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool);
@@ -90,7 +91,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_LOG=4, 
 			SVN_IMPORT=5,
 			SVN_ADD=6,
-			SVN_DEL=7
+			SVN_DEL=7,
+			SVN_REVERT=8
 		};
 
 	private:
