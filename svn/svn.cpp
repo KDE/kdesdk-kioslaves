@@ -47,6 +47,7 @@
 #include <kmimetype.h>
 
 #include "svn.h"
+#include <apr_portable.h>
 
 using namespace KIO;
 
@@ -325,11 +326,18 @@ void kio_svnProtocol::listDir(const KURL & url){
       svn_utf_cstring_from_utf8 (&native_entryname, utf8_entryname, subpool);
 			const char *native_author = NULL;
 
+			apr_time_exp_t timexp;
+			apr_time_exp_lt(&timexp, dirent->time);
+			apr_os_exp_time_t *ostime;
+			apr_os_exp_time_get( &ostime, &timexp);
+
+			time_t mtime = mktime( ostime );
+
 			if (dirent->last_author)
 				svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
 
 			if ( createUDSEntry(QString( native_entryname ), QString( native_author ), dirent->size,
-						dirent->kind==svn_node_dir ? true : false, dirent->time, entry) )
+						dirent->kind==svn_node_dir ? true : false, mtime, entry) )
 				listEntry( entry, false );
 	}
 	listEntry( entry, true );
@@ -339,7 +347,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 }
 
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
-	kdDebug() << "MTime : " << mtime << endl;
+//	kdDebug() << "MTime : " << mtime << endl;
 	UDSAtom atom;
 	atom.m_uds = KIO::UDS_NAME;
 	atom.m_str = filename;
