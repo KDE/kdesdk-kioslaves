@@ -783,38 +783,6 @@ void kio_svnProtocol::commit(const KURL& wc) {
 	nurl.setProtocol( "file" );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
-///	should not be here (see commitLogPrompt)
-	QCString replyType;
-	QByteArray params;
-	QByteArray reply;
-	QString result;
-	QString list = "";//XXX commit_items => list of modified files
-	svn_stringbuf_t *message = NULL;
-
-	QDataStream stream(params, IO_WriteOnly);
-	stream << list;	
-
-	if ( !dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
-		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
-		return;
-	}
-	kdDebug() << "DCOP Call succeeded !!!" << endl;
-
-	if ( replyType != "QString" ) {
-		kdWarning() << "Unexpected reply type" << endl;
-		return;
-	}
-	
-	QDataStream stream2 ( reply, IO_ReadOnly );
-	stream2 >> result;
-	
-	if ( result == QString::null ) { //cancelled
-		log = "";
-		return;
-	}
-		
-	log = result;
-//end of "should not be here"	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
@@ -898,19 +866,48 @@ svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_ce
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **baton, apr_array_header_t *commit_items, void *, apr_pool_t *pool ) {
-	//test
-	svn_stringbuf_t *message = NULL;
-	message = svn_stringbuf_create( kio_svnProtocol::log.utf8(), pool );
-	*log_msg = message->data;
-	return SVN_NO_ERROR;
-#if 0
+svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **file, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
 	QCString replyType;
 	QByteArray params;
 	QByteArray reply;
 	QString result;
-	QString list = "test";//XXX commit_items
+	QString list;
+	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_stringbuf_t *message = NULL;
+
+#if 0
+	for (int i = 0; i < commit_items->nelts; i++) {
+		svn_client_commit_item_t *item = ((svn_client_commit_item_t **) commit_items->elts)[i];
+		const char *path = item->path;
+		char text_mod = '_', prop_mod = ' ';
+
+		if (! path)
+			path = item->url;
+		else if (! *path)
+			path = ".";
+
+		if (! path)
+			path = ".";
+
+		if ((item->state_flags & SVN_CLIENT_COMMIT_ITEM_DELETE)
+				&& (item->state_flags & SVN_CLIENT_COMMIT_ITEM_ADD))
+			text_mod = 'R';
+		else if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_ADD)
+			text_mod = 'A';
+		else if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_DELETE)
+			text_mod = 'D';
+		else if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_TEXT_MODS)
+			text_mod = 'M';
+		if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_PROP_MODS)
+			prop_mod = 'M';
+
+		list += &text_mod;
+		list += &prop_mod;
+		list += "  ";
+		list += path;
+		list += "\n";
+	}
+#endif
 
 	QDataStream stream(params, IO_WriteOnly);
 	stream << list;	
@@ -938,7 +935,6 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	*log_msg = message->data;
 
 	return SVN_NO_ERROR;
-#endif
 }
 
 extern "C"
