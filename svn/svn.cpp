@@ -90,23 +90,23 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
 		apr_initialize();
 		pool = svn_pool_create (NULL);
-		svn_error_t *err = svn_config_ensure (pool);
+		svn_error_t *err = svn_config_ensure (NULL,pool);
 		if ( err ) {
 			kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure ERROR" << endl;
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
 			return;
 		}
-		svn_config_get_config (&ctx.config,pool);
+		svn_config_get_config (&ctx.config,NULL,pool);
 
-		ctx.prompt_func = kio_svnProtocol::checkAuth;
-		ctx.prompt_baton = this;
+//		ctx.prompt_func = kio_svnProtocol::checkAuth;
+//		ctx.prompt_baton = this;
 		ctx.notify_func = NULL;
 		ctx.notify_baton = NULL;
 		ctx.log_msg_func = NULL;
 		ctx.log_msg_baton = NULL;
 		ctx.cancel_func = NULL;
 
-		apr_array_header_t *providers = apr_array_make(pool,10, sizeof(svn_auth_provider_object_t *));
+		apr_array_header_t *providers = apr_array_make(pool,3/*10*/, sizeof(svn_auth_provider_object_t *));
 
 		svn_auth_provider_object_t *provider;
 
@@ -119,24 +119,25 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		//interactive prompt
 		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+/*		svn_client_get_username_prompt_provider
+ *		(&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;*/
 		
 		//SSL disk cache
-		svn_client_get_ssl_server_file_provider(&provider,pool);
+/*		svn_client_get_ssl_server_file_provider(&provider,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 		svn_client_get_ssl_client_file_provider(&provider,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 		svn_client_get_ssl_pw_file_provider(&provider,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		
+	*/	
 		//SSL interactive prompt, will it work ? //XXX test me
-		svn_client_get_ssl_server_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
+/*		svn_client_get_ssl_server_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_client_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
+		svn_client_get_ssl_client_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		svn_client_get_ssl_pw_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);		
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		svn_client_get_ssl_pw_prompt_provider(&provider,kio_svnProtocol::checkAuth,this,pool);
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;*/
 
 		svn_auth_open(&ctx.auth_baton, providers, pool);
 }
@@ -147,24 +148,27 @@ kio_svnProtocol::~kio_svnProtocol(){
 	apr_terminate();
 }
 
-svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool) {
-	kdDebug() << "kio_svnProtocol::checkAuth() for " << prompt << endl;
+svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, apr_pool_t *pool) {
+	kdDebug() << "kio_svnProtocol::checkAuth() for " << realm << endl;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
+	svn_auth_cred_simple_t *ret = (svn_auth_cred_simple_t*)apr_pcalloc (pool, sizeof (*ret));
 	
-//	p->info.prompt = prompt;
 //XXX readd me when debug is complete		p->info.keepPassword = true;
 	p->info.verifyPath=true;
 	kdDebug( ) << "auth current URL : " << p->myURL << endl;
 	p->info.url = p->myURL;
-//	p->info.username = ( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
+	p->info.username = username; //( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
 	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
 	}
-	if ( hide )
+/*	if ( hide )
 		*answer = ( const char * )p->info.password;
 	else
 		*answer = ( const char * )p->info.username;
-
+*/
+	
+	ret->username = apr_pstrdup(pool, (const char*)p->info.username);
+	ret->password = apr_pstrdup(pool, (const char*)p->info.password);
 	return SVN_NO_ERROR;
 }
 
@@ -485,7 +489,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, NULL, &ctx, subpool);
+	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );

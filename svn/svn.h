@@ -63,7 +63,9 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
 		void update( const KURL& wc, int revnumber, const QString& revkind );
-		static svn_error_t* checkAuth(const char **info, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool); 
+		//static svn_error_t* checkAuth(const char **info, const char *prompt,
+		//svn_boolean_t hide, void *baton, apr_pool_t *pool); 
+		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, apr_pool_t *pool);
 		void recordCurrentURL(const KURL& url);
 		KURL myURL;
 		svn_client_ctx_t ctx;
