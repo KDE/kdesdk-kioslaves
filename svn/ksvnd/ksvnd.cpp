@@ -49,10 +49,12 @@ KSvnd::~KSvnd()
 {
 }
 
-const QString KSvnd::commitDialog( const QString& comment)
+QString KSvnd::commitDialog( const QString& comment) const
 {
-	CommitDialog *commitDlg = new CommitDialog();
-	commitDlg->show();
+	CommitDialog commitDlg;
+	int result = commitDlg.exec();
+	return QString::null;
+
 }
 
 #include "ksvnd.moc"
