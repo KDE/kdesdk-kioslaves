@@ -135,10 +135,11 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		svn_config_get_config (&ctx.config,NULL,pool);
 
 		//for now but TODO
-		ctx.notify_func = NULL;//kio_svnProtocol::notify;
-		ctx.notify_baton = NULL;
+		ctx.notify_func = kio_svnProtocol::notify;
+		ctx.notify_baton = this; //pass this so that we can get a dcopClient from it
 		ctx.log_msg_func = kio_svnProtocol::commitLogPrompt;
 		ctx.log_msg_baton = this; //pass this so that we can get a dcopClient from it
+		//TODO
 		ctx.cancel_func = NULL;
 
 		apr_array_header_t *providers = apr_array_make(pool, 9, sizeof(svn_auth_provider_object_t *));
@@ -1007,7 +1008,6 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return SVN_NO_ERROR;
 	}
-	kdDebug() << "DCOP Call succeeded !!!" << endl;
 
 	if ( replyType != "QString" ) {
 		kdWarning() << "Unexpected reply type" << endl;
@@ -1028,8 +1028,19 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	return SVN_NO_ERROR;
 }
 
-static svn_error_t *notify(void */*baton*/, const char */*path*/, svn_wc_notify_action_t /*action*/, svn_node_kind_t /*kind*/, const char */*mime_type*/, svn_wc_notify_state_t /*content_state*/, svn_wc_notify_state_t /*prop_state*/, svn_revnum_t /*revision*/) {
-	return SVN_NO_ERROR;
+void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision) {
+	kdDebug() << "NOTIFY : " << path << " updated at revision " << revision << " action : " << action << ", kind : " << kind << " , content_state : " << content_state << ", prop_state : " << prop_state << endl;
+
+	QByteArray params;
+	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
+
+	QDataStream stream(params, IO_WriteOnly);
+	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision;
+
+	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int)", params ) ) {
+		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+		return;
+	}
 }
 
 extern "C"
@@ -1051,3 +1062,4 @@ extern "C"
 		return 0;
 	}
 }
+

@@ -1,7 +1,7 @@
 /*
     This file is part of the KDE Project
 
-    Copyright (C) 2003 Mickael Marchand <marchand@kde.org>
+    Copyright (C) 2003, 2004 Mickael Marchand <marchand@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -35,6 +35,11 @@ public:
 k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
+  void notify(const QString&, int ,int, const QString& , int , int, long int);
+
+k_dcop_signals:
+  //emitted whenever something happens using subversion ;)
+  void subversionNotify(const QString&, int ,int, const QString& , int , int, long int);
 
 public slots:
 
