@@ -21,5 +21,6 @@ Description[it]=Slave I/O di Subversion
 Description[pt]='Ioslave' para Subversion
 Description[pt_BR]=ioslave de Subversão
 Description[sv]=Subversion I/O-slav
+Description[uk]=Підлеглий В/В Subversion
 maxInstances=5
 class=:internet
