@@ -208,11 +208,9 @@ void kio_svnProtocol::get(const KURL& url ){
 	bt->string_stream = svn_stream_create(bt,subpool);
 	svn_stream_set_write(bt->string_stream,write_to_string);
 
-	KURL nurl = url;
-	nurl.setProtocol( chooseProtocol( url.protocol() ) );
-	QString target = nurl.url();
-	kdDebug() << "myURL: " << target << endl;
-	recordCurrentURL( nurl );
+	QString target = makeSvnURL( url );
+	kdDebug() << "SvnURL: " << target << endl;
+	recordCurrentURL( KURL( target ) );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -235,7 +233,7 @@ void kio_svnProtocol::get(const KURL& url ){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_cat (bt->string_stream, target.local8Bit(),&rev,&ctx, subpool);
+	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target,subpool ),&rev,&ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -268,10 +266,14 @@ void kio_svnProtocol::stat(const KURL & url){
 	const char *auth_dir;
 	apr_pool_t *subpool = svn_pool_create (pool);
 
-	KURL nurl = url;
+	QString target = makeSvnURL( url);
+	kdDebug() << "SvnURL: " << target << endl;
+	recordCurrentURL( KURL( target ) );
+	
+/*	KURL nurl = url;
 	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
-	recordCurrentURL( nurl );
+	recordCurrentURL( nurl );*/
 
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -301,7 +303,7 @@ void kio_svnProtocol::stat(const KURL & url){
 		return;
 	}
 	//find RA libs
-	err = svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
+	err = svn_ra_get_ra_library(&ra_lib,ra_baton,svn_path_canonicalize( target, subpool ),subpool);
 	if ( err ) {
 		kdDebug() << "RA get libs failed : " << err->message << endl;
 		return;
@@ -322,7 +324,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	callbackbt->pool = subpool;
 	callbackbt->config = ctx.config;
 	
-	err = ra_lib->open(&session,target,cbtable,callbackbt,ctx.config,subpool);
+	err = ra_lib->open(&session,svn_path_canonicalize( target, subpool ),cbtable,callbackbt,ctx.config,subpool);
 	if ( err ) {
 		kdDebug()<< "Open session " << err->message << endl;
 		return;
@@ -345,12 +347,12 @@ void kio_svnProtocol::stat(const KURL & url){
 	switch ( kind ) {
 		case svn_node_file:
 			kdDebug() << "::stat result : file" << endl;
-			createUDSEntry(nurl.filename(),"",0,false,0,entry);
+			createUDSEntry(url.filename(),"",0,false,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_dir:
 			kdDebug() << "::stat result : directory" << endl;
-			createUDSEntry(nurl.filename(),"",0,true,0,entry);
+			createUDSEntry(url.filename(),"",0,true,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_unknown:
@@ -369,10 +371,15 @@ void kio_svnProtocol::listDir(const KURL& url){
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	apr_hash_t *dirents;
+
+	QString target = makeSvnURL( url);
+	kdDebug() << "SvnURL: " << target << endl;
+	recordCurrentURL( KURL( target ) );
+	/*
 	KURL nurl = url;
 	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
-	recordCurrentURL( nurl );
+	recordCurrentURL( nurl );*/
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -395,7 +402,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_ls (&dirents, target, &rev, false, &ctx, subpool);
+	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target, subpool ), &rev, false, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -524,13 +531,17 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
 
+	QString target = makeSvnURL( url);
+	kdDebug() << "SvnURL: " << target << endl;
+	recordCurrentURL( KURL( target ) );
+	/*
 	KURL nurl = url;
 	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
-	recordCurrentURL( nurl );
+	recordCurrentURL( nurl );*/
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
-	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
 	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
 	if ( err ) {
@@ -549,13 +560,17 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
 
+	QString target = makeSvnURL(url);
+	kdDebug() << "SvnURL: " << target << endl;
+	recordCurrentURL( KURL( target ) );
+	/*
 	KURL nurl = url;
 	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
-	recordCurrentURL( nurl );
+	recordCurrentURL( nurl );*/
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
-	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
 	svn_error_t *err = svn_client_delete(&commit_info,targets,false/*force remove locally modified files in wc*/,&ctx,subpool);
 	if ( err ) {
@@ -779,6 +794,47 @@ void kio_svnProtocol::commit(const KURL& wc) {
 	
 	finished();
 	svn_pool_destroy (subpool);
+}
+
+QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
+	QString kproto = url.protocol();
+	KURL tpURL = url;
+	QString svnUrl;
+	if ( kproto == "svn+http" ) {
+		kdDebug() << "http:/" << url << endl;
+		tpURL.setProtocol("http");
+		svnUrl = tpURL.url();
+		return svnUrl;
+	}
+	else if ( kproto == "svn+https" ) {
+		kdDebug() << "https:/" << url << endl;
+		tpURL.setProtocol("https");
+		svnUrl = tpURL.url();
+		return svnUrl;
+	}
+	else if ( kproto == "svn+ssh" ) {
+		kdDebug() << "svn+ssh:/" << url << endl;
+		tpURL.setProtocol("svn+ssh");
+		svnUrl = tpURL.url();
+		return svnUrl;
+	}
+	else if ( kproto == "svn" ) {
+		kdDebug() << "svn:/" << url << endl;
+		tpURL.setProtocol("svn");
+		svnUrl = tpURL.url();
+		return svnUrl;
+	}
+	else if ( kproto == "svn+file" ) {
+		kdDebug() << "file:/" << url << endl;
+		tpURL.setProtocol("file");
+		svnUrl = tpURL.url();
+		//hack : add one more / after file:/
+		int idx = svnUrl.find("/");
+		svnUrl.insert( idx, "/" );
+		kdDebug() << "SvnURL: " << svnUrl << endl;
+		return svnUrl;
+	}
+	return kproto;
 }
 
 QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {

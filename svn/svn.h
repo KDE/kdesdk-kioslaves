@@ -69,6 +69,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		static svn_error_t *clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, apr_pool_t *pool);
 		static svn_error_t *clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, apr_pool_t *pool);
 		QString chooseProtocol ( const QString& kproto ) const; 
+		QString makeSvnURL ( const KURL& url ) const;
 			
 		void recordCurrentURL(const KURL& url);
 		KURL myURL;
