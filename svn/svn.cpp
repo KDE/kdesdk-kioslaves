@@ -90,7 +90,6 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		svn_error_t *err;
 		apr_initialize();
 		pool = svn_pool_create (NULL);
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure" << endl;
 		err = svn_config_ensure (pool);
 		if ( err ) {
 			kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure ERROR" << endl;
@@ -98,29 +97,24 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 			return;
 		}
 		ctx = (svn_client_ctx_t *)apr_pcalloc(pool, sizeof(ctx));
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() before getconfig" << endl;
 		svn_config_get_config (&ctx->config,pool);
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() getconfig" << endl;
 
 		ctx->prompt_func = kio_svnProtocol::checkAuth;
 		ctx->prompt_baton = this;
 
-		apr_array_header_t *providers = apr_array_make(pool, 4, sizeof(svn_auth_provider_object_t *));
+		apr_array_header_t *providers = apr_array_make(pool, 2, sizeof(svn_auth_provider_object_t *));
 
 		svn_auth_provider_object_t *provider;
 
 		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() simplepromptprovider" << endl;
 
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 
-		svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() usernamepromptprovider" << endl;
+	//	svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
 
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+	//	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 		
 		svn_auth_open(&ctx->auth_baton, providers, pool);
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol() auth" << endl;
 }
 
 kio_svnProtocol::~kio_svnProtocol(){
@@ -134,7 +128,7 @@ svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt,
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	
 //	p->info.prompt = prompt;
-	//p->info.keepPassword = true;
+		p->info.keepPassword = true;
 	p->info.verifyPath=true;
 	p->info.url = KURL( p->myURL );
 //	p->info.username = ( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
@@ -149,23 +143,8 @@ svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt,
 	return SVN_NO_ERROR;
 }
 
-void kio_svnProtocol::recordCurrentURL(QString& url) {
+void kio_svnProtocol::recordCurrentURL(const QString& url) {
 	myURL = url;
-}
-
-void kio_svnProtocol::svn_client__dir_if_wc (const char **dir_p, const char *dir,apr_pool_t *p) {
-	int wc_format;
-
-	svn_error_t *err = svn_wc_check_wc(dir,&wc_format,p);
-	if ( err ) {
-		kdDebug() << "Check dir failed : " << err->message << endl;
-		return;
-	}
-	if ( wc_format==0 )
-		*dir_p = NULL;
-	else
-		*dir_p = dir;
-		
 }
 
 //don't implement mimeType() until we don't need to download the whole file
@@ -177,8 +156,7 @@ void kio_svnProtocol::get(const KURL& url ){
 	infoMessage(i18n("Looking for %1...").arg( remoteServer ) );
 
 	apr_pool_t *subpool = svn_pool_create (pool);
-	kbaton *bt;
-	bt = (kbaton*)apr_pcalloc(subpool, sizeof(*bt));
+	kbaton *bt = (kbaton*)apr_pcalloc(subpool, sizeof(*bt));
 	bt->target_string = svn_stringbuf_create("", subpool);
 	bt->string_stream = svn_stream_create(bt,subpool);
 	svn_stream_set_write(bt->string_stream,write_to_string);
@@ -279,10 +257,6 @@ void kio_svnProtocol::stat(const KURL & url){
 	}
 	kdDebug() << "RA init completed" << endl;
 	
-	//check dirs
-	//for auth ?
-//	svn_client__dir_if_wc(&auth_dir,"",subpool);	
-
 	//start session
 	svn_ra_callbacks_t *cbtable = (svn_ra_callbacks_t*)apr_pcalloc(subpool, sizeof(*cbtable));	
 	kio_svn_callback_baton_t *callbackbt = (kio_svn_callback_baton_t*)apr_pcalloc(subpool, sizeof( *callbackbt ));
@@ -325,7 +299,7 @@ void kio_svnProtocol::stat(const KURL & url){
 			break;
 		case svn_node_dir:
 			kdDebug() << "::stat result : directory" << endl;
-			createUDSEntry(url.directory(),"",0,true,0,entry);
+			createUDSEntry(url.filename(),"",0,true,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_unknown:
@@ -418,7 +392,8 @@ void kio_svnProtocol::listDir(const KURL & url){
 }
 
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
-	kdDebug() << "MTime : " << mtime << endl;
+//	kdDebug() << "MTime : " << mtime << endl;
+	kdDebug() << "UDS filename : " << filename << endl;
 	UDSAtom atom;
 	atom.m_uds = KIO::UDS_NAME;
 	atom.m_str = filename;
