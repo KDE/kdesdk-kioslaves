@@ -235,9 +235,11 @@ void kio_svnProtocol::get(const KURL& url ){
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
 	int idx = target.findRev( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
+#if 0
 		kdDebug() << "revision string found " << revstr  << endl;
 		if ( revstr == "HEAD" ) {
 			rev.kind = svn_opt_revision_head;
@@ -247,6 +249,8 @@ void kio_svnProtocol::get(const KURL& url ){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
+#endif
+		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
 		target = target.left( idx );
 		kdDebug() << "new target : " << target << endl;
 	} else {
@@ -293,9 +297,11 @@ void kio_svnProtocol::stat(const KURL & url){
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
 	int idx = target.findRev( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
+#if 0
 		kdDebug() << "revision string found " << revstr  << endl;
 		if ( revstr == "HEAD" ) {
 			rev.kind = svn_opt_revision_head;
@@ -305,6 +311,8 @@ void kio_svnProtocol::stat(const KURL & url){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
+#endif
+		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
 		target = target.left( idx );
 		kdDebug() << "new target : " << target << endl;
 	} else {
@@ -394,9 +402,12 @@ void kio_svnProtocol::listDir(const KURL& url){
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
 	int idx = target.findRev( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
+		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
+#if 0
 		kdDebug() << "revision string found " << revstr  << endl;
 		if ( revstr == "HEAD" ) {
 			rev.kind = svn_opt_revision_head;
@@ -406,6 +417,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
+#endif
 		target = target.left( idx );
 		kdDebug() << "new target : " << target << endl;
 	} else {
@@ -702,21 +714,13 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
+
 	if ( revnumber != -1 ) {
 		rev.value.number = revnumber;
 		rev.kind = svn_opt_revision_number;
-	} else if ( !revkind.isNull() ) {
-		if ( revkind == "HEAD" ) rev.kind = svn_opt_revision_head;
-		else if ( revkind == "PREV" ) rev.kind = svn_opt_revision_previous;
-		else if ( revkind == "COMMITTED" ) rev.kind = svn_opt_revision_committed;
-		else {
-			rev.kind = svn_opt_revision_date;
-			char *rk = apr_pstrdup (subpool, revkind.local8Bit());
-			time_t tm = svn_parse_date(rk,NULL);
-			if ( tm != -1 )
-				apr_time_ansi_put(&(rev.value.date),tm);
-		}
-	}
+	} else if ( !revkind.isNull() )
+		svn_opt_parse_revision(&rev,&endrev,revkind,subpool);
 
 	svn_error_t *err = svn_client_update (NULL /*rev at which it was actually updated*/, svn_path_canonicalize( target, subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
@@ -743,21 +747,12 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
+	svn_opt_revision_t endrev;
 	if ( revnumber != -1 ) {
 		rev.value.number = revnumber;
 		rev.kind = svn_opt_revision_number;
-	} else if ( !revkind.isNull() ) {
-		if ( revkind == "HEAD" ) rev.kind = svn_opt_revision_head;
-		else if ( revkind == "PREV" ) rev.kind = svn_opt_revision_previous;
-		else if ( revkind == "COMMITTED" ) rev.kind = svn_opt_revision_committed;
-		else {
-			rev.kind = svn_opt_revision_date;
-			char *rk = apr_pstrdup (subpool, revkind.local8Bit());
-			time_t tm = svn_parse_date(rk,NULL);
-			if ( tm != -1 )
-				apr_time_ansi_put(&(rev.value.date),tm);
-		}
-	}
+	} else if ( !revkind.isNull() )
+		svn_opt_parse_revision(&rev,&endrev,revkind,subpool);
 
 	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target, subpool ), svn_path_canonicalize ( dpath, subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
@@ -935,9 +930,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	return SVN_NO_ERROR;
 }
 
-static svn_error_t *notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, 
-		const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, 
-		svn_revnum_t revision) {
+static svn_error_t *notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision) {
 	return SVN_NO_ERROR;
 }
 

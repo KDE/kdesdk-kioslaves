@@ -6,7 +6,7 @@ You can also try : svn+http://svn.collab.net/repos/svn?rev=500 so that it displa
 
 REQUIREMENTS:
 ------------
-Subversion libraries >= 0.36.0 (http://subversion.tigris.org)
+Subversion libraries >= 0.37.0 (http://subversion.tigris.org)
 
 FEATURES:
 ---------
