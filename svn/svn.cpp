@@ -773,12 +773,22 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				wc_status(wc);
 				break;
 			}
-		case SVN_MKDIR: 
+		case SVN_MKDIR:
 			{
 				KURL::List list;
 				stream >> list;
 				kdDebug() << "kio_svnProtocol MKDIR" << endl;
 				mkdir(list,0);
+				break;
+			}
+		case SVN_RESOLVE:
+			{
+				KURL url;
+				bool recurse;
+				stream >> url;
+				stream >> recurse;
+				kdDebug() << "kio_svnProtocol RESOLVE" << endl;
+				wc_resolve(url,recurse);
 				break;
 			}
 		default:
@@ -1396,6 +1406,27 @@ void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *sta
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return;
 	}*/
+}
+
+
+void kio_svnProtocol::wc_resolve( const KURL& wc, bool recurse ) {
+	kdDebug() << "kio_svnProtocol::wc_resolve() : " << wc.url() << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+
+	KURL nurl = wc;
+	nurl.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+
+	initNotifier(false, false, false, subpool);
+	svn_error_t *err = svn_client_resolved(nurl.path().utf8(),recurse,&ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
 }
 
 extern "C"

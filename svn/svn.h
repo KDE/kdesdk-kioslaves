@@ -84,6 +84,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void commit( const KURL& wc );
 		void add( const KURL& wc );
 		//these work using the working copy
+		void wc_resolve( const KURL& wc, bool recurse = true );
 		void wc_delete( const KURL& wc );
 		void wc_revert( const KURL& wc );
 		void wc_status(const KURL& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
@@ -119,7 +120,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_DEL=7,
 			SVN_REVERT=8,
 			SVN_STATUS=9,
-			SVN_MKDIR=10
+			SVN_MKDIR=10,
+			SVN_RESOLVE=11
 		};
 
 	private:
