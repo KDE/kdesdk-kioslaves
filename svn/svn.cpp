@@ -49,7 +49,7 @@
 
 #include "svn.h"
 #include <apr_portable.h>
-#include <kinputdialog.h>
+//#include <kinputdialog.h>
 
 using namespace KIO;
 
@@ -179,7 +179,7 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *bat
 	
 //XXX readd me when debug is complete		p->info.keepPassword = true;
 	p->info.verifyPath=true;
-	kdDebug( ) << "auth current URL : " << p->myURL << endl;
+	kdDebug( ) << "auth current URL : " << p->myURL.url() << endl;
 	p->info.url = p->myURL;
 	p->info.username = username; //( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
 	if ( !p->checkCachedAuthentication( p->info ) ){
@@ -452,7 +452,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 }
 
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
-//	kdDebug() << "MTime : " << mtime << endl;
+	kdDebug() << "MTime : " << ( long )mtime << endl;
 	kdDebug() << "UDS filename : " << filename << endl;
 	UDSAtom atom;
 	atom.m_uds = KIO::UDS_NAME;
@@ -479,7 +479,7 @@ bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& us
 }
 
 void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, bool overwrite) {
-	kdDebug() << "kio_svnProtocol::copy() Source : " << src << " Dest : " << dest << endl;
+	kdDebug() << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info;
@@ -526,7 +526,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 }
 
 void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
-	kdDebug() << "kio_svnProtocol::mkdir() : " << url << endl;
+	kdDebug() << "kio_svnProtocol::mkdir() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
@@ -555,7 +555,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 }
 
 void kio_svnProtocol::del( const KURL& url, bool isfile ) {
-	kdDebug() << "kio_svnProtocol::del() : " << url << endl;
+	kdDebug() << "kio_svnProtocol::del() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
@@ -584,7 +584,7 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 }
 
 void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) {
-	kdDebug() << "kio_svnProtocol::rename() Source : " << src << " Dest : " << dest << endl;
+	kdDebug() << "kio_svnProtocol::rename() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info;
@@ -648,7 +648,7 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				stream >> wc;
 				stream >> revnumber;
 				stream >> revkind;
-				kdDebug() << "kio_svnProtocol CHECKOUT from " << repository << " to " << wc << " at " << revnumber << " or " << revkind << endl;
+				kdDebug() << "kio_svnProtocol CHECKOUT from " << repository.url() << " to " << wc.url() << " at " << revnumber << " or " << revkind << endl;
 				checkout( repository, wc, revnumber, revkind );
 				break;
 			}
@@ -660,7 +660,7 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				stream >> wc;
 				stream >> revnumber;
 				stream >> revkind;
-				kdDebug() << "kio_svnProtocol UPDATE " << wc << " at " << revnumber << " or " << revkind << endl;
+				kdDebug() << "kio_svnProtocol UPDATE " << wc.url() << " at " << revnumber << " or " << revkind << endl;
 				update(wc, revnumber, revkind );
 				break;
 			}
@@ -770,7 +770,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 }
 
 void kio_svnProtocol::commit(const KURL& wc) {
-	kdDebug() << "kio_svnProtocol::commit() : " << wc << endl;
+	kdDebug() << "kio_svnProtocol::commit() : " << wc.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
@@ -801,31 +801,31 @@ QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
 	KURL tpURL = url;
 	QString svnUrl;
 	if ( kproto == "svn+http" ) {
-		kdDebug() << "http:/" << url << endl;
+		kdDebug() << "http:/" << url.url() << endl;
 		tpURL.setProtocol("http");
 		svnUrl = tpURL.url();
 		return svnUrl;
 	}
 	else if ( kproto == "svn+https" ) {
-		kdDebug() << "https:/" << url << endl;
+		kdDebug() << "https:/" << url.url() << endl;
 		tpURL.setProtocol("https");
 		svnUrl = tpURL.url();
 		return svnUrl;
 	}
 	else if ( kproto == "svn+ssh" ) {
-		kdDebug() << "svn+ssh:/" << url << endl;
+		kdDebug() << "svn+ssh:/" << url.url() << endl;
 		tpURL.setProtocol("svn+ssh");
 		svnUrl = tpURL.url();
 		return svnUrl;
 	}
 	else if ( kproto == "svn" ) {
-		kdDebug() << "svn:/" << url << endl;
+		kdDebug() << "svn:/" << url.url() << endl;
 		tpURL.setProtocol("svn");
 		svnUrl = tpURL.url();
 		return svnUrl;
 	}
 	else if ( kproto == "svn+file" ) {
-		kdDebug() << "file:/" << url << endl;
+		kdDebug() << "file:/" << url.url() << endl;
 		tpURL.setProtocol("file");
 		svnUrl = tpURL.url();
 		//hack : add one more / after file:/
