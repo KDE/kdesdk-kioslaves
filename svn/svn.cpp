@@ -579,7 +579,8 @@ void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
 	KURL::List::const_iterator it = list.begin(), end = list.end();
 	for ( ; it != end; ++it ) {
 		QString cur = makeSvnURL( *it );
-		const char *_target = apr_pstrdup( subpool, cur.utf8() );
+		kdDebug( 7128 ) << "kio_svnProtocol::mkdir raw url for subversion : " << cur << endl;
+		const char *_target = apr_pstrdup( subpool, svn_path_canonicalize( apr_pstrdup( subpool, cur.utf8() ), subpool ) );
 		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = _target;
 	}
 
@@ -906,12 +907,16 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
 	dest.setProtocol( "file" );
 	recordCurrentURL( nurl );
+	dest.cleanPath( true ); // remove doubled '/'
 	QString source = dest.path();
-	QString target;
-	target = makeSvnURL( repos );
+	if ( source.endsWith( "/" ) ) 
+		source = source.left( source.length()-1 );
+	QString target = makeSvnURL( repos );
 
 	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
+	kdDebug( 7128 ) << "IMPORT SOURCE " << path << endl;
 	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
+	kdDebug( 7128 ) << "IMPORT TARGET " << url << endl;
 
 	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,&ctx,subpool);
@@ -1100,38 +1105,41 @@ void kio_svnProtocol::wc_status(const KURL& wc, bool checkRepos, bool fullRecurs
 	svn_pool_destroy (subpool);
 }
 
+//change the proto and remove trailing /
+//remove double / also 
 QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
 	QString kproto = url.protocol();
 	KURL tpURL = url;
+	tpURL.cleanPath( true );
 	QString svnUrl;
 	if ( kproto == "svn+http" ) {
-		kdDebug(7128) << "http:/" << url.url() << endl;
+		kdDebug(7128) << "http:/ " << url.url() << endl;
 		tpURL.setProtocol("http");
-		svnUrl = tpURL.url();
+		svnUrl = tpURL.url(-1);
 		return svnUrl;
 	}
 	else if ( kproto == "svn+https" ) {
-		kdDebug(7128) << "https:/" << url.url() << endl;
+		kdDebug(7128) << "https:/ " << url.url() << endl;
 		tpURL.setProtocol("https");
-		svnUrl = tpURL.url();
+		svnUrl = tpURL.url(-1);
 		return svnUrl;
 	}
 	else if ( kproto == "svn+ssh" ) {
-		kdDebug(7128) << "svn+ssh:/" << url.url() << endl;
+		kdDebug(7128) << "svn+ssh:/ " << url.url() << endl;
 		tpURL.setProtocol("svn+ssh");
-		svnUrl = tpURL.url();
+		svnUrl = tpURL.url(-1);
 		return svnUrl;
 	}
 	else if ( kproto == "svn" ) {
-		kdDebug(7128) << "svn:/" << url.url() << endl;
+		kdDebug(7128) << "svn:/ " << url.url() << endl;
 		tpURL.setProtocol("svn");
-		svnUrl = tpURL.url();
+		svnUrl = tpURL.url(-1);
 		return svnUrl;
 	}
 	else if ( kproto == "svn+file" ) {
-		kdDebug(7128) << "file:/" << url.url() << endl;
+		kdDebug(7128) << "file:/ " << url.url() << endl;
 		tpURL.setProtocol("file");
-		svnUrl = tpURL.url();
+		svnUrl = tpURL.url(-1);
 		//hack : add one more / after file:/
 		int idx = svnUrl.find("/");
 		svnUrl.insert( idx, "//" );
