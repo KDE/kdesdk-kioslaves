@@ -80,10 +80,12 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
 		void import( const KURL& repos, const KURL& wc );
+		void svn_switch( const KURL& wc, const KURL& url, int revnumber, const QString& revkind, bool recurse);
 		void update( const KURL& wc, int revnumber, const QString& revkind );
 		void commit( const KURL& wc );
 		void add( const KURL& wc );
 		//these work using the working copy
+		void wc_resolve( const KURL& wc, bool recurse = true );
 		void wc_delete( const KURL& wc );
 		void wc_revert( const KURL& wc );
 		void wc_status(const KURL& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
@@ -119,7 +121,9 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_DEL=7,
 			SVN_REVERT=8,
 			SVN_STATUS=9,
-			SVN_MKDIR=10
+			SVN_MKDIR=10,
+			SVN_RESOLVE=11,
+			SVN_SWITCH=12
 		};
 
 	private:
