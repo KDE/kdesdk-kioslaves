@@ -68,6 +68,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool);
+		static svn_error_t *commitLogPrompt( const char **log_msg, const char **tmp_file, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool );
+
 		QString chooseProtocol ( const QString& kproto ) const; 
 		QString makeSvnURL ( const KURL& url ) const;
 			
@@ -75,6 +77,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		KURL myURL;
 		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;
+		static QString log;
 
 		enum SVN_METHOD { 
 			SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind

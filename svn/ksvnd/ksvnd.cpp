@@ -20,41 +20,34 @@
 
 #include <kapplication.h>
 #include <klocale.h>
-#include <kmessagebox.h>
 #include <kdebug.h>
-//#include <kio/passdlg.h>
 
 #include "config.h"
-/*#if defined Q_WS_X11 && ! defined K_WS_QTONLY
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#endif*/
 
 #include "ksvnd.h"
 #include "commitdialog.h"
 
 extern "C" {
-    KDEDModule *create_ksvnd(const QCString &name)
-    {
+    KDEDModule *create_ksvnd(const QCString &name) {
        return new KSvnd(name);
     }
 }
 
 KSvnd::KSvnd(const QCString &name)
- : KDEDModule(name)
-{
+ : KDEDModule(name) {
 }
 
-KSvnd::~KSvnd()
-{
+KSvnd::~KSvnd() {
 }
 
-QString KSvnd::commitDialog( const QString& comment) const
-{
+QString KSvnd::commitDialog(QString comment) {
 	CommitDialog commitDlg;
+	commitDlg.setLog( comment );
 	int result = commitDlg.exec();
-	return QString::null;
-
+	if ( result == QDialog::Accepted ) {
+		return commitDlg.logMessage();
+	} else
+		return QString::null;
 }
 
 #include "ksvnd.moc"

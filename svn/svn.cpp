@@ -38,6 +38,8 @@
 #include <klocale.h>
 #include <kurl.h>
 #include <ksock.h>
+#include <dcopclient.h>
+#include <qcstring.h>
 
 #include <svn_sorts.h>
 #include <svn_path.h>
@@ -49,7 +51,6 @@
 
 #include "svn.h"
 #include <apr_portable.h>
-//#include <kinputdialog.h>
 
 using namespace KIO;
 
@@ -109,9 +110,22 @@ compare_items_as_paths (const svn_sort__item_t*a, const svn_sort__item_t*b) {
   return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
 }
 
+QString kio_svnProtocol::log="";
+
 kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket)
 	: SlaveBase("kio_svn", pool_socket, app_socket) {
 		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
+
+		kdDebug() << "Loading KDED module" << endl;
+		QCString module = "ksvnd";
+		QCString replyType;
+		QByteArray replyData;
+		QByteArray params;
+		QDataStream stream(params, IO_WriteOnly);
+		stream << module;
+		dcopClient()->call( "kded", "kded", "loadModule(QCString)", params, replyType, replyData);
+		//check answer ?
+
 		apr_initialize();
 		pool = svn_pool_create (NULL);
 		svn_error_t *err = svn_config_ensure (NULL,pool);
@@ -125,8 +139,8 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		//for now but TODO
 		ctx.notify_func = NULL;
 		ctx.notify_baton = NULL;
-		ctx.log_msg_func = NULL;
-		ctx.log_msg_baton = NULL;
+		ctx.log_msg_func = kio_svnProtocol::commitLogPrompt;
+		ctx.log_msg_baton = this; //pass this so that we can get a dcopClient from it
 		ctx.cancel_func = NULL;
 
 		apr_array_header_t *providers = apr_array_make(pool, 9, sizeof(svn_auth_provider_object_t *));
@@ -168,6 +182,15 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 
 kio_svnProtocol::~kio_svnProtocol(){
 	kdDebug() << "kio_svnProtocol::~kio_svnProtocol()" << endl;
+	kdDebug() << "Unloading KDED module" << endl;
+	QCString module = "ksvnd";
+	QCString replyType;
+	QByteArray replyData;
+	QByteArray params;
+	QDataStream stream(params, IO_WriteOnly);
+	stream << module;
+	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
+
 	svn_pool_destroy(pool);
 	apr_terminate();
 }
@@ -270,11 +293,6 @@ void kio_svnProtocol::stat(const KURL & url){
 	kdDebug() << "SvnURL: " << target << endl;
 	recordCurrentURL( KURL( target ) );
 	
-/*	KURL nurl = url;
-	nurl.setProtocol( chooseProtocol( url.protocol() ) );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );*/
-
 	//find the requested revision
 	svn_opt_revision_t rev;
 	int idx = target.findRev( "?rev=" );
@@ -375,11 +393,6 @@ void kio_svnProtocol::listDir(const KURL& url){
 	QString target = makeSvnURL( url);
 	kdDebug() << "SvnURL: " << target << endl;
 	recordCurrentURL( KURL( target ) );
-	/*
-	KURL nurl = url;
-	nurl.setProtocol( chooseProtocol( url.protocol() ) );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );*/
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -534,11 +547,6 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 	QString target = makeSvnURL( url);
 	kdDebug() << "SvnURL: " << target << endl;
 	recordCurrentURL( KURL( target ) );
-	/*
-	KURL nurl = url;
-	nurl.setProtocol( chooseProtocol( url.protocol() ) );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );*/
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
@@ -563,11 +571,6 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 	QString target = makeSvnURL(url);
 	kdDebug() << "SvnURL: " << target << endl;
 	recordCurrentURL( KURL( target ) );
-	/*
-	KURL nurl = url;
-	nurl.setProtocol( chooseProtocol( url.protocol() ) );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );*/
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
@@ -778,16 +781,46 @@ void kio_svnProtocol::commit(const KURL& wc) {
 
 	KURL nurl = wc;
 	nurl.setProtocol( "file" );
-//	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
+///	should not be here (see commitLogPrompt)
+	QCString replyType;
+	QByteArray params;
+	QByteArray reply;
+	QString result;
+	QString list = "";//XXX commit_items => list of modified files
+	svn_stringbuf_t *message = NULL;
+
+	QDataStream stream(params, IO_WriteOnly);
+	stream << list;	
+
+	if ( !dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
+		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+		return;
+	}
+	kdDebug() << "DCOP Call succeeded !!!" << endl;
+
+	if ( replyType != "QString" ) {
+		kdWarning() << "Unexpected reply type" << endl;
+		return;
+	}
 	
+	QDataStream stream2 ( reply, IO_ReadOnly );
+	stream2 >> result;
+	
+	if ( result == QString::null ) { //cancelled
+		log = "";
+		return;
+	}
+		
+	log = result;
+//end of "should not be here"	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
 
 	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,&ctx,subpool);
 	if ( err ) {
-		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
 		return;
 	}
@@ -863,6 +896,49 @@ svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_
 svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate password ... XXX
 	return SVN_NO_ERROR;
+}
+
+svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **baton, apr_array_header_t *commit_items, void *, apr_pool_t *pool ) {
+	//test
+	svn_stringbuf_t *message = NULL;
+	message = svn_stringbuf_create( kio_svnProtocol::log.utf8(), pool );
+	*log_msg = message->data;
+	return SVN_NO_ERROR;
+#if 0
+	QCString replyType;
+	QByteArray params;
+	QByteArray reply;
+	QString result;
+	QString list = "test";//XXX commit_items
+	svn_stringbuf_t *message = NULL;
+
+	QDataStream stream(params, IO_WriteOnly);
+	stream << list;	
+
+	if ( !p->dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
+		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+		return SVN_NO_ERROR;
+	}
+	kdDebug() << "DCOP Call succeeded !!!" << endl;
+
+	if ( replyType != "QString" ) {
+		kdWarning() << "Unexpected reply type" << endl;
+		return SVN_NO_ERROR;
+	}
+	
+	QDataStream stream2 ( reply, IO_ReadOnly );
+	stream2 >> result;
+	
+	if ( result == QString::null ) { //cancelled
+		*log_msg = NULL;
+		return SVN_NO_ERROR;
+	}
+		
+	message = svn_stringbuf_create( result.utf8(), pool );
+	*log_msg = message->data;
+
+	return SVN_NO_ERROR;
+#endif
 }
 
 extern "C"

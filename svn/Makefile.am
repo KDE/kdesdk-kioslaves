@@ -1,3 +1,5 @@
+SUBDIRS = ksvnd
+
 INCLUDES = $(SVNINC) $(all_includes)
 
 kde_module_LTLIBRARIES = kio_svn.la
