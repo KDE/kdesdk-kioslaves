@@ -102,6 +102,9 @@ class kio_svnProtocol : public KIO::SlaveBase
 			
 		void recordCurrentURL(const KURL& url);
 		void popupMessage( const QString& message );
+		int counter() { return m_counter; }
+		void incCounter() { m_counter++; }
+
 		KURL myURL;
 		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;
@@ -122,6 +125,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 	private:
 		bool createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, KIO::UDSEntry& entry);
 		apr_pool_t *pool;
+		int m_counter;
 };
 
 #endif

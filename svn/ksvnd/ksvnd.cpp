@@ -51,6 +51,7 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return QString::null;
 }
 
+#if 0
 void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
 	kdDebug() << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
 	QByteArray params;
@@ -76,5 +77,6 @@ void KSvnd::popupMessage( const QString& message ) {
 	kdDebug() << "KDED/Subversion : popupMessage" << message << endl;
 	KMessageBox::information(0, message, i18n( "Subversion" ) );
 }
+#endif
 
 #include "ksvnd.moc"

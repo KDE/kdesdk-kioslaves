@@ -114,6 +114,7 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 	: SlaveBase("kio_svn", pool_socket, app_socket) {
 		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
 
+		m_counter = 0;
 		kdDebug() << "Loading KDED module" << endl;
 		QCString module = "ksvnd";
 		QCString replyType;
@@ -192,6 +193,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 }
 
 void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppress_final_line, apr_pool_t *spool) {
+	m_counter=0;//reset counter
 	ctx.notify_func = kio_svnProtocol::notify;
 	struct notify_baton *nb = ( struct notify_baton* )apr_palloc(spool, sizeof( *nb ) );
 	nb->master = this;
@@ -913,11 +915,21 @@ void kio_svnProtocol::commit(const KURL& wc) {
 	QDataStream stream(params, IO_WriteOnly);
 	stream << nurl.path().utf8() << 0 << 0 << "" << 0 << 0 << commit_info->revision << userstring;
 
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "path", nurl.path() );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "action", "0" ); 
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "kind", "0" );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "mime_t", "" );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "content", "0" );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "prop", "0" );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "rev" , QString::number( commit_info->revision ) );
+	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "string", userstring );
+	m_counter++;
+
 	//send a fake notification to say the commit is successfull or not
-	if ( !dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
+/*	if ( !dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 	}
-
+*/
 	finished();
 	svn_pool_destroy (subpool);
 }
@@ -1341,10 +1353,19 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 	QDataStream stream(params, IO_WriteOnly);
 	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision << userstring;
 
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "path" , QString::fromUtf8( path ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "action", QString::number( action ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "kind", QString::number( kind ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "mime_t", QString::fromUtf8( mime_type ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "content", QString::number( content_state ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "prop", QString::number( prop_state ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "rev", QString::number( revision ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "string", userstring );
+	p->incCounter();
+/*
 	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
-		return;
-	}
+	}*/
 }
 
 void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *status) {
@@ -1361,10 +1382,18 @@ void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *sta
 	long int rev = status->entry ? status->entry->revision : 0;
 	stream << QString::fromUtf8( path ) << status->text_status << status->prop_status << status->repos_text_status << status->repos_prop_status << rev;
 
-	if ( !p->dcopClient()->send( "kded","ksvnd","status(QString,int,int,int,int,long int)", params ) ) {
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "path", QString::fromUtf8( path ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "text", QString::number( status->text_status ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "prop", QString::number( status->prop_status ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "reptxt", QString::number( status->repos_text_status ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "repprop", QString::number( status->repos_prop_status ));
+	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "rev", QString::number( rev ));
+	p->incCounter();
+
+/*	if ( !p->dcopClient()->send( "kded","ksvnd","status(QString,int,int,int,int,long int)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return;
-	}
+	}*/
 }
 
 extern "C"
