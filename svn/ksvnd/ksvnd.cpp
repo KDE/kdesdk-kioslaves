@@ -53,7 +53,7 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 
 #if 0
 void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
-	kdDebug() << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
+	kdDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
 	QByteArray params;
 
 	QDataStream stream(params, IO_WriteOnly);
@@ -63,7 +63,7 @@ void KSvnd::notify(const QString& path, int action, int kind, const QString& mim
 }
 
 void KSvnd::status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status, long int rev ) {
-	kdDebug() << "KDED/Subversion : status " << path << " " << text_status << " " << prop_status << " "
+	kdDebug(7128) << "KDED/Subversion : status " << path << " " << text_status << " " << prop_status << " "
 			<< repos_text_status << " " << repos_prop_status << " " << rev << endl;
 	QByteArray params;
 
@@ -74,7 +74,7 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 }
 
 void KSvnd::popupMessage( const QString& message ) {
-	kdDebug() << "KDED/Subversion : popupMessage" << message << endl;
+	kdDebug(7128) << "KDED/Subversion : popupMessage" << message << endl;
 	KMessageBox::information(0, message, i18n( "Subversion" ) );
 }
 #endif
