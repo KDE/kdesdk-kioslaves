@@ -65,6 +65,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
 		void update( const KURL& wc, int revnumber, const QString& revkind );
 		void commit( const KURL& wc );
+		void add( const KURL& wc );
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool);
@@ -85,7 +86,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 			SVN_UPDATE=2, // KURL wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
 			SVN_COMMIT=3, 
 			SVN_LOG=4, 
-			SVN_IMPORT=5
+			SVN_IMPORT=5,
+			SVN_ADD=6
 		};
 
 	private:
