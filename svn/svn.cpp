@@ -161,12 +161,6 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *bat
 	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
 	}
-/*	if ( hide )
-		*answer = ( const char * )p->info.password;
-	else
-		*answer = ( const char * )p->info.username;
-*/
-	
 	ret->username = apr_pstrdup(pool, (const char*)p->info.username);
 	ret->password = apr_pstrdup(pool, (const char*)p->info.password);
 	return SVN_NO_ERROR;
@@ -409,9 +403,9 @@ void kio_svnProtocol::listDir(const KURL& url){
 /*			apr_time_exp_t timexp;
 			apr_time_exp_lt(&timexp, dirent->time);
 			apr_os_exp_time_t *ostime;
-			apr_os_exp_time_get( &ostime, &timexp);*/
+			apr_os_exp_time_get( &ostime, &timexp);
 
-//			time_t mtime = mktime( ostime );
+			time_t mtime = mktime( ostime );*/
 
 			if (dirent->last_author)
 				svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
@@ -633,7 +627,10 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 			}
 		case SVN_COMMIT: 
 			{
+				KURL wc;
+				stream >> wc;
 				kdDebug() << "kio_svnProtocol COMMIT" << endl;
+				commit( wc );
 				break;
 			}
 		case SVN_LOG: 
@@ -729,6 +726,33 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 		return;
 	}
 
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::commit(const KURL& wc) {
+	kdDebug() << "kio_svnProtocol::commit() : " << wc << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+	bool nonrecursive = false;
+
+	KURL nurl = wc;
+	nurl.setProtocol( "file" );
+//	nurl.setProtocol( chooseProtocol( url.protocol() ) );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+	
+	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+
+	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,&ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
 	finished();
 	svn_pool_destroy (subpool);
 }
