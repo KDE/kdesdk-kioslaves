@@ -109,7 +109,6 @@ static svn_error_t *write_to_string(void *baton, const char *data, apr_size_t *l
 	kbaton *tb = ( kbaton* )baton;
 
 	svn_stringbuf_appendbytes(tb->target_string, data, *len);
-	//processedSize(*len);
 
 	return SVN_NO_ERROR;
 }
@@ -184,13 +183,12 @@ void kio_svnProtocol::stat(const KURL & url){
 	svn_ra_plugin_t *ra_lib;
 	svn_node_kind_t kind;
 	const char *auth_dir;
-	svn_revnum_t revnum;
 	apr_pool_t *subpool = svn_pool_create (pool);
 
 	QString target = url.url().replace( 0, 3, "http" );
 
 	//find the requested revision
-/*	svn_opt_revision_t rev;
+	svn_opt_revision_t rev;
 	int idx = target.findRev( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
@@ -209,18 +207,16 @@ void kio_svnProtocol::stat(const KURL & url){
 		kdDebug() << "no revision given. searching HEAD " << endl;
 		rev.kind = svn_opt_revision_head;
 	}
-*/
+
 	//init
 	svn_ra_init_ra_libs(&ra_baton,subpool);
 	//find RA libs
 	svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
 	kdDebug() << "RA init completed" << endl;
 	//start session
-	//FIXME
 	svn_ra_callbacks_t *cbtable = apr_pcalloc(subpool, sizeof(*cbtable));	
 	kio_svn_callback_baton_t *callbackbt = apr_pcalloc(subpool, sizeof( *callbackbt ));
 
-	//XXX hmmm ... maybe i should ask sussman about that part
 	cbtable->open_tmp_file = open_tmp_file;
 	cbtable->get_wc_prop = NULL;
 	cbtable->set_wc_prop = NULL;
@@ -235,11 +231,13 @@ void kio_svnProtocol::stat(const KURL & url){
 	kdDebug() << "Session opened to " << target << endl;
 
 	//find number for HEAD
-	ra_lib->get_latest_revnum(session,&revnum,subpool);
-	kdDebug() << "Got revnum" << endl;
+	if (rev.kind == svn_opt_revision_head) {
+		ra_lib->get_latest_revnum(session,&rev.value.number,subpool);
+		kdDebug() << "Got rev " << rev.value.number << endl;
+	}
 	
 	//get it
-	ra_lib->check_path(&kind,session,"",revnum,subpool);
+	ra_lib->check_path(&kind,session,"",rev.value.number,subpool);
 	kdDebug() << "Checked Path" << endl;
 	
 	UDSEntry entry;
