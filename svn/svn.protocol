@@ -14,6 +14,7 @@ defaultMimetype=application/octet-stream
 Icon=remote
 Description=Subversion ioslave
 Description[ca]=Ioslave de Subversion
+Description[cs]=Subversion protokol
 Description[de]=Subversion-Ioslave
 Description[es]=El ioslave de Subversion
 Description[et]=Subversioni IO-moodul
