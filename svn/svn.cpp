@@ -703,6 +703,14 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				add(wc);
 				break;
 			}
+		case SVN_DEL: 
+			{
+				KURL wc;
+				stream >> wc;
+				kdDebug() << "kio_svnProtocol DEL" << endl;
+				wc_delete(wc);
+				break;
+			}
 		default:
 			{
 				kdDebug() << "kio_svnProtocol DEFAULT" << endl;
@@ -819,6 +827,33 @@ void kio_svnProtocol::add(const KURL& wc) {
 	finished();
 	svn_pool_destroy (subpool);
 }
+
+void kio_svnProtocol::wc_delete(const KURL& wc) {
+	kdDebug() << "kio_svnProtocol::wc_delete() : " << wc.url() << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+	bool nonrecursive = false;
+
+	KURL nurl = wc;
+	nurl.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+
+	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,&ctx,subpool);
+
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
 QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
 	QString kproto = url.protocol();
 	KURL tpURL = url;
@@ -959,7 +994,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	return SVN_NO_ERROR;
 }
 
-static svn_error_t *notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision) {
+static svn_error_t *notify(void */*baton*/, const char */*path*/, svn_wc_notify_action_t /*action*/, svn_node_kind_t /*kind*/, const char */*mime_type*/, svn_wc_notify_state_t /*content_state*/, svn_wc_notify_state_t /*prop_state*/, svn_revnum_t /*revision*/) {
 	return SVN_NO_ERROR;
 }
 
