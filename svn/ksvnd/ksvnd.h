@@ -1,7 +1,7 @@
 /*
     This file is part of the KDE Project
 
-    Copyright (C) 2003, 2004 Mickael Marchand <marchand@kde.org>
+    Copyright (C) 2003-2005 Mickael Marchand <marchand@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ k_dcop:
   QString commitDialog(QString);
   void notify(const QString&, int ,int, const QString& , int , int, long int);
   void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status );
+  void popupMessage( const QString& message );
 
 k_dcop_signals:
   //emitted whenever something happens using subversion ;)

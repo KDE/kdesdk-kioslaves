@@ -21,6 +21,7 @@
 #include <kapplication.h>
 #include <klocale.h>
 #include <kdebug.h>
+#include <kmessagebox.h>
 
 #include "config.h"
 
@@ -57,7 +58,7 @@ void KSvnd::notify(const QString& path, int action, int kind, const QString& mim
 	QDataStream stream(params, IO_WriteOnly);
 	stream << path << action << kind << mime_type << content_state << prop_state << revision;
 
-	kapp->dcopClient()->emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int)", params );
+	/*kapp->dcopClient()->*/emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int)", params );
 }
 
 void KSvnd::status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ) {
@@ -68,7 +69,12 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 	QDataStream stream(params, IO_WriteOnly);
 	stream << path << text_status << prop_status << repos_text_status << repos_prop_status;
 
-	kapp->dcopClient()->emitDCOPSignal( "subversionStatus(QString,int,int,int,int)", params );
+	/*kapp->dcopClient()->*/emitDCOPSignal( "subversionStatus(QString,int,int,int,int)", params );
+}
+
+void KSvnd::popupMessage( const QString& message ) {
+	kdDebug() << "KDED/Subversion : popupMessage" << message << endl;
+	KMessageBox::information(0, message, i18n( "Subversion" ) );
 }
 
 #include "ksvnd.moc"

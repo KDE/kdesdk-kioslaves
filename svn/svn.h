@@ -85,6 +85,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		QString makeSvnURL ( const KURL& url ) const;
 			
 		void recordCurrentURL(const KURL& url);
+		void popupMessage( const QString& message );
 		KURL myURL;
 		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;

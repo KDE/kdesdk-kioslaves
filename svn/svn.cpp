@@ -56,22 +56,22 @@ using namespace KIO;
 
 typedef struct
 {
-	  /* Holds the directory that corresponds to the REPOS_URL at RA->open()
-	   *      time. When callbacks specify a relative path, they are joined with
-	   *           this base directory. */
-	  const char *base_dir;
-          svn_wc_adm_access_t *base_access;
-     
-	  /* An array of svn_client_commit_item_t * structures, present only
-	   *      during working copy commits. */
-	  apr_array_header_t *commit_items;
+	/* Holds the directory that corresponds to the REPOS_URL at RA->open()
+	 *      time. When callbacks specify a relative path, they are joined with
+	 *           this base directory. */
+	const char *base_dir;
+	svn_wc_adm_access_t *base_access;
 
-	  /* A hash of svn_config_t's, keyed off file name (i.e. the contents of
-	   *      ~/.subversion/config end up keyed off of 'config'). */
-	  apr_hash_t *config;
+	/* An array of svn_client_commit_item_t * structures, present only
+	 *      during working copy commits. */
+	apr_array_header_t *commit_items;
 
-	  /* The pool to use for session-related items. */
-	  apr_pool_t *pool;
+	/* A hash of svn_config_t's, keyed off file name (i.e. the contents of
+	 *      ~/.subversion/config end up keyed off of 'config'). */
+	apr_hash_t *config;
+
+	/* The pool to use for session-related items. */
+	apr_pool_t *pool;
 
 } svn_client__callback_baton_t;
 
@@ -188,7 +188,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 	QByteArray params;
 	QDataStream stream(params, IO_WriteOnly);
 	stream << module;
-	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
+//	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
 
 	svn_pool_destroy(pool);
 	apr_terminate();
@@ -775,6 +775,15 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 	}
 }
 
+void kio_svnProtocol::popupMessage( const QString& message ) {
+	QByteArray params;
+	QDataStream stream(params, IO_WriteOnly);
+	stream << message;	
+
+	if ( !dcopClient()->send( "kded","ksvnd","popupMessage(QString)", params ) )
+		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+}
+
 void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revkind ) {
 	kdDebug() << "kio_svn::update : " << wc.path() << " at revision " << revnumber << " or " << revkind << endl ;
 
@@ -787,6 +796,7 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 	//find the requested revision
 	svn_opt_revision_t rev;
 	svn_opt_revision_t endrev;
+	svn_revnum_t *result_rev = ( svn_revnum_t* )apr_pcalloc( subpool, sizeof( *result_rev ) );
 
 	if ( revnumber != -1 ) {
 		rev.value.number = revnumber;
@@ -794,12 +804,14 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 	} else if ( !revkind.isNull() )
 		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
-	svn_error_t *err = svn_client_update (NULL /*rev at which it was actually updated*/, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_update (result_rev, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
 		return;
 	}
+
+	//popupMessage( i18n( "Updated to revision %1." ).arg( *result_rev ) );
 
 	finished();
 	svn_pool_destroy (subpool);
