@@ -42,6 +42,12 @@ typedef struct kbaton {
 	svn_stream_t *string_stream;
 } kbaton;
 
+typedef struct kio_svn_callback_baton_t {
+	const char* base_dir;
+	apr_hash_t *config;
+	apr_pool_t *pool;
+} kio_svn_callback_baton_t;
+
 
 class kio_svnProtocol : public KIO::SlaveBase
 {

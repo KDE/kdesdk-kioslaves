@@ -172,7 +172,20 @@ void kio_svnProtocol::stat(const KURL & url){
 	//start session
 	//FIXME
 	svn_ra_callbacks_t *cbtable = apr_pcalloc(subpool, sizeof(*cbtable));	
-	void *callbackbt;
+	kio_svn_callback_baton_t *callbackbt = apr_pcalloc(subpool, sizeof( *callbackbt ));
+
+	//XXX hmmm ... maybe i should ask sussman about that part
+	cbtable->open_tmp_file = open_tmp_file;
+	cbtable->get_wc_prop = NULL;
+	cbtable->set_wc_prop = NULL;
+	cbtable->push_wc_prop = NULL;
+	cbtable->invalidate_wc_prop = NULL;
+	cbtable->auth_baton = ctx->auth_baton;
+
+	callbackbt->base_dir = target;
+	callbackbt->pool = subpool;
+	callbackbt->config = ctx->config;
+
 	
 	ra_lib->open(&session,target,cbtable,callbackbt,( *ctx )->config,subpool);
 	kdDebug() << "Session opened" << endl;
