@@ -135,10 +135,11 @@ void kio_svnProtocol::get(const KURL& url ){
 	QString target = url.url().replace( 0, 3, "http" );
 	kdDebug() << "myURL: " << target << endl;
 	//find the requested revision
-	int idx=-1;
 	svn_opt_revision_t rev;
-/*	if ( idx = target.findRev( "\?rev=" ) ) {
+	int idx = target.findRev( "?rev=" );
+	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
+		kdDebug() << "revision string found " << revstr  << endl;
 		if ( revstr == "HEAD" ) {
 			rev.kind = svn_opt_revision_head;
 			kdDebug() << "revision searched : HEAD" << endl;
@@ -147,9 +148,10 @@ void kio_svnProtocol::get(const KURL& url ){
 			rev.value.number = revstr.toLong();
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
-	} else {*/
+	} else {
+		kdDebug() << "no revision given. searching HEAD " << endl;
 		rev.kind = svn_opt_revision_head;
-//	}
+	}
 
 	svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
 
