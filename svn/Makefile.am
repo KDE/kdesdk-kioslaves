@@ -6,7 +6,7 @@ kio_svn_la_SOURCES = svn.cpp
 kio_svn_la_LIBADD = $(SVNLIBS) -lkio
 kio_svn_la_LDFLAGS = -avoid-version -module $(SVNLD) $(all_libraries) $(KDE_PLUGIN) 
 
-protocol_DATA = svn+http.protocol
+protocol_DATA = svn+http.protocol svn+file.protocol svn+ssh.protocol svn.protocol
 protocoldir = $(kde_servicesdir)
 
 messages: rc.cpp

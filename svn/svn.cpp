@@ -191,7 +191,7 @@ void kio_svnProtocol::get(const KURL& url ){
 	svn_stream_set_write(bt->string_stream,write_to_string);
 
 	KURL nurl = url;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	kdDebug() << "myURL: " << target << endl;
 	recordCurrentURL( nurl );
@@ -251,7 +251,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	apr_pool_t *subpool = svn_pool_create (pool);
 
 	KURL nurl = url;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
 
@@ -352,7 +352,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 	apr_pool_t *subpool = svn_pool_create (pool);
 	apr_hash_t *dirents;
 	KURL nurl = url;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
 	
@@ -461,8 +461,8 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 
 	KURL nsrc = src;
 	KURL ndest = dest;
-	nsrc.setProtocol( "http" );
-	ndest.setProtocol( "http" );
+	nsrc.setProtocol( chooseProtocol( src.protocol() ) );
+	ndest.setProtocol( chooseProtocol( dest.protocol() ) );
 	QString srcsvn = nsrc.url();
 	QString destsvn = ndest.url();
 	
@@ -507,7 +507,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
 	svn_client_commit_info_t *commit_info = NULL;
 
 	KURL nurl = url;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
 	
@@ -532,7 +532,7 @@ void kio_svnProtocol::del( const KURL& url, bool isfile ) {
 	svn_client_commit_info_t *commit_info = NULL;
 
 	KURL nurl = url;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( url.protocol() ) );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
 	
@@ -558,8 +558,8 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) 
 
 	KURL nsrc = src;
 	KURL ndest = dest;
-	nsrc.setProtocol( "http" );
-	ndest.setProtocol( "http" );
+	nsrc.setProtocol( chooseProtocol( src.protocol() ) );
+	ndest.setProtocol( chooseProtocol( dest.protocol() ) );
 	QString srcsvn = nsrc.url();
 	QString destsvn = ndest.url();
 	
@@ -698,7 +698,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	apr_pool_t *subpool = svn_pool_create (pool);
 	KURL nurl = repos;
 	KURL dest = wc;
-	nurl.setProtocol( "http" );
+	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
 	dest.setProtocol( "file" );
 	QString target = nurl.url();
 	recordCurrentURL( nurl );
@@ -731,6 +731,15 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 
 	finished();
 	svn_pool_destroy (subpool);
+}
+
+QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
+	if ( kproto == "svn+http" ) return QString( "http" );
+	else if ( kproto == "svn+https" ) return QString( "https" );
+	else if ( kproto == "svn+ssh" ) return QString( "svn+ssh" );
+	else if ( kproto == "svn" ) return QString( "svn" );
+	else if ( kproto == "svn+file" ) return QString( "file" );
+	return kproto;
 }
 
 extern "C"
