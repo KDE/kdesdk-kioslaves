@@ -63,6 +63,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
 		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
+		void import( const KURL& repos, const KURL& wc );
 		void update( const KURL& wc, int revnumber, const QString& revkind );
 		void commit( const KURL& wc );
 		void add( const KURL& wc );

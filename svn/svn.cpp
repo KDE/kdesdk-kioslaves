@@ -692,7 +692,11 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 			}
 		case SVN_IMPORT: 
 			{
+				KURL wc,repos;
+				stream >> repos;
+				stream >> wc;
 				kdDebug() << "kio_svnProtocol IMPORT" << endl;
+				import(repos,wc);
 				break;
 			}
 		case SVN_ADD: 
@@ -761,6 +765,32 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 		return;
 	}
 
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
+	kdDebug() << "kio_svnProtocol::import() : " << wc.url() << " into " << repos.url() << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+	bool nonrecursive = false;
+
+	KURL nurl = repos;
+	KURL dest = wc;
+	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
+	dest.setProtocol( "file" );
+	QString target = nurl.url();
+	recordCurrentURL( nurl );
+	QString dpath = dest.path();
+
+	svn_error_t *err = svn_client_import(&commit_info,svn_path_canonicalize( dpath.utf8(), subpool ),svn_path_canonicalize( target.utf8(), subpool ),nonrecursive,&ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
 	finished();
 	svn_pool_destroy (subpool);
 }
