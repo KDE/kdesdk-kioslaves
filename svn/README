@@ -6,31 +6,39 @@ You can also try : svn+http://svn.collab.net/repos/svn?rev=500 so that it displa
 
 REQUIREMENTS:
 ------------
-Subversion libraries >= 0.32 (http://subversion.tigris.org)
+Subversion libraries >= 0.36.0 (http://subversion.tigris.org)
+
+FEATURES:
+---------
+Supported protocols :
+svn+http://hostname/path?rev=revision_number
+svn+https://hostname/path?rev=revision_number
+svn+ssh://hostname/path?rev=revision_number
+svn://hostname/path?rev=revision_number
+svn+file://repository/path?rev=revision_number
 
 INSTALL:
 --------
 you need the svn client library which is distributed by subversion. 
 on Debian : apt-get install libsvn0-dev will do everything you need.
 
-then you need kdenonbeta/admin and kdenonbeta/kio_svn, then :
+then you need kdenonbeta/admin and kdenonbeta/kio_svn :
+cvs -d :pserver:anonymous@anoncvs.kde.org:/home/kde co -l kdenonbeta
+cd kdenonbeta
+cvs -d :pserver:anonymous@anoncvs.kde.org:/home/kde co admin
+cvs up kio_svn
+
+then compile it :
 make -f Makefile.cvs
-./configure --enable-svnsupport
+./configure --enable-svnsupport (optionnally --with-subversion-dir=/yoursvn_directory)
 make
 
 will compile it
-and make install with superkarma.
-
-FUTURE:
--------
-I will work on the ::special kioslave method to add checkout, update, commits abilities and some others.
-Then we will be able to work with gideon and cervisia to see how to integrate it (some kind of cvsservice maybe).
-
-Another step forward will be to be able to browse https repositories, local repositories and svnserve repositories.
-Copying files from a repository will act like "svn export" (we can't checkout this way ...)
+and make install with superkarma (sudo make install).
 
 BUGS:
 -----
-any ?
+- file modifications time are wrong in konqui
+any other ?
 please report
 

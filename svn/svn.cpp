@@ -105,7 +105,7 @@ static svn_error_t *write_to_string(void *baton, const char *data, apr_size_t *l
 }
 
 static int
-compare_items_as_paths (const svn_item_t *a, const svn_item_t *b) {
+compare_items_as_paths (const svn_sort__item_t*a, const svn_sort__item_t*b) {
   return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
 }
 
@@ -158,9 +158,9 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		//SSL interactive prompt, where things get hard
 		svn_client_get_ssl_server_trust_prompt_provider (&provider, kio_svnProtocol::trustSSLPrompt, NULL, pool);
 		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-		svn_client_get_ssl_client_cert_prompt_provider (&provider, kio_svnProtocol::clientCertSSLPrompt, NULL, pool);
+		svn_client_get_ssl_client_cert_prompt_provider (&provider, kio_svnProtocol::clientCertSSLPrompt, NULL, 2, pool);
 		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-		svn_client_get_ssl_client_cert_pw_prompt_provider (&provider, kio_svnProtocol::clientCertPasswdPrompt, NULL, pool);
+		svn_client_get_ssl_client_cert_pw_prompt_provider (&provider, kio_svnProtocol::clientCertPasswdPrompt, NULL, 2, pool);
 		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
 		svn_auth_open(&ctx.auth_baton, providers, pool);
@@ -172,7 +172,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 	apr_terminate();
 }
 
-svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, apr_pool_t *pool) {
+svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool) {
 	kdDebug() << "kio_svnProtocol::checkAuth() for " << realm << endl;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_auth_cred_simple_t *ret = (svn_auth_cred_simple_t*)apr_pcalloc (pool, sizeof (*ret));
@@ -412,16 +412,16 @@ void kio_svnProtocol::listDir(const KURL& url){
   apr_array_header_t *array;
   int i;
 
-  array = apr_hash_sorted_keys (dirents, compare_items_as_paths, subpool);
+  array = svn_sort__hash (dirents, compare_items_as_paths, subpool);
   
-	UDSEntry entry;
+  UDSEntry entry;
   for (i = 0; i < array->nelts; ++i) {
-			entry.clear();
+	  entry.clear();
       const char *utf8_entryname, *native_entryname;
       svn_dirent_t *dirent;
-      svn_item_t *item;
+      svn_sort__item_t *item;
      
-      item = &APR_ARRAY_IDX (array, i, svn_item_t);
+      item = &APR_ARRAY_IDX (array, i, svn_sort__item_t);
 
       utf8_entryname = (const char*)item->key;
 
@@ -717,7 +717,7 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 		}
 	}
 
-	svn_error_t *err = svn_client_update (svn_path_canonicalize( target, subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_update (NULL /*rev at which it was actually updated*/, svn_path_canonicalize( target, subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -758,7 +758,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 		}
 	}
 
-	svn_error_t *err = svn_client_checkout (svn_path_canonicalize( target, subpool ), svn_path_canonicalize ( dpath, subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target, subpool ), svn_path_canonicalize ( dpath, subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -846,21 +846,21 @@ QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
 	return kproto;
 }
 
-svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, /*const char *realm,*/ int failures, const svn_auth_ssl_server_cert_info_t *cert_info, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
 	*cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
-	(*cred_p)->trust_permanently = FALSE;
+	(*cred_p)->may_save = FALSE;
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::clientCertSSLPrompt(svn_auth_cred_ssl_client_cert_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
 /*	*cred_p = apr_palloc (pool, sizeof(**cred_p));
 	(*cred_p)->cert_file = cert_file;*/
 	return SVN_NO_ERROR;
 }
 
-svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, apr_pool_t *pool) {
+svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_cert_pw_t **cred_p, void *, const char *realm, svn_boolean_t may_save, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate password ... XXX
 	return SVN_NO_ERROR;
 }
