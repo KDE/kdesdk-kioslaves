@@ -77,7 +77,6 @@ class kio_svnProtocol : public KIO::SlaveBase
 		KURL myURL;
 		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;
-		static QString log;
 
 		enum SVN_METHOD { 
 			SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
