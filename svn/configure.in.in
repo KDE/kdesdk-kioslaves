@@ -15,7 +15,7 @@ AC_ARG_WITH(subversion-dir,
 	])
 
 if test -z "$SVNCONFIG"; then
-	_SVNCONFIG="`svn-config --prefix`"
+	_SVNCONFIG="`svn-config --prefix 2> /dev/null`"
 	if test -n "$_SVNCONFIG"; then
 		SVNCONFIG="$_SVNCONFIG/bin/svn-config"
 	fi
@@ -30,7 +30,10 @@ if test -x "$SVNCONFIG"; then
 	SVNINC="`$SVNCONFIG --includes` -I$_SVNCONFIG/include/subversion-1/"
 	AC_MSG_RESULT(yes)
 else
-	AC_MSG_RESULT(svn-config not found)
+	AC_MSG_RESULT(not found)
+	dnl just a fallback to debian's config so that it works for me :)
+	SVNLIBS="-lsvn_client-1"
+	SVNINC="-I/usr/include/subversion-1/ -I/usr/include/apr-0/ -I/usr/include/xmltok"
 fi
 AC_SUBST(SVNLD)
 AC_SUBST(SVNINC)

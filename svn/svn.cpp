@@ -1,17 +1,18 @@
-/* Copyright (C) 2003 Mickael Marchand <marchand@kde.org>
+/* This file is part of the KDE project
+   Copyright (C) 2003 Mickael Marchand <marchand@kde.org>
 
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   Library General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; see the file COPYING.  If not, write to
+   You should have received a copy of the GNU Library General Public License
+   along with this library; see the file COPYING.LIB.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.
 */
@@ -41,6 +42,7 @@
 #include <svn_sorts.h>
 #include <svn_path.h>
 #include <svn_utf.h>
+#include <svn_ra.h>
 
 #include <kmimetype.h>
 
@@ -86,10 +88,12 @@ static svn_error_t *write_to_string(void *baton, const char *data, apr_size_t *l
 	kbaton *tb = ( kbaton* )baton;
 
 	svn_stringbuf_appendbytes(tb->target_string, data, *len);
+	//processedSize(*len);
 
 	return SVN_NO_ERROR;
 }
 
+//don't implement mimeType() until we don't need to download the whole file
 
 void kio_svnProtocol::get(const KURL& url ){
 	kdDebug() << "kio_svn::get(const KURL& url)" << endl ;
@@ -104,10 +108,24 @@ void kio_svnProtocol::get(const KURL& url ){
 	bt->string_stream = svn_stream_create(bt,subpool);
 	svn_stream_set_write(bt->string_stream,write_to_string);
 
-	svn_opt_revision_t rev;
-	rev.kind = svn_opt_revision_head;
 	QString target = url.url().replace( 0, 3, "http" );
 	kdDebug() << "myURL: " << target << endl;
+	//find the requested revision
+	int idx=-1;
+	svn_opt_revision_t rev;
+	if ( idx = target.findRev( "\?rev=" ) ) {
+		QString revstr = target.mid( idx+5 );
+		if ( revstr == "HEAD" ) {
+			rev.kind = svn_opt_revision_head;
+			kdDebug() << "revision searched : HEAD" << endl;
+		} else {
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = revstr.toLong();
+			kdDebug() << "revision searched : " << rev.value.number << endl;
+		}
+	} else {
+		rev.kind = svn_opt_revision_head;
+	}
 
 	svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
 
@@ -118,6 +136,8 @@ void kio_svnProtocol::get(const KURL& url ){
 	kdDebug() << "KMimeType returned : " << mt->name() << endl;
 	mimeType( mt->name() );
 
+	totalSize(bt->target_string->len);
+
 	//send data
 	data(*cp);
 
@@ -127,19 +147,63 @@ void kio_svnProtocol::get(const KURL& url ){
 }
 
 static int
-compare_items_as_paths (const svn_item_t *a, const svn_item_t *b)
-{
+compare_items_as_paths (const svn_item_t *a, const svn_item_t *b) {
   return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
 }
 
 void kio_svnProtocol::stat(const KURL & url){
 	kdDebug() << "kio_svn::stat(const KURL& url) : " << url.url() << endl ;
-	UDSEntry entry;
 
-	createUDSEntry(url.url(), "",0,true,0,entry);
+	void *ra_baton, *session;
+	svn_ra_plugin_t *ra_lib;
+	svn_node_kind_t kind;
+	const char *auth_dir;
+	svn_revnum_t revnum;
+	svn_opt_revision_t revision;
+	revision.kind = svn_opt_revision_head;
+	apr_pool_t *subpool = svn_pool_create (pool);
+
+	QString target = url.url().replace( 0, 3, "http" );
+	//init
+	svn_ra_init_ra_libs(&ra_baton,subpool);
+	//find RA libs
+	svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
+	kdDebug() << "RA init completed" << endl;
+	//start session
+	//FIXME
+	svn_ra_callbacks_t *cbtable = apr_pcalloc(subpool, sizeof(*cbtable));	
+	void *callbackbt;
 	
-	statEntry( entry );
-	finished();
+	ra_lib->open(&session,target,cbtable,callbackbt,( *ctx )->config,subpool);
+	kdDebug() << "Session opened" << endl;
+
+	//find number for HEAD
+	ra_lib->get_latest_revnum(session,&revnum,subpool);
+	kdDebug() << "Got revnum" << endl;
+	
+	//get it
+	ra_lib->check_path(&kind,session,"",revnum,subpool);
+	kdDebug() << "Checked Path" << endl;
+	
+	UDSEntry entry;
+	switch ( kind ) {
+		case svn_node_file:
+			createUDSEntry(url.url(),"",0,false,0,entry);
+			statEntry( entry );
+			finished();
+			break;
+		case svn_node_dir:
+			createUDSEntry(url.url(),"",0,true,0,entry);
+			statEntry( entry );
+			finished();
+			break;
+		case svn_node_unknown:
+		case svn_node_none:
+			//error XXX
+		default:
+			;
+	}
+	svn_pool_destroy( subpool );
 }
 
 void kio_svnProtocol::listDir(const KURL & url){
@@ -159,8 +223,7 @@ void kio_svnProtocol::listDir(const KURL & url){
   array = apr_hash_sorted_keys (dirents, compare_items_as_paths, subpool);
   
 	UDSEntry entry;
-  for (i = 0; i < array->nelts; ++i)
-    {
+  for (i = 0; i < array->nelts; ++i) {
 			entry.clear();
       const char *utf8_entryname, *native_entryname;
       svn_dirent_t *dirent;
@@ -181,18 +244,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 			if ( createUDSEntry(QString( native_entryname ), QString( native_author ), dirent->size,
 						dirent->kind==svn_node_dir ? true : false, dirent->time, entry) )
 				listEntry( entry, false );
-			
-/*
-			printf ("%c %7"SVN_REVNUM_T_FMT" %8.8s "
-					"%8"SVN_FILESIZE_T_FMT" %12s %s%s\n",
-					dirent->has_props ? 'P' : '_',
-					dirent->created_rev,
-					native_author ? native_author : "      ? ",
-					dirent->size,
-					timestr,
-					native_entryname,
-					(dirent->kind == svn_node_dir) ? "/" : "");*/
-		}
+	}
 	listEntry( entry, true );
 
 	finished();
@@ -222,6 +274,12 @@ bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& us
 	entry.append( atom );
 
 	return true;
+}
+
+void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, bool overwrite){
+		kdDebug() << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest << endl;
+
+		finished();
 }
 
 extern "C"
