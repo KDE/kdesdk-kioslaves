@@ -1,0 +1,10 @@
+[Protocol]
+exec=kio_svn
+protocol=svn
+input=none
+output=filesystem
+reading=true
+listing=Name,Size,Date,Owner
+defaultMimetype=text/plain
+Icon=remote
+Description=Subversion ioslave
