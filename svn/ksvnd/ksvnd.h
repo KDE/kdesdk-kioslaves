@@ -42,6 +42,7 @@ k_dcop:
 k_dcop_signals:
   //emitted whenever something happens using subversion ;)
   void subversionNotify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
+  void subversionStatus(const QString&,int,int,int,int);
 
 public slots:
 
