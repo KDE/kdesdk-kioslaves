@@ -353,10 +353,45 @@ bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& us
 	return true;
 }
 
-void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, bool overwrite){
-		kdDebug() << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest << endl;
+void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, bool overwrite) {
+	kdDebug() << "kio_svnProtocol::copy() Source : " << src << " Dest : " << dest << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info;
 
-		finished();
+	QString srcsvn = src.url().replace( 0, 3, "http" );
+	QString destsvn = dest.url().replace( 0, 3, "http" );
+	
+	//find the requested revision
+	svn_opt_revision_t rev;
+	int idx = srcsvn.findRev( "?rev=" );
+	if ( idx != -1 ) {
+		QString revstr = srcsvn.mid( idx+5 );
+		kdDebug() << "revision string found " << revstr  << endl;
+		if ( revstr == "HEAD" ) {
+			rev.kind = svn_opt_revision_head;
+			kdDebug() << "revision searched : HEAD" << endl;
+		} else {
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = revstr.toLong();
+			kdDebug() << "revision searched : " << rev.value.number << endl;
+		}
+		srcsvn = srcsvn.left( idx );
+		kdDebug() << "new src : " << srcsvn << endl;
+	} else {
+		kdDebug() << "no revision given. searching HEAD " << endl;
+		rev.kind = svn_opt_revision_head;
+	}
+
+	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, NULL, *ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
 }
 
 extern "C"
