@@ -57,9 +57,9 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		apr_initialize();
 		pool = svn_pool_create (NULL);
 		err = svn_config_ensure (pool);
-		if (err) {
-			//FIXME
-			svn_pool_destroy (pool);
+		if ( err ) {
+			error( KIO::ERR_SLAVE_DEFINED, err->message );
+			return;
 		}
 		*ctx = apr_pcalloc(pool, sizeof(*ctx));
 		svn_config_get_config (&(*ctx)->config,pool);
@@ -152,7 +152,12 @@ void kio_svnProtocol::get(const KURL& url ){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
+	svn_error_t *err = svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
 
 	// Send the mimeType as soon as it is known
 	QByteArray *cp = new QByteArray();
@@ -246,13 +251,11 @@ void kio_svnProtocol::stat(const KURL & url){
 			kdDebug() << "::stat result : file" << endl;
 			createUDSEntry(url.url(),"",0,false,0,entry);
 			statEntry( entry );
-			finished();
 			break;
 		case svn_node_dir:
 			kdDebug() << "::stat result : directory" << endl;
 			createUDSEntry(url.url(),"",0,true,0,entry);
 			statEntry( entry );
-			finished();
 			break;
 		case svn_node_unknown:
 		case svn_node_none:
@@ -261,6 +264,7 @@ void kio_svnProtocol::stat(const KURL & url){
 			kdDebug() << "::stat result : UNKNOWN ==> WOW :)" << endl;
 			;
 	}
+	finished();
 	svn_pool_destroy( subpool );
 }
 
@@ -292,7 +296,13 @@ void kio_svnProtocol::listDir(const KURL & url){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_client_ls (&dirents, target, &rev, false, *ctx, subpool);
+	svn_error_t *err = svn_client_ls (&dirents, target, &rev, false, *ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+
 
   apr_array_header_t *array;
   int i;
@@ -329,6 +339,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 }
 
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
+	kdDebug() << "MTime : " << mtime << endl;
 	UDSAtom atom;
 	atom.m_uds = KIO::UDS_NAME;
 	atom.m_str = filename;
