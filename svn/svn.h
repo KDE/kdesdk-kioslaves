@@ -62,16 +62,16 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
 		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
-//		void slave_status();
+		void update( const KURL& wc, int revnumber, const QString& revkind );
 		static svn_error_t* checkAuth(const char **info, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool); 
 		void recordCurrentURL(const KURL& url);
 		KURL myURL;
-		svn_client_ctx_t *ctx;
+		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;
 
 		enum SVN_METHOD { 
 SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
-SVN_UPDATE=2,
+SVN_UPDATE=2, // KURL wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
 SVN_COMMIT=3, 
 SVN_LOG=4, 
 SVN_IMPORT=5

@@ -22,8 +22,8 @@ FUTURE:
 I will work on the ::special kioslave method to add checkout, update, commits abilities and some others.
 Then we will be able to work with gideon and cervisia to see how to integrate it (some kind of cvsservice maybe).
 
-Another step forward will be to be able to browse https repositeries, local repositeries and svnserve repositeries.
-Copying files from a repositery will act like "svn export" (we can't checkout this way ...)
+Another step forward will be to be able to browse https repositories, local repositories and svnserve repositories.
+Copying files from a repository will act like "svn export" (we can't checkout this way ...)
 
 BUGS:
 -----
