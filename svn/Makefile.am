@@ -1,4 +1,4 @@
-INCLUDES = -I/usr/include/subversion-1 -I/usr/include/apr-0/ $(all_includes)
+INCLUDES = -I/usr/include/subversion-1 -I/usr/include/apr-0/ -I/usr/include/xmltok $(all_includes)
 
 kde_module_LTLIBRARIES = kio_svn.la
 

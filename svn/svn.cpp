@@ -42,16 +42,11 @@
 #include <svn_path.h>
 #include <svn_utf.h>
 
+#include <kmimetype.h>
+
 #include "svn.h"
 
 using namespace KIO;
-
-
-typedef struct kbaton {
-	svn_stream_t *target_stream;
-	svn_stringbuf_t *target_string;
-	svn_stream_t *string_stream;
-} kbaton;
 
 kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket)
 	: SlaveBase("kio_svn", pool_socket, app_socket){
@@ -61,6 +56,7 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		pool = svn_pool_create (NULL);
 		err = svn_config_ensure (pool);
 		if (err) {
+			//FIXME
 			svn_pool_destroy (pool);
 		}
 		*ctx = apr_pcalloc(pool, sizeof(*ctx));
@@ -116,17 +112,18 @@ void kio_svnProtocol::get(const KURL& url ){
 	svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
 
 	// Send the mimeType as soon as it is known
-	mimeType("text/plain");
-	data(QCString(bt->target_string->data));
+	QByteArray *cp = new QByteArray();
+	cp->setRawData( bt->target_string->data, bt->target_string->len );
+	KMimeType::Ptr mt = KMimeType::findByContent(*cp);
+	kdDebug() << "KMimeType returned : " << mt->name() << endl;
+	mimeType( mt->name() );
+
+	//send data
+	data(*cp);
 
 	data(QByteArray()); // empty array means we're done sending the data
 	finished();
 	svn_pool_destroy (subpool);
-}
-
-void kio_svnProtocol::mimetype(const KURL & /*url*/){
-	mimeType("text/plain");
-	finished();
 }
 
 static int

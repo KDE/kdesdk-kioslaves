@@ -34,12 +34,18 @@
 
 class QCString;
 
+typedef struct kbaton {
+	svn_stream_t *target_stream;
+	svn_stringbuf_t *target_string;
+	svn_stream_t *string_stream;
+} kbaton;
+
+
 class kio_svnProtocol : public KIO::SlaveBase
 {
 	public:
 		kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket);
 		virtual ~kio_svnProtocol();
-		virtual void mimetype(const KURL& url);
 		virtual void get(const KURL& url);
 		virtual void listDir(const KURL& url);
 		virtual void stat(const KURL& url);
