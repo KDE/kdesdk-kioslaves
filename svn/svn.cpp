@@ -62,7 +62,7 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
 			return;
 		}
-		*ctx = apr_pcalloc(pool, sizeof(*ctx));
+		*ctx = (svn_client_ctx_t*)apr_pcalloc(pool, sizeof(*ctx));
 		svn_config_get_config (&(*ctx)->config,pool);
 
 		apr_array_header_t *providers = apr_array_make(pool, 1, sizeof(svn_auth_provider_object_t *));
@@ -87,7 +87,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 
 static svn_error_t *
 open_tmp_file (apr_file_t **fp, void *callback_baton) {
-  kio_svn_callback_baton_t *cb = callback_baton;
+  kio_svn_callback_baton_t *cb = ( kio_svn_callback_baton_t* )callback_baton;
   const char *truepath;
   const char *ignored_filename;
 
@@ -124,7 +124,7 @@ void kio_svnProtocol::get(const KURL& url ){
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	kbaton *bt;
-	bt = apr_pcalloc(subpool, sizeof(*bt));
+	bt = (kbaton*)apr_pcalloc(subpool, sizeof(*bt));
 	bt->target_string = svn_stringbuf_create("", subpool);
 	bt->string_stream = svn_stream_create(bt,subpool);
 	svn_stream_set_write(bt->string_stream,write_to_string);
@@ -220,8 +220,8 @@ void kio_svnProtocol::stat(const KURL & url){
 	svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
 	kdDebug() << "RA init completed" << endl;
 	//start session
-	svn_ra_callbacks_t *cbtable = apr_pcalloc(subpool, sizeof(*cbtable));	
-	kio_svn_callback_baton_t *callbackbt = apr_pcalloc(subpool, sizeof( *callbackbt ));
+	svn_ra_callbacks_t *cbtable = (svn_ra_callbacks_t*)apr_pcalloc(subpool, sizeof(*cbtable));	
+	kio_svn_callback_baton_t *callbackbt = (kio_svn_callback_baton_t*)apr_pcalloc(subpool, sizeof( *callbackbt ));
 
 	cbtable->open_tmp_file = open_tmp_file;
 	cbtable->get_wc_prop = NULL;
@@ -250,12 +250,12 @@ void kio_svnProtocol::stat(const KURL & url){
 	switch ( kind ) {
 		case svn_node_file:
 			kdDebug() << "::stat result : file" << endl;
-			createUDSEntry(url.url(),"",0,false,0,entry);
+			createUDSEntry(url.filename(),"",0,false,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_dir:
 			kdDebug() << "::stat result : directory" << endl;
-			createUDSEntry(url.url(),"",0,true,0,entry);
+			createUDSEntry(url.directory(),"",0,true,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_unknown:
@@ -319,9 +319,9 @@ void kio_svnProtocol::listDir(const KURL & url){
      
       item = &APR_ARRAY_IDX (array, i, svn_item_t);
 
-      utf8_entryname = item->key;
+      utf8_entryname = (const char*)item->key;
 
-      dirent = apr_hash_get (dirents, utf8_entryname, item->klen);
+      dirent = (svn_dirent_t*)apr_hash_get (dirents, utf8_entryname, item->klen);
 
       svn_utf_cstring_from_utf8 (&native_entryname, utf8_entryname, subpool);
 			const char *native_author = NULL;
