@@ -13,6 +13,7 @@ listing=Name,Size,Date,Owner
 defaultMimetype=application/octet-stream
 Icon=remote
 Description=Subversion ioslave
+Description[ca]=Ioslave de Subversion
 Description[de]=Subversion-Ioslave
 Description[et]=Subversioni ioslave
 Description[it]=Slave I/O di Subversion
