@@ -214,7 +214,7 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **/*cred*/, void 
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_auth_cred_simple_t *ret = (svn_auth_cred_simple_t*)apr_pcalloc (pool, sizeof (*ret));
 	
-//XXX readd me when debug is complete		p->info.keepPassword = true;
+	p->info.keepPassword = true;
 	p->info.verifyPath=true;
 	kdDebug( ) << "auth current URL : " << p->myURL.url() << endl;
 	p->info.url = p->myURL;
