@@ -1,6 +1,6 @@
 [Protocol]
 exec=kio_svn
-protocol=svn
+protocol=svn+http
 input=none
 output=filesystem
 reading=true
