@@ -85,6 +85,7 @@ if test -x "$SVNCONFIG"; then
 else
 	AC_MSG_RESULT(not found)
 	dnl just a fallback to debian's config so that it works for me :)
+	SVN_INCLUDES="/usr/local/include /usr/include"
 	AC_ARG_WITH(svn-include,
 				[[  --with-svn-include=DIR   Use the given path to the subversion headers.]],
 				[
