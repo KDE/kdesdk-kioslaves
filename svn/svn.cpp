@@ -135,7 +135,7 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		svn_config_get_config (&ctx.config,NULL,pool);
 
 		//for now but TODO
-		ctx.notify_func = NULL;
+		ctx.notify_func = NULL;//kio_svnProtocol::notify;
 		ctx.notify_baton = NULL;
 		ctx.log_msg_func = kio_svnProtocol::commitLogPrompt;
 		ctx.log_msg_baton = this; //pass this so that we can get a dcopClient from it
@@ -869,12 +869,12 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	QByteArray params;
 	QByteArray reply;
 	QString result;
-	QString list;
+	QStringList slist;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_stringbuf_t *message = NULL;
 
-#if 0
 	for (int i = 0; i < commit_items->nelts; i++) {
+		QString list;
 		svn_client_commit_item_t *item = ((svn_client_commit_item_t **) commit_items->elts)[i];
 		const char *path = item->path;
 		char text_mod = '_', prop_mod = ' ';
@@ -887,8 +887,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		if (! path)
 			path = ".";
 
-		if ((item->state_flags & SVN_CLIENT_COMMIT_ITEM_DELETE)
-				&& (item->state_flags & SVN_CLIENT_COMMIT_ITEM_ADD))
+		if ((item->state_flags & SVN_CLIENT_COMMIT_ITEM_DELETE) && (item->state_flags & SVN_CLIENT_COMMIT_ITEM_ADD))
 			text_mod = 'R';
 		else if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_ADD)
 			text_mod = 'A';
@@ -899,16 +898,17 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		if (item->state_flags & SVN_CLIENT_COMMIT_ITEM_PROP_MODS)
 			prop_mod = 'M';
 
-		list += &text_mod;
-		list += &prop_mod;
+		list += text_mod;
+		list += " ";
+		list += prop_mod;
 		list += "  ";
 		list += path;
-		list += "\n";
+		kdDebug() << " Commiting items : " << list << endl;
+		slist << list;
 	}
-#endif
 
 	QDataStream stream(params, IO_WriteOnly);
-	stream << list;	
+	stream << slist.join("\n");	
 
 	if ( !p->dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
@@ -932,6 +932,12 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	message = svn_stringbuf_create( result.utf8(), pool );
 	*log_msg = message->data;
 
+	return SVN_NO_ERROR;
+}
+
+static svn_error_t *notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, 
+		const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, 
+		svn_revnum_t revision) {
 	return SVN_NO_ERROR;
 }
 
