@@ -1373,9 +1373,10 @@ void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *sta
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 
 	QDataStream stream(params, IO_WriteOnly);
-	stream << QString::fromUtf8( path ) << status->text_status << status->prop_status << status->repos_text_status << status->repos_prop_status;
+	long int rev = status->entry ? status->entry->revision : 0;
+	stream << QString::fromUtf8( path ) << status->text_status << status->prop_status << status->repos_text_status << status->repos_prop_status << rev;
 
-	if ( !p->dcopClient()->send( "kded","ksvnd","status(QString,int,int,int,int)", params ) ) {
+	if ( !p->dcopClient()->send( "kded","ksvnd","status(QString,int,int,int,int,long int)", params ) ) {
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
 		return;
 	}
