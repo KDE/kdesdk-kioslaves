@@ -209,21 +209,23 @@ void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppre
 	ctx.notify_baton = nb;
 }
 
-svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **/*cred*/, void *baton, const char *realm, const char *username, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
+svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
 	kdDebug() << "kio_svnProtocol::checkAuth() for " << realm << endl;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	svn_auth_cred_simple_t *ret = (svn_auth_cred_simple_t*)apr_pcalloc (pool, sizeof (*ret));
 	
-	p->info.keepPassword = true;
+//	p->info.keepPassword = true;
 	p->info.verifyPath=true;
 	kdDebug( ) << "auth current URL : " << p->myURL.url() << endl;
 	p->info.url = p->myURL;
 	p->info.username = username; //( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
-	if ( !p->checkCachedAuthentication( p->info ) ){
+//	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
-	}
-	ret->username = apr_pstrdup(pool, p->info.username.utf8());
-	ret->password = apr_pstrdup(pool, p->info.password.utf8());
+//	}
+	ret->username = apr_pstrdup(pool, p->info.username.latin1());
+	ret->password = apr_pstrdup(pool, p->info.password.latin1());
+	ret->may_save = true;
+	*cred = ret;
 	return SVN_NO_ERROR;
 }
 
