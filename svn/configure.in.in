@@ -1,4 +1,5 @@
 APR_CONFIGS="apr-config /usr/local/apr/bin/apr-config"
+SVN_SUBDIR="svn"
 AC_ARG_WITH(apr-config,
 [[  --with-apr-config=FILE    Use the given path to apr-config when determining
                             APR configuration; defaults to "apr-config"]],
@@ -20,7 +21,7 @@ if test $APR_CONFIG ; then
     AC_MSG_RESULT([found])
 else
     AC_MSG_RESULT([not found])
-	DO_NOT_COMPILE="$DO_NOT_COMPILE kio_svn"
+	SVN_SUBDIR=
 dnl    AC_MSG_ERROR([APR is required. Try --with-apr-config.])
 fi
 	
@@ -53,7 +54,7 @@ if test $APU_CONFIG ; then
     AC_MSG_RESULT([found])
 else
     AC_MSG_RESULT([not found])
-	DO_NOT_COMPILE="$DO_NOT_COMPILE kio_svn"
+	SVN_SUBDIR=
 dnl    AC_MSG_ERROR([APR util is required. Try --with-apu-config.])
 fi
 dnl APR_CPPFLAGS="$APR_CPPFLAGS `$APU_CONFIG --includes`"
@@ -103,7 +104,7 @@ else
 		AC_MSG_RESULT([found])
 	else
 		AC_MSG_RESULT([not found])
-		DO_NOT_COMPILE="$DO_NOT_COMPILE kio_svn"
+		SVN_SUBDIR=
 dnl		AC_MSG_ERROR([Subversion headers are required. Try --with-svn-include.])
 	fi
 	SVN_LIBS="/usr/local/lib /usr/lib"
@@ -126,8 +127,7 @@ dnl		AC_MSG_ERROR([Subversion headers are required. Try --with-svn-include.])
 		AC_MSG_RESULT([found])
 	else
 		AC_MSG_RESULT([not found])
-		DO_NOT_COMPILE="$DO_NOT_COMPILE kio_svn"
-dnl		AC_MSG_ERROR([Subversion libraries are required. Try --with-svn-lib.])
+		SVN_SUBDIR=
 	fi
 fi
 SVN_LIB="-L$SVN_LIB $APR_LIBS -lsvn_client-1"
@@ -137,4 +137,4 @@ SVN_CPPFLAGS="$APR_CPPFLAGS"
 AC_SUBST(SVN_INCLUDE)
 AC_SUBST(SVN_LIB)
 AC_SUBST(SVN_CPPFLAGS)
-
+AM_CONDITIONAL(include_kioslave_svn, test -n "$SVN_SUBDIR")
