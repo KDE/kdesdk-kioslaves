@@ -1223,7 +1223,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	QDataStream stream2 ( reply, IO_ReadOnly );
 	stream2 >> result;
 	
-	if ( result == QString::null ) { //cancelled
+	if ( result.isNull() ) { //cancelled
 		*log_msg = NULL;
 		return SVN_NO_ERROR;
 	}
