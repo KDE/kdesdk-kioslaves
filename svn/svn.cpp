@@ -41,11 +41,11 @@
 #include <dcopclient.h>
 #include <qcstring.h>
 
-#include <svn_sorts.h>
-#include <svn_path.h>
-#include <svn_utf.h>
-#include <svn_ra.h>
-#include <svn_time.h>
+#include <subversion-1/svn_sorts.h>
+#include <subversion-1/svn_path.h>
+#include <subversion-1/svn_utf.h>
+#include <subversion-1/svn_ra.h>
+#include <subversion-1/svn_time.h>
 
 #include <kmimetype.h>
 
@@ -207,8 +207,8 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *bat
 	if ( !p->checkCachedAuthentication( p->info ) ){
 		p->openPassDlg( p->info );
 	}
-	ret->username = apr_pstrdup(pool, (const char*)p->info.username);
-	ret->password = apr_pstrdup(pool, (const char*)p->info.password);
+	ret->username = apr_pstrdup(pool, p->info.username.utf8());
+	ret->password = apr_pstrdup(pool, p->info.password.utf8());
 	return SVN_NO_ERROR;
 }
 
@@ -251,7 +251,7 @@ void kio_svnProtocol::get(const KURL& url ){
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
 #endif
-		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
+		svn_opt_parse_revision( &rev, &endrev, revstr.utf8(), subpool );
 		target = target.left( idx );
 		kdDebug() << "new target : " << target << endl;
 	} else {
@@ -259,7 +259,7 @@ void kio_svnProtocol::get(const KURL& url ){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target,subpool ),&rev,&ctx, subpool);
+	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target.utf8(),subpool ),&rev,&ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -313,7 +313,7 @@ void kio_svnProtocol::stat(const KURL & url){
 			kdDebug() << "revision searched : " << rev.value.number << endl;
 		}
 #endif
-		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
+		svn_opt_parse_revision( &rev, &endrev, revstr.utf8( ), subpool );
 		target = target.left( idx );
 		kdDebug() << "new target : " << target << endl;
 	} else {
@@ -328,7 +328,7 @@ void kio_svnProtocol::stat(const KURL & url){
 		return;
 	}
 	//find RA libs
-	err = svn_ra_get_ra_library(&ra_lib,ra_baton,svn_path_canonicalize( target, subpool ),subpool);
+	err = svn_ra_get_ra_library(&ra_lib,ra_baton,svn_path_canonicalize( target.utf8(), subpool ),subpool);
 	if ( err ) {
 		kdDebug() << "RA get libs failed : " << err->message << endl;
 		return;
@@ -345,11 +345,11 @@ void kio_svnProtocol::stat(const KURL & url){
 	cbtable->push_wc_prop = NULL;
 	cbtable->auth_baton = ctx.auth_baton;
 
-	callbackbt->base_dir = target;
+	callbackbt->base_dir = target.utf8();
 	callbackbt->pool = subpool;
 	callbackbt->config = ctx.config;
 	
-	err = ra_lib->open(&session,svn_path_canonicalize( target, subpool ),cbtable,callbackbt,ctx.config,subpool);
+	err = ra_lib->open(&session,svn_path_canonicalize( target.utf8(), subpool ),cbtable,callbackbt,ctx.config,subpool);
 	if ( err ) {
 		kdDebug()<< "Open session " << err->message << endl;
 		return;
@@ -407,7 +407,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 	int idx = target.findRev( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
-		svn_opt_parse_revision( &rev, &endrev, revstr, subpool );
+		svn_opt_parse_revision( &rev, &endrev, revstr.utf8(), subpool );
 #if 0
 		kdDebug() << "revision string found " << revstr  << endl;
 		if ( revstr == "HEAD" ) {
@@ -426,7 +426,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target, subpool ), &rev, false, &ctx, subpool);
+	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target.utf8(), subpool ), &rev, false, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -538,7 +538,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, &ctx, subpool);
+	svn_error_t *err = svn_client_copy(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -633,7 +633,7 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) 
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_move(&commit_info, srcsvn, &rev, destsvn, false/*force remove locally modified files in wc*/, &ctx, subpool);
+	svn_error_t *err = svn_client_move(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), false/*force remove locally modified files in wc*/, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_CANNOT_RENAME, err->message );
 		svn_pool_destroy( subpool );
@@ -745,9 +745,9 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 		rev.value.number = revnumber;
 		rev.kind = svn_opt_revision_number;
 	} else if ( !revkind.isNull() )
-		svn_opt_parse_revision(&rev,&endrev,revkind,subpool);
+		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
-	svn_error_t *err = svn_client_update (NULL /*rev at which it was actually updated*/, svn_path_canonicalize( target, subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_update (NULL /*rev at which it was actually updated*/, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -777,9 +777,9 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 		rev.value.number = revnumber;
 		rev.kind = svn_opt_revision_number;
 	} else if ( !revkind.isNull() )
-		svn_opt_parse_revision(&rev,&endrev,revkind,subpool);
+		svn_opt_parse_revision(&rev,&endrev,revkind.utf8(),subpool);
 
-	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target, subpool ), svn_path_canonicalize ( dpath, subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target.utf8(), subpool ), svn_path_canonicalize ( dpath.utf8(), subpool ), &rev, true, &ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );

@@ -26,13 +26,13 @@
 #include <kurl.h>
 #include <kio/global.h>
 #include <kio/slavebase.h>
-#include <svn_pools.h>
-#include <svn_auth.h>
-#include <svn_client.h>
-#include <svn_config.h>
+#include <subversion-1/svn_pools.h>
+#include <subversion-1/svn_auth.h>
+#include <subversion-1/svn_client.h>
+#include <subversion-1/svn_config.h>
 #include <sys/stat.h>
 #include <qvaluelist.h>
-#include <svn_wc.h>
+#include <subversion-1/svn_wc.h>
 
 class QCString;
 
