@@ -85,6 +85,7 @@ if test -x "$SVNCONFIG"; then
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT(not found)
+	SVNLD=""
 	dnl just a fallback to debian's config so that it works for me :)
 	SVN_INCLUDES="/usr/local/include /usr/include"
 	AC_ARG_WITH(svn-include,
@@ -139,4 +140,5 @@ SVN_CPPFLAGS="$APR_CPPFLAGS $SVN_CPPFLAGS"
 AC_SUBST(SVN_INCLUDE)
 AC_SUBST(SVN_LIB)
 AC_SUBST(SVN_CPPFLAGS)
+AC_SUBST(SVNLD)
 AM_CONDITIONAL(include_kioslave_svn, test -n "$SVN_SUBDIR")
