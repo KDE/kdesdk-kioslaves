@@ -1,4 +1,3 @@
-
 /* This file is part of the KDE project
    Copyright (C) 2003 Mickael Marchand <marchand@kde.org>
 
@@ -58,12 +57,17 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void listDir(const KURL& url);
 		virtual void stat(const KURL& url);
 		void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
+		static svn_error_t* checkAuth(const char **info, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool); 
+		void recordCurrentURL(QString& url);
+		void svn_client__dir_if_wc (const char **dir_p, const char *dir,apr_pool_t *p);
+		QString myURL;
+		svn_client_ctx_t *ctx;
+		KIO::AuthInfo info;
 
 	private:
 		bool createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, KIO::UDSEntry& entry);
 		apr_pool_t *pool;
-		svn_client_ctx_t **ctx;
-		svn_auth_baton_t *auth_baton;
+//		svn_auth_baton_t *auth_baton;
 };
 
 #endif

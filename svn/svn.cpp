@@ -48,42 +48,9 @@
 
 #include "svn.h"
 #include <apr_portable.h>
+#include <kinputdialog.h>
 
 using namespace KIO;
-
-kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket)
-	: SlaveBase("kio_svn", pool_socket, app_socket){
-		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
-		svn_error_t *err;
-		apr_initialize();
-		pool = svn_pool_create (NULL);
-		err = svn_config_ensure (pool);
-		if ( err ) {
-			error( KIO::ERR_SLAVE_DEFINED, err->message );
-			return;
-		}
-		*ctx = (svn_client_ctx_t*)apr_pcalloc(pool, sizeof(*ctx));
-		svn_config_get_config (&(*ctx)->config,pool);
-
-		apr_array_header_t *providers = apr_array_make(pool, 1, sizeof(svn_auth_provider_object_t *));
-
-		svn_auth_provider_object_t *username_wc_provider;
-
-		svn_client_get_username_provider (&username_wc_provider,pool);
-
-		*(svn_auth_provider_object_t **)apr_array_push(providers) = username_wc_provider;
-
-		svn_auth_open(&auth_baton, providers, pool);
-
-		( *ctx )->auth_baton = auth_baton;
-
-}
-
-kio_svnProtocol::~kio_svnProtocol(){
-	kdDebug() << "kio_svnProtocol::~kio_svnProtocol()" << endl;
-	svn_pool_destroy(pool);
-	apr_terminate();
-}
 
 static svn_error_t *
 open_tmp_file (apr_file_t **fp, void *callback_baton) {
@@ -108,10 +75,97 @@ open_tmp_file (apr_file_t **fp, void *callback_baton) {
 
 static svn_error_t *write_to_string(void *baton, const char *data, apr_size_t *len) {
 	kbaton *tb = ( kbaton* )baton;
-
 	svn_stringbuf_appendbytes(tb->target_string, data, *len);
+	return SVN_NO_ERROR;
+}
+
+static int
+compare_items_as_paths (const svn_item_t *a, const svn_item_t *b) {
+  return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
+}
+
+kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket)
+	: SlaveBase("kio_svn", pool_socket, app_socket){
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol()" << endl;
+		svn_error_t *err;
+		apr_initialize();
+		pool = svn_pool_create (NULL);
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure" << endl;
+		err = svn_config_ensure (pool);
+		if ( err ) {
+			kdDebug() << "kio_svnProtocol::kio_svnProtocol() configensure ERROR" << endl;
+			error( KIO::ERR_SLAVE_DEFINED, err->message );
+			return;
+		}
+		ctx = (svn_client_ctx_t *)apr_pcalloc(pool, sizeof(ctx));
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() before getconfig" << endl;
+		svn_config_get_config (&ctx->config,pool);
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() getconfig" << endl;
+
+		ctx->prompt_func = kio_svnProtocol::checkAuth;
+		ctx->prompt_baton = this;
+
+		apr_array_header_t *providers = apr_array_make(pool, 4, sizeof(svn_auth_provider_object_t *));
+
+		svn_auth_provider_object_t *provider;
+
+		svn_client_get_simple_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() simplepromptprovider" << endl;
+
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+
+		svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() usernamepromptprovider" << endl;
+
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
+		
+		svn_auth_open(&ctx->auth_baton, providers, pool);
+		kdDebug() << "kio_svnProtocol::kio_svnProtocol() auth" << endl;
+}
+
+kio_svnProtocol::~kio_svnProtocol(){
+	kdDebug() << "kio_svnProtocol::~kio_svnProtocol()" << endl;
+	svn_pool_destroy(pool);
+	apr_terminate();
+}
+
+svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool) {
+	kdDebug() << "kio_svnProtocol::checkAuth() for " << prompt << endl;
+	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
+	
+//	p->info.prompt = prompt;
+	//p->info.keepPassword = true;
+	p->info.verifyPath=true;
+	p->info.url = KURL( p->myURL );
+//	p->info.username = ( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
+	if ( !p->checkCachedAuthentication( p->info ) ){
+		p->openPassDlg( p->info );
+	}
+	if ( hide )
+		*answer = ( const char * )p->info.password;
+	else
+		*answer = ( const char * )p->info.username;
 
 	return SVN_NO_ERROR;
+}
+
+void kio_svnProtocol::recordCurrentURL(QString& url) {
+	myURL = url;
+}
+
+void kio_svnProtocol::svn_client__dir_if_wc (const char **dir_p, const char *dir,apr_pool_t *p) {
+	int wc_format;
+
+	svn_error_t *err = svn_wc_check_wc(dir,&wc_format,p);
+	if ( err ) {
+		kdDebug() << "Check dir failed : " << err->message << endl;
+		return;
+	}
+	if ( wc_format==0 )
+		*dir_p = NULL;
+	else
+		*dir_p = dir;
+		
 }
 
 //don't implement mimeType() until we don't need to download the whole file
@@ -131,6 +185,7 @@ void kio_svnProtocol::get(const KURL& url ){
 
 	QString target = url.url().replace( 0, 3, "http" );
 	kdDebug() << "myURL: " << target << endl;
+	recordCurrentURL( target );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -153,7 +208,7 @@ void kio_svnProtocol::get(const KURL& url ){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_cat (bt->string_stream, target.local8Bit(),&rev,*ctx, subpool);
+	svn_error_t *err = svn_client_cat (bt->string_stream, target.local8Bit(),&rev,ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -177,11 +232,6 @@ void kio_svnProtocol::get(const KURL& url ){
 	svn_pool_destroy (subpool);
 }
 
-static int
-compare_items_as_paths (const svn_item_t *a, const svn_item_t *b) {
-  return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
-}
-
 void kio_svnProtocol::stat(const KURL & url){
 	kdDebug() << "kio_svn::stat(const KURL& url) : " << url.url() << endl ;
 
@@ -192,6 +242,7 @@ void kio_svnProtocol::stat(const KURL & url){
 	apr_pool_t *subpool = svn_pool_create (pool);
 
 	QString target = url.url().replace( 0, 3, "http" );
+	recordCurrentURL( target );
 
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -215,10 +266,23 @@ void kio_svnProtocol::stat(const KURL & url){
 	}
 
 	//init
-	svn_ra_init_ra_libs(&ra_baton,subpool);
+	svn_error_t *err = svn_ra_init_ra_libs(&ra_baton,subpool);
+	if ( err ) {
+		kdDebug() << "init RA libs failed : " << err->message << endl;
+		return;
+	}
 	//find RA libs
-	svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
+	err = svn_ra_get_ra_library(&ra_lib,ra_baton,target,subpool);
+	if ( err ) {
+		kdDebug() << "RA get libs failed : " << err->message << endl;
+		return;
+	}
 	kdDebug() << "RA init completed" << endl;
+	
+	//check dirs
+	//for auth ?
+//	svn_client__dir_if_wc(&auth_dir,"",subpool);	
+
 	//start session
 	svn_ra_callbacks_t *cbtable = (svn_ra_callbacks_t*)apr_pcalloc(subpool, sizeof(*cbtable));	
 	kio_svn_callback_baton_t *callbackbt = (kio_svn_callback_baton_t*)apr_pcalloc(subpool, sizeof( *callbackbt ));
@@ -227,25 +291,31 @@ void kio_svnProtocol::stat(const KURL & url){
 	cbtable->get_wc_prop = NULL;
 	cbtable->set_wc_prop = NULL;
 	cbtable->push_wc_prop = NULL;
-	cbtable->auth_baton = ( *ctx )->auth_baton;
+	cbtable->auth_baton = ctx->auth_baton;
 
 	callbackbt->base_dir = target;
 	callbackbt->pool = subpool;
-	callbackbt->config = ( *ctx )->config;
+	callbackbt->config = ctx->config;
 	
-	ra_lib->open(&session,target,cbtable,callbackbt,( *ctx )->config,subpool);
+	err = ra_lib->open(&session,target,cbtable,callbackbt,ctx->config,subpool);
+	if ( err ) {
+		kdDebug()<< "Open session " << err->message << endl;
+		return;
+	}
 	kdDebug() << "Session opened to " << target << endl;
-
 	//find number for HEAD
 	if (rev.kind == svn_opt_revision_head) {
-		ra_lib->get_latest_revnum(session,&rev.value.number,subpool);
+		err = ra_lib->get_latest_revnum(session,&rev.value.number,subpool);
+		if ( err ) {
+			kdDebug()<< "Latest RevNum " << err->message << endl;
+			return;
+		}
 		kdDebug() << "Got rev " << rev.value.number << endl;
 	}
 	
 	//get it
 	ra_lib->check_path(&kind,session,"",rev.value.number,subpool);
 	kdDebug() << "Checked Path" << endl;
-	
 	UDSEntry entry;
 	switch ( kind ) {
 		case svn_node_file:
@@ -275,6 +345,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 	apr_pool_t *subpool = svn_pool_create (pool);
 	apr_hash_t *dirents;
 	QString target = url.url().replace( 0, 3, "http" );
+	recordCurrentURL( target );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -297,13 +368,12 @@ void kio_svnProtocol::listDir(const KURL & url){
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_ls (&dirents, target, &rev, false, *ctx, subpool);
+	svn_error_t *err = svn_client_ls (&dirents, target, &rev, false, ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
 		return;
 	}
-
 
   apr_array_header_t *array;
   int i;
@@ -326,18 +396,19 @@ void kio_svnProtocol::listDir(const KURL & url){
       svn_utf_cstring_from_utf8 (&native_entryname, utf8_entryname, subpool);
 			const char *native_author = NULL;
 
-			apr_time_exp_t timexp;
+			//XXX BUGGY
+/*			apr_time_exp_t timexp;
 			apr_time_exp_lt(&timexp, dirent->time);
 			apr_os_exp_time_t *ostime;
-			apr_os_exp_time_get( &ostime, &timexp);
+			apr_os_exp_time_get( &ostime, &timexp);*/
 
-			time_t mtime = mktime( ostime );
+//			time_t mtime = mktime( ostime );
 
 			if (dirent->last_author)
 				svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
 
 			if ( createUDSEntry(QString( native_entryname ), QString( native_author ), dirent->size,
-						dirent->kind==svn_node_dir ? true : false, mtime, entry) )
+						dirent->kind==svn_node_dir ? true : false, 0, entry) )
 				listEntry( entry, false );
 	}
 	listEntry( entry, true );
@@ -347,7 +418,7 @@ void kio_svnProtocol::listDir(const KURL & url){
 }
 
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
-//	kdDebug() << "MTime : " << mtime << endl;
+	kdDebug() << "MTime : " << mtime << endl;
 	UDSAtom atom;
 	atom.m_uds = KIO::UDS_NAME;
 	atom.m_str = filename;
@@ -402,7 +473,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 		rev.kind = svn_opt_revision_head;
 	}
 
-	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, NULL, *ctx, subpool);
+	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, NULL, ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
