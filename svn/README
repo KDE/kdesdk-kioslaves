@@ -1,6 +1,6 @@
-This is a kio_subersion. It allows you to browse a (remote) Subversion repositery. 
+This is a kio_subversion. It allows you to browse a (remote) Subversion repository. 
 The expected URLs are something like : svn://svn.collab.net/repos/svn
-This will show you the current HEAD version of the repositery (just like the one you would get 
+This will show you the current HEAD version of the repository (just like the one you would get 
 with http://svn.collab.net/repos/svn). 
 You can also try : svn://svn.collab.net/repos/svn?rev=500 so that it displays the revision 500.
 
@@ -19,20 +19,14 @@ and make install with superkarma.
 
 FUTURE:
 -------
-I will work on the ::special kioslave to method add checkout, update, commits abilities and some others.
+I will work on the ::special kioslave method to add checkout, update, commits abilities and some others.
 Then we will be able to work with gideon and cervisia to see how to integrate it (some kind of cvsservice maybe).
 
 Another step forward will be to be able to browse https repositeries, local repositeries and svnserve repositeries.
+Copying files from a repositery will act like "svn export" (we can't checkout this way ...)
 
 BUGS:
 -----
-- authentication support seems broken ...
-- can't copy files from svn:// URLs to local filesystem, dunno why yet ...
-
-STATUS:
--------
-::listDir OK
-::stat    OK
-::get     OK
-::copy    test
+any ?
+please report
 
