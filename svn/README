@@ -1,8 +1,12 @@
 This is a kio_subversion. It allows you to browse a (remote) Subversion repository. 
-The expected URLs are something like : svn://svn.collab.net/repos/svn
+The expected URLs are something like : svn+http://svn.collab.net/repos/svn
 This will show you the current HEAD version of the repository (just like the one you would get 
 with http://svn.collab.net/repos/svn). 
-You can also try : svn://svn.collab.net/repos/svn?rev=500 so that it displays the revision 500.
+You can also try : svn+http://svn.collab.net/repos/svn?rev=500 so that it displays the revision 500.
+
+REQUIREMENTS:
+------------
+Subversion libraries >= 0.32 (http://subversion.tigris.org)
 
 INSTALL:
 --------
