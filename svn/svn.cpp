@@ -693,6 +693,7 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 	int tmp;
 
 	stream >> tmp;
+	kdDebug(7128) << "kio_svnProtocol::special " << tmp << endl;
 
 	switch ( tmp ) {
 		case SVN_CHECKOUT: 
@@ -768,14 +769,14 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 			}
 		case SVN_STATUS: 
 			{
-				KURL wc;
+				QString wc;
 				bool checkRepos=false;
 				bool fullRecurse=false;
 				stream >> wc;
 				stream >> checkRepos;
 				stream >> fullRecurse;
 				kdDebug(7128) << "kio_svnProtocol STATUS" << endl;
-				wc_status(wc,checkRepos,fullRecurse);
+				wc_status(KURL( wc ),checkRepos,fullRecurse);
 				break;
 			}
 		case SVN_MKDIR:
