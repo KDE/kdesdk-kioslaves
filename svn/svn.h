@@ -56,10 +56,12 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void get(const KURL& url);
 		virtual void listDir(const KURL& url);
 		virtual void stat(const KURL& url);
-		void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
+		virtual void mkdir(const KURL& url, int permissions);
+		virtual void del( const KURL& url, bool isfile );
+		virtual void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
+		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
 		static svn_error_t* checkAuth(const char **info, const char *prompt, svn_boolean_t hide, void *baton, apr_pool_t *pool); 
-		void recordCurrentURL(QString& url);
-		void svn_client__dir_if_wc (const char **dir_p, const char *dir,apr_pool_t *p);
+		void recordCurrentURL(const QString& url);
 		QString myURL;
 		svn_client_ctx_t *ctx;
 		KIO::AuthInfo info;
@@ -67,7 +69,6 @@ class kio_svnProtocol : public KIO::SlaveBase
 	private:
 		bool createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, KIO::UDSEntry& entry);
 		apr_pool_t *pool;
-//		svn_auth_baton_t *auth_baton;
 };
 
 #endif

@@ -110,10 +110,6 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 
 		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
 
-	//	svn_client_get_username_prompt_provider (&provider,kio_svnProtocol::checkAuth,this,2,pool);
-
-	//	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t*) = provider;
-		
 		svn_auth_open(&ctx->auth_baton, providers, pool);
 }
 
@@ -128,8 +124,9 @@ svn_error_t* kio_svnProtocol::checkAuth(const char **answer, const char *prompt,
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
 	
 //	p->info.prompt = prompt;
-		p->info.keepPassword = true;
+//XXX readd me when debug is complete		p->info.keepPassword = true;
 	p->info.verifyPath=true;
+	kdDebug( ) << "auth current URL : " << p->myURL << endl;
 	p->info.url = KURL( p->myURL );
 //	p->info.username = ( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
 	if ( !p->checkCachedAuthentication( p->info ) ){
@@ -161,7 +158,9 @@ void kio_svnProtocol::get(const KURL& url ){
 	bt->string_stream = svn_stream_create(bt,subpool);
 	svn_stream_set_write(bt->string_stream,write_to_string);
 
-	QString target = url.url().replace( 0, 3, "http" );
+	KURL nurl = url;
+	nurl.setProtocol( "http" );
+	QString target = nurl.url();
 	kdDebug() << "myURL: " << target << endl;
 	recordCurrentURL( target );
 	
@@ -219,7 +218,9 @@ void kio_svnProtocol::stat(const KURL & url){
 	const char *auth_dir;
 	apr_pool_t *subpool = svn_pool_create (pool);
 
-	QString target = url.url().replace( 0, 3, "http" );
+	KURL nurl = url;
+	nurl.setProtocol( "http" );
+	QString target = nurl.url();
 	recordCurrentURL( target );
 
 	//find the requested revision
@@ -294,12 +295,12 @@ void kio_svnProtocol::stat(const KURL & url){
 	switch ( kind ) {
 		case svn_node_file:
 			kdDebug() << "::stat result : file" << endl;
-			createUDSEntry(url.filename(),"",0,false,0,entry);
+			createUDSEntry(nurl.filename(),"",0,false,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_dir:
 			kdDebug() << "::stat result : directory" << endl;
-			createUDSEntry(url.filename(),"",0,true,0,entry);
+			createUDSEntry(nurl.filename(),"",0,true,0,entry);
 			statEntry( entry );
 			break;
 		case svn_node_unknown:
@@ -318,7 +319,9 @@ void kio_svnProtocol::listDir(const KURL & url){
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	apr_hash_t *dirents;
-	QString target = url.url().replace( 0, 3, "http" );
+	KURL nurl = url;
+	nurl.setProtocol( "http" );
+	QString target = nurl.url();
 	recordCurrentURL( target );
 	
 	//find the requested revision
@@ -424,9 +427,15 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info;
 
-	QString srcsvn = src.url().replace( 0, 3, "http" );
-	QString destsvn = dest.url().replace( 0, 3, "http" );
+	KURL nsrc = src;
+	KURL ndest = dest;
+	nsrc.setProtocol( "http" );
+	ndest.setProtocol( "http" );
+	QString srcsvn = nsrc.url();
+	QString destsvn = ndest.url();
 	
+	recordCurrentURL( srcsvn );
+
 	//find the requested revision
 	svn_opt_revision_t rev;
 	int idx = srcsvn.findRev( "?rev=" );
@@ -451,6 +460,103 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int permissions, 
 	svn_error_t *err = svn_client_copy(&commit_info, srcsvn, &rev, destsvn, NULL, ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::mkdir( const KURL& url, int permissions ) {
+	kdDebug() << "kio_svnProtocol::mkdir() : " << url << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+
+	KURL nurl = url;
+	nurl.setProtocol( "http" );
+	QString target = nurl.url();
+	recordCurrentURL( target );
+	
+	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
+
+	svn_error_t *err = svn_client_mkdir(&commit_info,targets,ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::del( const KURL& url, bool isfile ) {
+	kdDebug() << "kio_svnProtocol::del() : " << url << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info = NULL;
+
+	KURL nurl = url;
+	nurl.setProtocol( "http" );
+	QString target = nurl.url();
+	recordCurrentURL( target );
+	
+	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.url().utf8() );
+
+	svn_error_t *err = svn_client_delete(&commit_info,targets,false/*force remove locally modified files in wc*/,ctx,subpool);
+	if ( err ) {
+		error( KIO::ERR_CANNOT_DELETE, err->message );
+		svn_pool_destroy( subpool );
+		return;
+	}
+	
+	finished();
+	svn_pool_destroy (subpool);
+}
+
+void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool overwrite) {
+	kdDebug() << "kio_svnProtocol::rename() Source : " << src << " Dest : " << dest << endl;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_client_commit_info_t *commit_info;
+
+	KURL nsrc = src;
+	KURL ndest = dest;
+	nsrc.setProtocol( "http" );
+	ndest.setProtocol( "http" );
+	QString srcsvn = nsrc.url();
+	QString destsvn = ndest.url();
+	
+	recordCurrentURL( srcsvn );
+
+	//find the requested revision
+	svn_opt_revision_t rev;
+	int idx = srcsvn.findRev( "?rev=" );
+	if ( idx != -1 ) {
+		QString revstr = srcsvn.mid( idx+5 );
+		kdDebug() << "revision string found " << revstr  << endl;
+		if ( revstr == "HEAD" ) {
+			rev.kind = svn_opt_revision_head;
+			kdDebug() << "revision searched : HEAD" << endl;
+		} else {
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = revstr.toLong();
+			kdDebug() << "revision searched : " << rev.value.number << endl;
+		}
+		srcsvn = srcsvn.left( idx );
+		kdDebug() << "new src : " << srcsvn << endl;
+	} else {
+		kdDebug() << "no revision given. searching HEAD " << endl;
+		rev.kind = svn_opt_revision_head;
+	}
+
+	svn_error_t *err = svn_client_move(&commit_info, srcsvn, &rev, destsvn, false/*force remove locally modified files in wc*/, ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_CANNOT_RENAME, err->message );
 		svn_pool_destroy( subpool );
 		return;
 	}
