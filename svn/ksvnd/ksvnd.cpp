@@ -25,7 +25,7 @@
 #include "config.h"
 
 #include "ksvnd.h"
-#include "commitdialog.h"
+#include "commitdlg.h"
 
 extern "C" {
     KDEDModule *create_ksvnd(const QCString &name) {
@@ -40,9 +40,9 @@ KSvnd::KSvnd(const QCString &name)
 KSvnd::~KSvnd() {
 }
 
-QString KSvnd::commitDialog(QString comment) {
-	CommitDialog commitDlg;
-	commitDlg.setLog( comment );
+QString KSvnd::commitDialog(QString modifiedFiles) {
+	CommitDlg commitDlg;
+	commitDlg.setLog( modifiedFiles );
 	int result = commitDlg.exec();
 	if ( result == QDialog::Accepted ) {
 		return commitDlg.logMessage();

@@ -34,7 +34,7 @@ public:
 
 k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
-  QString commitDialog(QString comment);
+  QString commitDialog(QString);
 
 public slots:
 
