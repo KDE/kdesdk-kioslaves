@@ -115,15 +115,6 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		kdDebug(7128) << "kio_svnProtocol::kio_svnProtocol()" << endl;
 
 		m_counter = 0;
-		kdDebug(7128) << "Loading KDED module" << endl;
-		QCString module = "ksvnd";
-		QCString replyType;
-		QByteArray replyData;
-		QByteArray params;
-		QDataStream stream(params, IO_WriteOnly);
-		stream << module;
-		dcopClient()->call( "kded", "kded", "loadModule(QCString)", params, replyType, replyData);
-		//check answer ?
 
 		apr_initialize();
 		pool = svn_pool_create (NULL);
@@ -179,15 +170,6 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 
 kio_svnProtocol::~kio_svnProtocol(){
 	kdDebug(7128) << "kio_svnProtocol::~kio_svnProtocol()" << endl;
-	kdDebug(7128) << "Unloading KDED module" << endl;
-	QCString module = "ksvnd";
-	QCString replyType;
-	QByteArray replyData;
-	QByteArray params;
-	QDataStream stream(params, IO_WriteOnly);
-	stream << module;
-	dcopClient()->call( "kded", "kded", "unloadModule(QCString)", params, replyType, replyData);
-
 	svn_pool_destroy(pool);
 	apr_terminate();
 }
