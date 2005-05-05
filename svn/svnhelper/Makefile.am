@@ -11,7 +11,7 @@ servicemenudir = \
     $(kde_datadir)/konqueror/servicemenus
 
 servicemenu_DATA = \
-    subversion.desktop
+    subversion.desktop subversion_toplevel.desktop
 
 
 METASOURCES = AUTO
