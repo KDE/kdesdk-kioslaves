@@ -36,7 +36,8 @@ public:
 k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
-  bool isValidWorkingCopy( const KURL::List& wclist );
+  bool anyNotValidWorkingCopy( const KURL::List& wclist );
+  bool anyValidWorkingCopy( const KURL::List& wclist );
 //  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 //  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
 //  void popupMessage( const QString& message );
