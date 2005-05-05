@@ -65,9 +65,10 @@ SvnHelper::SvnHelper():KApplication() {
 		QByteArray parms;
 		QDataStream s( parms, IO_WriteOnly );
 		int cmd = 3;
+		s<<cmd;
 		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			kdDebug(7128) << "commiting : " << (*it).prettyURL() << endl;
-			s << cmd << *it;
+			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
@@ -88,16 +89,31 @@ SvnHelper::SvnHelper():KApplication() {
 	} else if (args->isSet("d")) {
 		kdDebug(7128) << "delete " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		QByteArray parms;
+		QDataStream s( parms, IO_WriteOnly );
+		int cmd = 7;
+		s<<cmd;
 		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
-			QByteArray parms;
-			QDataStream s( parms, IO_WriteOnly );
-			int cmd = 7;
 			kdDebug(7128) << "deleting : " << (*it).prettyURL() << endl;
-			s << cmd << *it;
-			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
-			KIO::NetAccess::synchronousRun( job, 0 );
+			s << *it;
 		}
+		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
+		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+		KIO::NetAccess::synchronousRun( job, 0 );
+	} else if (args->isSet("r")) {
+		kdDebug(7128) << "revert " << list << endl;
+		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		QByteArray parms;
+		QDataStream s( parms, IO_WriteOnly );
+		int cmd = 8;
+		s<<cmd;
+		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+			kdDebug(7128) << "reverting : " << (*it).prettyURL() << endl;
+			s << *it;
+		}
+		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
+		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+		KIO::NetAccess::synchronousRun( job, 0 );
 	}
 	QTimer::singleShot( 0, this, SLOT( finished() ) );
 }
@@ -137,6 +153,9 @@ static KCmdLineOptions options[] = {
 	{ "c", I18N_NOOP("Commit given URL"), 0 },
 	{ "a", I18N_NOOP("Add given URL to the working copy"), 0 },
 	{ "d", I18N_NOOP("Delete given URL from the working copy"), 0 },
+	{ "s", I18N_NOOP("Switch given working copy to another branch"), 0 },
+	{ "r", I18N_NOOP("Revert local changes"), 0 },
+	{ "m", I18N_NOOP("Merge changes between two branches"), 0 },
 	{"!+URL",   I18N_NOOP("URL to update/commit/add/delete from Subversion"), 0 },
 	KCmdLineLastOption
 };

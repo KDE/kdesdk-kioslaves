@@ -1,6 +1,6 @@
 [Desktop Entry]
 ServiceTypes=inode/directory,all/all
-Actions=Update;Commit;Add;Delete;
+Actions=Update;Commit;Add;Delete;Revert
 X-KDE-Submenu=Subversion
 
 [Desktop Action Update]
@@ -22,4 +22,9 @@ Exec=kio_svn_helper -a %U
 Name=Delete from the repository
 Icon=subversion
 Exec=kio_svn_helper -d %U
+
+[Desktop Action Revert]
+Name=Revert local changes
+Icon=subversion
+Exec=kio_svn_helper -r %U
 

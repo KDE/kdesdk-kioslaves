@@ -706,9 +706,11 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 		case SVN_COMMIT: 
 			{
 				KURL::List wclist;
-				KURL tmp;
-				stream >> tmp;
-				wclist << tmp;
+				while ( !stream.atEnd() ) {
+					KURL tmp;
+					stream >> tmp;
+					wclist << tmp;
+				}
 				kdDebug(7128) << "kio_svnProtocol COMMIT" << endl;
 				commit( wclist );
 				break;
@@ -737,18 +739,26 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 			}
 		case SVN_DEL: 
 			{
-				KURL wc;
-				stream >> wc;
+				KURL::List wclist;
+				while ( !stream.atEnd() ) {
+					KURL tmp;
+					stream >> tmp;
+					wclist << tmp;
+				}
 				kdDebug(7128) << "kio_svnProtocol DEL" << endl;
-				wc_delete(wc);
+				wc_delete(wclist);
 				break;
 			}
 		case SVN_REVERT: 
 			{
-				KURL wc;
-				stream >> wc;
+				KURL::List wclist;
+				while ( !stream.atEnd() ) {
+					KURL tmp;
+					stream >> tmp;
+					wclist << tmp;
+				}
 				kdDebug(7128) << "kio_svnProtocol REVERT" << endl;
-				wc_revert(wc);
+				wc_revert(wclist);
 				break;
 			}
 		case SVN_STATUS: 
@@ -952,7 +962,7 @@ void kio_svnProtocol::commit(const KURL::List& wc) {
 	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
 	bool nonrecursive = false;
 
-	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
+	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
 
 	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
 		KURL nurl = *it;
@@ -1010,19 +1020,21 @@ void kio_svnProtocol::add(const KURL& wc) {
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::wc_delete(const KURL& wc) {
-	kdDebug(7128) << "kio_svnProtocol::wc_delete() : " << wc.url() << endl;
+void kio_svnProtocol::wc_delete(const KURL::List& wc) {
+	kdDebug(7128) << "kio_svnProtocol::wc_delete() : " << wc << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = NULL;
 	bool nonrecursive = false;
 
-	KURL nurl = wc;
-	nurl.setProtocol( "file" );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );
-	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
-	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
+
+	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+		KURL nurl = *it;
+		nurl.setProtocol( "file" );
+		recordCurrentURL( nurl );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+	}
 
 	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,&ctx,subpool);
@@ -1035,19 +1047,20 @@ void kio_svnProtocol::wc_delete(const KURL& wc) {
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::wc_revert(const KURL& wc) {
-	kdDebug(7128) << "kio_svnProtocol::revert() : " << wc.url() << endl;
+void kio_svnProtocol::wc_revert(const KURL::List& wc) {
+	kdDebug(7128) << "kio_svnProtocol::revert() : " << wc << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	bool nonrecursive = false;
 
-	KURL nurl = wc;
-	nurl.setProtocol( "file" );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );
+	apr_array_header_t *targets = apr_array_make(subpool, 1 + wc.count(), sizeof(const char *));
 
-	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
-	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+		KURL nurl = *it;
+		nurl.setProtocol( "file" );
+		recordCurrentURL( nurl );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+	}
 
 	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_revert(targets,nonrecursive,&ctx,subpool);

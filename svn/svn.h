@@ -87,8 +87,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void add( const KURL& wc );
 		//these work using the working copy
 		void wc_resolve( const KURL& wc, bool recurse = true );
-		void wc_delete( const KURL& wc );
-		void wc_revert( const KURL& wc );
+		void wc_delete( const KURL::List& wc );
+		void wc_revert( const KURL::List& wc );
 		void wc_status(const KURL& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
 
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool);
