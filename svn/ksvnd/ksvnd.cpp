@@ -22,6 +22,8 @@
 #include <klocale.h>
 #include <kdebug.h>
 #include <kmessagebox.h>
+#include <qdir.h>
+#include <qfile.h>
 
 #include "config.h"
 
@@ -49,6 +51,23 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return commitDlg.logMessage();
 	} else
 		return QString::null;
+}
+
+bool KSvnd::isValidWorkingCopy( const KURL::List& wclist ) {
+	bool result = false; //one match is enough to run subversion on it
+	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		//if is a directory check whether it contains a .svn/entries file
+		QDir dir( ( *it ).path() );
+		if ( dir.exists() ) { //it's a dir
+			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) )
+				result = true;
+		}
+
+		//else check if ./.svn/entries exists
+		if ( QFile::exists( ( *it ).directory() + "/.svn/entries" ) )
+			result = true;
+	}
+	return result;
 }
 
 #if 0
