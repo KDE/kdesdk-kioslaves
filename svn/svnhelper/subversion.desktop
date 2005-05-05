@@ -2,6 +2,7 @@
 ServiceTypes=inode/directory,all/all
 Actions=Update;Commit;Add;Delete;Revert
 X-KDE-Submenu=Subversion
+X-KDE-ShowIfDcopCall=kded ksvnd isValidWorkingCopy(KURL::List)
 
 [Desktop Action Update]
 Name=Update
