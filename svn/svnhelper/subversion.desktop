@@ -1,18 +1,8 @@
 [Desktop Entry]
 ServiceTypes=inode/directory,all/all
-Actions=Update;Commit;Add;Delete;Revert
+Actions=Add;Delete;Revert
 X-KDE-Submenu=Subversion
 X-KDE-ShowIfDcopCall=kded ksvnd isValidWorkingCopy(KURL::List)
-
-[Desktop Action Update]
-Name=Update
-Icon=subversion
-Exec=kio_svn_helper -u %U
-
-[Desktop Action Commit]
-Name=Commit
-Icon=subversion
-Exec=kio_svn_helper -c %U
 
 [Desktop Action Add]
 Name=Add to the repository

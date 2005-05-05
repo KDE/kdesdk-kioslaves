@@ -1,0 +1,16 @@
+[Desktop Entry]
+ServiceTypes=inode/directory,all/all
+Actions=Update;Commit
+X-KDE-Priority=TopLevel
+X-KDE-ShowIfDcopCall=kded ksvnd isValidWorkingCopy(KURL::List)
+
+[Desktop Action Update]
+Name=SVN Update
+Icon=subversion
+Exec=kio_svn_helper -u %U
+
+[Desktop Action Commit]
+Name=SVN Commit
+Icon=subversion
+Exec=kio_svn_helper -c %U
+
