@@ -53,7 +53,6 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return QString::null;
 }
 
-<<<<<<< .mine
 bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
