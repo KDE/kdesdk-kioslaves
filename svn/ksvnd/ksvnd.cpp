@@ -53,6 +53,54 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return QString::null;
 }
 
+<<<<<<< .mine
+bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
+	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+			return true;
+	}
+	return false;
+}
+
+bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
+	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+			return true;
+	}
+	return false;
+}
+
+bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
+	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+			return false;
+	}
+	return true;
+}
+
+bool KSvnd::AreAllFilesNotInSvn( const KURL::List& wclist ) {
+	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+			return false;
+	}
+	return true;
+}
+
+bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile ) {
+	QFile file( entfile );
+	if ( file.open( IO_ReadOnly ) ) {
+		QTextStream stream( &file );
+		QString line;
+		while ( !stream.atEnd() ) {
+			line = stream.readLine().simplifyWhiteSpace();
+			if ( line == "name=\""+ filename + "\"" )
+				return true;
+		}
+		file.close();
+	}
+	return false;
+}
+
 bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 	bool result = true; //one negative match is enough
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
@@ -71,20 +119,19 @@ bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 }
 
 bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
-	bool result = false; //one match is enough to run subversion on it
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//if is a directory check whether it contains a .svn/entries file
 		QDir dir( ( *it ).path() );
 		if ( dir.exists() ) { //it's a dir
 			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) )
-				result = true;
+				return true;
 		}
 
 		//else check if ./.svn/entries exists
 		if ( QFile::exists( ( *it ).directory() + "/.svn/entries" ) )
-			result = true;
+			return true;
 	}
-	return result;
+	return false;
 }
 
 #if 0

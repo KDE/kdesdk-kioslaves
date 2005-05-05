@@ -38,6 +38,10 @@ k_dcop:
   QString commitDialog(QString);
   bool anyNotValidWorkingCopy( const KURL::List& wclist );
   bool anyValidWorkingCopy( const KURL::List& wclist );
+  bool AreAnyFilesNotInSvn( const KURL::List& wclist );
+  bool AreAnyFilesInSvn( const KURL::List& wclist );
+  bool AreAllFilesNotInSvn( const KURL::List& wclist );
+  bool AreAllFilesInSvn( const KURL::List& wclist );
 //  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 //  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
 //  void popupMessage( const QString& message );
@@ -50,6 +54,7 @@ k_dcop_signals:
 public slots:
 
 protected:
+  bool isFileInSvnEntries ( const QString filename, const QString entfile );
 };
 
 #endif
