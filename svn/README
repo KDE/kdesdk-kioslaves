@@ -34,6 +34,7 @@ subversion/apr installations :
 BUGS:
 -----
 - file modifications time are wrong in konqui
+- kio_svn crashes often with subversion 1.2-rc2, needs investigation
 any other ?
 please report
 

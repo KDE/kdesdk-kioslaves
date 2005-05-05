@@ -723,10 +723,12 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 			}
 		case SVN_COMMIT: 
 			{
-				KURL wc;
-				stream >> wc;
+				KURL::List wclist;
+				KURL tmp;
+				stream >> tmp;
+				wclist << tmp;
 				kdDebug(7128) << "kio_svnProtocol COMMIT" << endl;
-				commit( wc );
+				commit( wclist );
 				break;
 			}
 		case SVN_LOG: 
@@ -961,49 +963,47 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::commit(const KURL& wc) {
-	kdDebug(7128) << "kio_svnProtocol::commit() : " << wc.url() << endl;
+void kio_svnProtocol::commit(const KURL::List& wc) {
+	kdDebug(7128) << "kio_svnProtocol::commit() : " << wc << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
 	bool nonrecursive = false;
 
-	KURL nurl = wc;
-	nurl.setProtocol( "file" );
-	QString target = nurl.url();
-	recordCurrentURL( nurl );
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
-	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+
+	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+		KURL nurl = *it;
+		nurl.setProtocol( "file" );
+		recordCurrentURL( nurl );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+	}
 
 	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,&ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	}
-	
-	QString userstring = i18n ( "Nothing to commit." );
-	if ( commit_info && SVN_IS_VALID_REVNUM( commit_info->revision ) ) {
-		userstring = i18n( "Committed revision %1." ).arg(commit_info->revision);
-	}
-	QByteArray params;
-	QDataStream stream(params, IO_WriteOnly);
-	stream << nurl.path().utf8() << 0 << 0 << "" << 0 << 0 << commit_info->revision << userstring;
 
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "path", nurl.path() );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "action", "0" ); 
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "kind", "0" );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "mime_t", "" );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "content", "0" );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "prop", "0" );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "rev" , QString::number( commit_info->revision ) );
-	setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "string", userstring );
-	m_counter++;
+	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+		KURL nurl = *it;
+		nurl.setProtocol( "file" );
 
-	//send a fake notification to say the commit is successfull or not
-/*	if ( !dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
-		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+		QString userstring = i18n ( "Nothing to commit." );
+		if ( commit_info && SVN_IS_VALID_REVNUM( commit_info->revision ) ) {
+			userstring = i18n( "Committed revision %1." ).arg(commit_info->revision);
+		}
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "path", nurl.path() );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "action", "0" ); 
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "kind", "0" );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "mime_t", "" );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "content", "0" );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "prop", "0" );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "rev" , QString::number( commit_info->revision ) );
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "string", userstring );
+		m_counter++;
 	}
-*/
+
 	finished();
 	svn_pool_destroy (subpool);
 }
@@ -1424,11 +1424,7 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 	}
 	//// End convert
 
-	QByteArray params;
 	kio_svnProtocol *p = ( kio_svnProtocol* )nb->master;
-
-	QDataStream stream(params, IO_WriteOnly);
-	stream << QString::fromUtf8( path ) << action << kind << mime_type << content_state << prop_state << revision << userstring;
 
 	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "path" , QString::fromUtf8( path ));
 	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "action", QString::number( action ));
@@ -1439,10 +1435,6 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "rev", QString::number( revision ));
 	p->setMetaData(QString::number( p->counter() ).rightJustify( 10,'0' )+ "string", userstring );
 	p->incCounter();
-/*
-	if ( !p->dcopClient()->send( "kded","ksvnd","notify(QString,int,int,QString,int,int,long int,QString)", params ) ) {
-		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
-	}*/
 }
 
 void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *status) {

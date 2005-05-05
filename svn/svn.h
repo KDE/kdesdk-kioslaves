@@ -81,8 +81,9 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
 		void import( const KURL& repos, const KURL& wc );
 		void svn_switch( const KURL& wc, const KURL& url, int revnumber, const QString& revkind, bool recurse);
+		//TODO fix with svn 1.2 : support a KURL::List -> svn_client_update2()
 		void update( const KURL& wc, int revnumber, const QString& revkind );
-		void commit( const KURL& wc );
+		void commit( const KURL::List& wc );
 		void add( const KURL& wc );
 		//these work using the working copy
 		void wc_resolve( const KURL& wc, bool recurse = true );
