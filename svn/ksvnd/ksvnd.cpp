@@ -204,12 +204,12 @@ bool KSvnd::isFolder( const KURL& url ) {
 QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	if ( AreAllFilesNotInSvn( list ) ) {
-		result << "" << "Import";
-		result << "" << "Add";
+		result << "Import";
+		result << "Add";
 	}
 	if ( AreAllFilesInSvn( list ) ) {
-		result << "" << "Update";
-		result << "" << "Commit";
+		result << "Update";
+		result << "Commit";
 	}
 
 	return result;
