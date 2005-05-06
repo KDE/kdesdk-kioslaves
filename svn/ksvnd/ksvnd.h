@@ -44,6 +44,7 @@ k_dcop:
   bool AreAllFilesNotInSvn( const KURL::List& wclist );
   bool AreAllFilesInSvn( const KURL::List& wclist );
   QStringList getActionMenu ( const KURL::List& list );
+  QStringList getTopLevelActionMenu ( const KURL::List &list );
 //  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 //  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
 //  void popupMessage( const QString& message );
