@@ -4,7 +4,7 @@ ServiceTypes=inode/directory,all/all
 X-KDE-Submenu=Subversion
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
-#Return type of below is a QList< QCString, QString, QCString >  or whatever the syntax is?
+#Return type of below is a QStringList with alternatively  Parent then Action
 X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
