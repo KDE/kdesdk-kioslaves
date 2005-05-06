@@ -63,6 +63,7 @@ protected:
   bool isFileInSvnEntries ( const QString filename, const QString entfile );
   bool isFileInExternals ( const QString filename, const QString propfile );
   bool isFolder( const KURL& url );
+  int getStatus( KURL::List& list );
 };
 
 #endif

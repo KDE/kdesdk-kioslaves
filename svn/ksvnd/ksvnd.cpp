@@ -196,6 +196,51 @@ bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 	return false;
 }
 
+int KSvnd::getStatus( KURL::List& list ) {
+	int result = 0;
+	uint files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
+	for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		if ( isFolder ( ( *it ) ) ) {
+			folders++;
+		} else {
+			files++;
+		}
+		if ( isFileInSvnEntries ( (*it).filename(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
+			parentsentries++;
+		} else if ( isFolder( *it ) ) { // other subfolders (either another module checkouted or an external, or something not known at all)
+			if ( QFile::exists( ( *it ).path() + "/.svn/entries/" ) ) 
+				subdirhavesvn++;
+			if ( isFileInExternals( (*it).filename(), ( *it ).directory() + "/.svn/dir-props" ) ) {
+				external++;
+			}
+		}
+		if ( ( isFolder( ( *it ) ) && QFile::exists( ( *it ).directory() + "../.svn/entries" ) ) || QFile::exists( ( *it ).directory() + "/.svn/entries" ) ) //parent has a .svn ?
+			parentshavesvn++;
+	}
+	if ( files > 0 ) 
+		result |= SomeAreFiles;
+	if ( folders > 0 )
+		result |= SomeAreFolders;
+	if ( parentsentries == list.count() ) 
+		result |= AllAreInParentsEntries;
+	else if ( parentsentries != 0 )
+		result |= SomeAreInParentsEntries;
+	if ( parentshavesvn == list.count() )
+		result |= AllParentsHaveSvn;
+	else if ( parentshavesvn > 0 )
+		result |= SomeParentsHaveSvn;
+	if ( subdirhavesvn == list.count() )
+		result |= AllHaveSvn;
+	else if ( subdirhavesvn > 0 )
+		result |= SomeHaveSvn;
+	if ( external == list.count() )
+		result |= AllAreExternalToParent;
+	else if ( external > 0 )
+		result |= SomeAreExternalToParent;
+	
+	return result;
+}
+
 bool KSvnd::isFolder( const KURL& url ) {
 	QDir d( url.path() );
 	return d.exists();
