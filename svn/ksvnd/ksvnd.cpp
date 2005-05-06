@@ -196,7 +196,7 @@ bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 	return false;
 }
 
-int KSvnd::getStatus( KURL::List& list ) {
+int KSvnd::getStatus( const KURL::List& list ) {
 	int result = 0;
 	uint files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
 	for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
@@ -219,6 +219,8 @@ int KSvnd::getStatus( KURL::List& list ) {
 	}
 	if ( files > 0 ) 
 		result |= SomeAreFiles;
+	if ( folders == list.count() )
+		result |= AllAreFolders;
 	if ( folders > 0 )
 		result |= SomeAreFolders;
 	if ( parentsentries == list.count() ) 

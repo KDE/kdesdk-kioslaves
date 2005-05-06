@@ -32,7 +32,7 @@ class KSvnd : public KDEDModule
   K_DCOP
 
   //note: InSVN means parent is added.  InRepos  means itself is added
-  enum { SomeAreFiles = 1, SomeAreFolders = 2,  SomeAreInParentsEntries = 4, SomeParentsHaveSvn = 8, SomeHaveSvn = 16, SomeAreExternalToParent = 32, AllAreInParentsEntries = 64, AllParentsHaveSvn = 128, AllHaveSvn = 256, AllAreExternalToParent = 512 };
+  enum { SomeAreFiles = 1, SomeAreFolders = 2,  SomeAreInParentsEntries = 4, SomeParentsHaveSvn = 8, SomeHaveSvn = 16, SomeAreExternalToParent = 32, AllAreInParentsEntries = 64, AllParentsHaveSvn = 128, AllHaveSvn = 256, AllAreExternalToParent = 512, AllAreFolders = 1024 };
 public:
   KSvnd(const QCString &);
   ~KSvnd();
@@ -63,7 +63,7 @@ protected:
   bool isFileInSvnEntries ( const QString filename, const QString entfile );
   bool isFileInExternals ( const QString filename, const QString propfile );
   bool isFolder( const KURL& url );
-  int getStatus( KURL::List& list );
+  int getStatus( const KURL::List& list );
 };
 
 #endif
