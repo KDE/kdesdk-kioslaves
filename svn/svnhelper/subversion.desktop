@@ -27,13 +27,4 @@ Name=Import a repository
 Icon=subversion
 Exec=kio_svn_helper -i %U
 
-[Desktop Action Update]
-Name=Update
-Icon=subversion
-Exec=kio_svn_helper -u %U
-
-[Desktop Action Commit]
-Name=Commit
-Icon=subversion
-Exec=kio_svn_helper -c %U
 

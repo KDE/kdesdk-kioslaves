@@ -204,8 +204,23 @@ bool KSvnd::isFolder( const KURL& url ) {
 QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	if ( AreAllFilesNotInSvn( list ) ) {
-		result << "Import";
 		result << "Add";
+	}
+	if ( AreAllFilesInSvn( list ) ) {
+		result << "Rename";
+		result << "Delete";
+		result << "Revert"; //FIXME should be for a folder only
+		result << "Import";
+		
+	}
+
+	return result;
+}
+
+QStringList KSvnd::getTopLevelActionMenu ( const KURL::List &list ) {
+	QStringList result;
+	if ( AreAllFilesNotInSvn( list ) ) {
+		result << "Checkout";
 	}
 	if ( AreAllFilesInSvn( list ) ) {
 		result << "Update";
