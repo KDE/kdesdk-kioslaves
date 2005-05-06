@@ -208,6 +208,7 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	}
 	if ( AreAllFilesInSvn( list ) ) {
 		result << "Rename";
+		result << "Revert";
 		result << "Delete";
 		result << "Revert"; //FIXME should be for a folder only
 		result << "Import";
