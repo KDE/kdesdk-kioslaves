@@ -32,7 +32,7 @@ class KSvnd : public KDEDModule
   K_DCOP
 
   //note: InSVN means parent is added.  InRepos  means itself is added
-  enum { SomeAreFiles = 1, SomeAreDirectories = 2, AllInSVN = 4, AllInRepos = 8, SomeInSvn = 16, SomeInRepos = 32 };
+  enum { SomeAreFiles = 1, SomeAreFolders = 2,  SomeAreInParentsEntries = 4, SomeParentsHaveSvn = 8, SomeHaveSvn = 16, SomeAreExternalToParent = 32, AllAreInParentsEntries = 64, AllParentsHaveSvn = 128, AllHaveSvn = 256, AllAreExternalToParent = 512 };
 public:
   KSvnd(const QCString &);
   ~KSvnd();
