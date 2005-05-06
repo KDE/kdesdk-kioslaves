@@ -24,6 +24,7 @@
 #include <dcopclient.h>
 #include <kdedmodule.h>
 #include <kurl.h>
+#include <qstringlist.h>
 
 class KSvnd : public KDEDModule
 {
@@ -42,6 +43,7 @@ k_dcop:
   bool AreAnyFilesInSvn( const KURL::List& wclist );
   bool AreAllFilesNotInSvn( const KURL::List& wclist );
   bool AreAllFilesInSvn( const KURL::List& wclist );
+  QStringList getActionMenu ( const KURL::List& list );
 //  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 //  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
 //  void popupMessage( const QString& message );
@@ -56,6 +58,7 @@ public slots:
 protected:
   bool isFileInSvnEntries ( const QString filename, const QString entfile );
   bool isFileInExternals ( const QString filename, const QString propfile );
+  bool isFolder( const KURL& url );
 };
 
 #endif

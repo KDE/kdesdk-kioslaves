@@ -196,6 +196,25 @@ bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 	return false;
 }
 
+bool KSvnd::isFolder( const KURL& url ) {
+	QDir d( url.path() );
+	return d.exists();
+}
+
+QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
+	QStringList result;
+	if ( AreAllFilesNotInSvn( list ) ) {
+		result << "" << "Import";
+		result << "" << "Add";
+	}
+	if ( AreAllFilesInSvn( list ) ) {
+		result << "" << "Update";
+		result << "" << "Commit";
+	}
+
+	return result;
+}
+
 #if 0
 void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
 	kdDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
