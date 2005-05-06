@@ -3,7 +3,9 @@ ServiceTypes=inode/directory,all/all
 #Actions=Add;Delete;Revert
 X-KDE-Submenu=Subversion
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
-X-KDE-GetActionMenu=kded ksvnd getActionMenu(QCString,QString,QCString)
+
+#Return type of below is a QList< QCString, QString, QCString >  or whatever the syntax is?
+X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
 Name=Add to the repository
