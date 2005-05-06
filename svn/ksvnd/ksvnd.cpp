@@ -248,27 +248,47 @@ bool KSvnd::isFolder( const KURL& url ) {
 
 QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
-	if ( AreAllFilesNotInSvn( list ) ) {
+	int listStatus = getStatus( list );
+
+	if ( list.size() == 1 && 
+	     (listStatus & SomeAreFolders) &&
+	    !(listStatus & SomeAreInParentsEntries) && 
+	    !(listStatus & SomeAreExternalToParent) && 
+	    !(listStatus & SomeHaveSvn) ) {
+		// A folder not in svn.  Parent may or not be.
+		result << "Checkout";
+	}
+
+	
+
+//	i! (listStatus & AllInSVN) )
+	
+	if ( (listStatus & SomeParentsHaveSvn) && 
+ 	    !(listStatus & AllAreInParentsEntries ) ) {
 		result << "Add";
 	}
-	if ( AreAllFilesInSvn( list ) ) {
-		result << "Rename";
-		result << "Revert";
-		result << "Delete";
-		result << "Revert"; //FIXME should be for a folder only
-		result << "Import";
-		
+	
+	if ( list.size() ==1 &&
+	     ((listStatus & AllAreInParentsEntries)) || (listStatus | AllAreExternalToParent)) {
+		result << "Rename";  //Can you rename an external to parent folder?
 	}
+
+	if ( (listStatus & AllAreInParentsEntries)) {
+		result << "Delete";
+		if(listStatus & AllAreFolders )
+			result << "Revert";
+		result << "Import";
+	}
+
 
 	return result;
 }
 
 QStringList KSvnd::getTopLevelActionMenu ( const KURL::List &list ) {
 	QStringList result;
-	if ( AreAllFilesNotInSvn( list ) ) {
-		result << "Checkout";
-	}
-	if ( AreAllFilesInSvn( list ) ) {
+	int listStatus = getStatus( list );
+	
+	if ( listStatus & AllParentsHaveSvn ) {
 		result << "Update";
 		result << "Commit";
 	}
