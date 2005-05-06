@@ -55,32 +55,56 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 
 bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
+		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		QDir bdir ( ( *it ).path() );
+		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return true;
+		} else if ( !bdir.exists() ) {
+			if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
+				return true;
+		}
 	}
 	return false;
 }
 
 bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
+		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		QDir bdir ( ( *it ).path() );
+		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return true;
+		} else if ( !bdir.exists() ) {
+			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) ) 
+				return true;
+		}
 	}
 	return false;
 }
 
 bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" )  )
+		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		QDir bdir ( ( *it ).path() );
+		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return false;
+		} else if ( !bdir.exists() ) {
+			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" )  )
+				return false;
+		}
 	}
 	return true;
 }
 
 bool KSvnd::AreAllFilesNotInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
+		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		QDir bdir ( ( *it ).path() );
+		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return false;
+		} else if ( !bdir.exists() ) {
+			if ( isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
+				return false;
+		}
 	}
 	return true;
 }
