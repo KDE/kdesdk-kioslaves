@@ -1,6 +1,6 @@
 [Desktop Entry]
 ServiceTypes=inode/directory,all/all
-#Actions=Add;Delete;Revert
+Actions=T
 X-KDE-Submenu=Subversion
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
@@ -22,9 +22,17 @@ Name=Revert local changes
 Icon=subversion
 Exec=kio_svn_helper -r %U
 
+[Desktop Action Rename]
+Name=Rename...
+Icon=subversion
+Exec=kio_svn_helper -r %U
+
 [Desktop Action Import]
 Name=Import a repository
 Icon=subversion
 Exec=kio_svn_helper -i %U
 
-
+[Desktop Action T]
+Name=T
+Icon=subversion
+Exec=kio_svn_helper -i %U

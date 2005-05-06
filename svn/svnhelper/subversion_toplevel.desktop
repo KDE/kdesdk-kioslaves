@@ -1,5 +1,6 @@
 [Desktop Entry]
 ServiceTypes=inode/directory,all/all
+Actions=T
 X-KDE-Priority=TopLevel
 
 X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KURL::List)
@@ -16,6 +17,11 @@ Exec=kio_svn_helper -c %U
 
 [Desktop Action Checkout]
 Name=SVN Checkout
+Icon=subversion
+Exec=
+
+[Desktop Action T]
+Name=T
 Icon=subversion
 Exec=
 
