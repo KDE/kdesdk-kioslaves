@@ -2,7 +2,7 @@
 ServiceTypes=inode/directory,all/all
 Actions=Add;Delete;Revert
 X-KDE-Submenu=Subversion
-X-KDE-ShowIfDcopCall=kded ksvnd isValidWorkingCopy(KURL::List)
+X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
 [Desktop Action Add]
 Name=Add to the repository

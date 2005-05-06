@@ -55,6 +55,7 @@ public slots:
 
 protected:
   bool isFileInSvnEntries ( const QString filename, const QString entfile );
+  bool isFileInExternals ( const QString filename, const QString propfile );
 };
 
 #endif

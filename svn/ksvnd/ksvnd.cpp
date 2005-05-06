@@ -55,7 +55,7 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 
 bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
 			return true;
 	}
 	return false;
@@ -63,7 +63,7 @@ bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
 
 bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
 			return true;
 	}
 	return false;
@@ -71,7 +71,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
 
 bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+		if ( !isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" )  )
 			return false;
 	}
 	return true;
@@ -79,7 +79,7 @@ bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
 
 bool KSvnd::AreAllFilesNotInSvn( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
-		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) )
+		if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
 			return false;
 	}
 	return true;
@@ -92,8 +92,41 @@ bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile )
 		QString line;
 		while ( !stream.atEnd() ) {
 			line = stream.readLine().simplifyWhiteSpace();
-			if ( line == "name=\""+ filename + "\"" )
+			if ( line == "name=\""+ filename + "\"" ) {
+				file.close();
 				return true;
+			}
+		}
+		file.close();
+	}
+	return false;
+}
+
+bool KSvnd::isFileInExternals ( const QString filename, const QString propfile ) {
+	QFile file( propfile );
+	if ( file.open( IO_ReadOnly ) ) {
+		QTextStream stream( &file );
+		QStringList line;
+		while ( !stream.atEnd() )
+			line << stream.readLine().simplifyWhiteSpace();
+		for ( uint i = 0 ; i < line.count(); i++ ) {
+			if ( line[ i ] == "K 13"  && line[ i+1 ] == "svn:externals" ) { //Key 13 : svn:externals
+				//next line should be "V xx"
+				if ( line [ i+2 ].startsWith( "V " ) ) {
+					//ok browse the values now
+					i+=2;
+					while ( i < line.count() ) {
+						if ( line[ i ].startsWith( filename+" " ) ) { //found it !
+							file.close( );
+							return true;
+						} else if ( line[ i ].isEmpty() ) {
+							file.close( );
+							return false; //we are out of svn:externals now...
+						}
+						i++;
+					}
+				}
+			}
 		}
 		file.close();
 	}
@@ -103,6 +136,9 @@ bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile )
 bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 	bool result = true; //one negative match is enough
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		//exception for .svn dirs
+		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
+			return true;
 		//if is a directory check whether it contains a .svn/entries file
 		QDir dir( ( *it ).path() );
 		if ( dir.exists() ) { //it's a dir
@@ -119,6 +155,9 @@ bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 
 bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+		//skip .svn dirs
+		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
+			continue;
 		//if is a directory check whether it contains a .svn/entries file
 		QDir dir( ( *it ).path() );
 		if ( dir.exists() ) { //it's a dir

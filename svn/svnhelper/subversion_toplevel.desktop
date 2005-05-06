@@ -2,7 +2,7 @@
 ServiceTypes=inode/directory,all/all
 Actions=Update;Commit
 X-KDE-Priority=TopLevel
-X-KDE-ShowIfDcopCall=kded ksvnd isValidWorkingCopy(KURL::List)
+X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
 [Desktop Action Update]
 Name=SVN Update
