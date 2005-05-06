@@ -1,6 +1,5 @@
 [Desktop Entry]
 ServiceTypes=inode/directory,all/all
-Actions=T
 X-KDE-Submenu=Subversion
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
@@ -32,7 +31,4 @@ Name=Import a repository
 Icon=subversion
 Exec=kio_svn_helper -i %U
 
-[Desktop Action T]
-Name=T
-Icon=subversion
-Exec=kio_svn_helper -i %U
+
