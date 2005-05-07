@@ -219,25 +219,31 @@ int KSvnd::getStatus( const KURL::List& list ) {
 	}
 	if ( files > 0 ) 
 		result |= SomeAreFiles;
-	if ( folders == list.count() )
+	if ( folders == list.count() ) {
 		result |= AllAreFolders;
+		result |= SomeAreFolders;
+	}
 	if ( folders > 0 )
 		result |= SomeAreFolders;
-	if ( parentsentries == list.count() ) 
+	if ( parentsentries == list.count() ) {
 		result |= AllAreInParentsEntries;
-	else if ( parentsentries != 0 )
 		result |= SomeAreInParentsEntries;
-	if ( parentshavesvn == list.count() )
+	} else if ( parentsentries != 0 )
+		result |= SomeAreInParentsEntries;
+	if ( parentshavesvn == list.count() ) {
 		result |= AllParentsHaveSvn;
-	else if ( parentshavesvn > 0 )
 		result |= SomeParentsHaveSvn;
-	if ( subdirhavesvn == list.count() )
+	} else if ( parentshavesvn > 0 )
+		result |= SomeParentsHaveSvn;
+	if ( subdirhavesvn == list.count() ) {
 		result |= AllHaveSvn;
-	else if ( subdirhavesvn > 0 )
 		result |= SomeHaveSvn;
-	if ( external == list.count() )
+	} else if ( subdirhavesvn > 0 )
+		result |= SomeHaveSvn;
+	if ( external == list.count() ) {
 		result |= AllAreExternalToParent;
-	else if ( external > 0 )
+		result |= SomeAreExternalToParent;
+	} else if ( external > 0 )
 		result |= SomeAreExternalToParent;
 	
 	return result;
@@ -251,17 +257,6 @@ bool KSvnd::isFolder( const KURL& url ) {
 QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
-
-	if ( list.size() == 1 && 
-	     (listStatus & SomeAreFolders) &&
-	    !(listStatus & SomeAreInParentsEntries) && 
-	    !(listStatus & SomeAreExternalToParent) && 
-	    !(listStatus & SomeHaveSvn) ) {
-		// A folder not in svn.  Parent may or not be.
-		result << "Checkout";
-	}
-
-	
 
 //	i! (listStatus & AllInSVN) )
 	
@@ -282,15 +277,25 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 		result << "Import";
 	}
 
-
 	return result;
 }
 
 QStringList KSvnd::getTopLevelActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
+
+	if ( list.size() == 1 && 
+	     (listStatus & SomeAreFolders) &&
+	    !(listStatus & SomeAreInParentsEntries) && 
+	    !(listStatus & SomeAreExternalToParent) && 
+	    !(listStatus & SomeHaveSvn) ) {
+		// A folder not in svn.  Parent may or not be.
+		result << "Checkout";
+	}
 	
-	if ( listStatus & AllParentsHaveSvn ) {
+	if ( listStatus & AllParentsHaveSvn &&
+			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) )
+		) {
 		result << "Update";
 		result << "Commit";
 	}

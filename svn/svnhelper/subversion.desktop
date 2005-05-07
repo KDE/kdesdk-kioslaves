@@ -31,8 +31,3 @@ Name=Import a repository
 Icon=subversion
 Exec=kio_svn_helper -i %U
 
-[Desktop Action Checkout]
-Name=Checkout
-Icon=subversion
-Exec=kio_svn_helper -C %U
-
