@@ -1141,7 +1141,7 @@ QString kio_svnProtocol::makeSvnURL ( const KURL& url ) const {
 		svnUrl.insert( idx, "//" );
 		return svnUrl;
 	}
-	return kproto;
+	return tpURL.url(-1);
 }
 
 QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
