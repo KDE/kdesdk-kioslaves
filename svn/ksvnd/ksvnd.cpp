@@ -272,18 +272,39 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 		result << "Add";
 	}
 	
-	if ( list.size() ==1 &&
-	     ((listStatus & AllAreInParentsEntries)) || (listStatus | AllAreExternalToParent)) {
-		result << "Rename";  //Can you rename an external to parent folder?
-	}
-
 	if ( (listStatus & AllAreInParentsEntries)) {
+		//In SVN
+//		result << "ShowLog";
+//		result << "CheckForModifications";
+//		result << "RevisionGraph";
+//		result << "";
+//		result << "Update to revision..."
+		result << "Rename";
 		result << "Delete";
-		if(listStatus & AllAreFolders )
+		if( listStatus & SomeAreFolders && !(listStatus & SomeAreFiles)) {
 			result << "Revert";
-		result << "Import";
+//			result << "Cleanup";
+		}
+		result << "";
+//		result << "BranchTag";
+		result << "Switch";
+		result << "Merge";	
+		if( listStatus & SomeAreFolders && !(listStatus & SomeAreFiles)) {
+//			result << "Export";
+//			result << "Relocate";
+//			result << "";
+//			result << "Add";		
+		}
+		result << "";
+		if( listStatus & SomeAreFiles && !(listStatus & SomeAreFolders)) {
+			result << "Blame";
+		}
+//		result << "CreatePatch";
+		
+		if( list.size() == 1 && listStatus & SomeAreFolders) {
+//			result << "ApplyPatchToFolder";
+		}
 	}
-
 	return result;
 }
 
