@@ -18,40 +18,43 @@ Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert local changes
-Icon=subversion
+Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes make locally. Warning - this cannot be undone.
 
 [Desktop Action Rename]
 Name=Rename...
-Icon=subversion
+Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
 
 [Desktop Action Import]
 Name=Import a repository
-Icon=subversion
+Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
 
 [Desktop Action Checkout]
 Name=Checkout from a repository
-Icon=subversion
+Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
 
 [Desktop Action Switch]
 Name=Switch...
+Icon=svn_switch
 Comment=Switch given working copy to another branch
 Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
 Name=Merge...
+Icon=svn_merge
 Comment=Merge changes between this and another branch
 Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
 Name=Blame...
+Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
 Exec=kio_svn_helper -b %U
 
@@ -61,6 +64,7 @@ Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
+Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
 
