@@ -17,5 +17,5 @@ Exec=kio_svn_helper -c %U
 [Desktop Action Checkout]
 Name=SVN Checkout
 Icon=subversion
-Exec=
+Exec=kio_svn_helper -C %U
 

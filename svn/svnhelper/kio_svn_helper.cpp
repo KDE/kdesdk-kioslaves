@@ -34,6 +34,8 @@
 #include <kmessagebox.h>
 
 #include "kio_svn_helper.h"
+#include "subversioncheckout.h"
+#include <kurlrequester.h>
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
@@ -114,6 +116,29 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
+	} else if (args->isSet("C")) {
+		kdDebug(7128) << "checkout " << list << endl;
+		SubversionCheckout d;
+		int result = d.exec();
+		if ( result == QDialog::Accepted ) {
+			for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+				KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+				QByteArray parms;
+				QDataStream s( parms, IO_WriteOnly );
+				int cmd = 1;
+				int rev = -1;
+				QString revkind = "HEAD";
+				s<<cmd;
+				s << KURL( d.url->url() );
+				s << ( *it );
+				s << rev;
+				s << revkind;
+				kdDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyURL() << " at rev : " << rev << " or " << revkind << endl;
+				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
+				connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+				KIO::NetAccess::synchronousRun( job, 0 );
+			}
+		}
 	}
 	QTimer::singleShot( 0, this, SLOT( finished() ) );
 }
@@ -151,6 +176,7 @@ void SvnHelper::finished() {
 static KCmdLineOptions options[] = {
 	{ "u", I18N_NOOP("Update given URL"), 0 },
 	{ "c", I18N_NOOP("Commit given URL"), 0 },
+	{ "C", I18N_NOOP("Checkout in given directory"), 0 },
 	{ "a", I18N_NOOP("Add given URL to the working copy"), 0 },
 	{ "d", I18N_NOOP("Delete given URL from the working copy"), 0 },
 	{ "s", I18N_NOOP("Switch given working copy to another branch"), 0 },
