@@ -208,7 +208,7 @@ int KSvnd::getStatus( const KURL::List& list ) {
 		if ( isFileInSvnEntries ( (*it).filename(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
 			parentsentries++;
 		} else if ( isFolder( *it ) ) { // other subfolders (either another module checkouted or an external, or something not known at all)
-			if ( QFile::exists( ( *it ).path() + "/.svn/entries/" ) ) 
+			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) ) 
 				subdirhavesvn++;
 			if ( isFileInExternals( (*it).filename(), ( *it ).directory() + "/.svn/dir-props" ) ) {
 				external++;
@@ -293,8 +293,9 @@ QStringList KSvnd::getTopLevelActionMenu ( const KURL::List &list ) {
 		result << "Checkout";
 	}
 	
-	if ( listStatus & AllParentsHaveSvn &&
-			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) )
+	if ( ( listStatus & AllParentsHaveSvn &&
+			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) ) 
+				|| ( listStatus & SomeHaveSvn ) )
 		) {
 		result << "Update";
 		result << "Commit";
