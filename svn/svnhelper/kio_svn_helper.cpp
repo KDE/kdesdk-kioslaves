@@ -174,6 +174,8 @@ SvnHelper::SvnHelper():KApplication() {
 				KIO::NetAccess::synchronousRun( job, 0 );
 			}
 		}
+	} else {
+		KMessageBox::sorry(0, "Sorry, request not recognised.  Perhaps not implemented yet?", "Feature Not Implemented");
 	}
 	QTimer::singleShot( 0, this, SLOT( finished() ) );
 }
