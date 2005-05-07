@@ -8,12 +8,12 @@ X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
 Name=Add to the repository
-Icon=subversion
+Icon=vcs_add
 Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete from the repository
-Icon=subversion
+Icon=vcs_remove
 Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
@@ -35,8 +35,23 @@ Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
 
 [Desktop Action Checkout]
-Name=SVN Checkout
+Name=Checkout from a repository
 Icon=subversion
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
+
+[Desktop Action Switch]
+Name=Switch...
+Comment=Switch given working copy to another branch
+Exec=kio_svn_helper -s %U
+
+[Desktop Action Merge]
+Name=Merge...
+Comment=Merge changes between this and another branch
+Exec=kio_svn_helper -m %U
+
+[Desktop Action Blame]
+Name=Blame...
+Comment=See who wrote each line of the file and in what revision
+Exec=
 

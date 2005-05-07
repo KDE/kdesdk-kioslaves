@@ -1,0 +1,12 @@
+[Desktop Entry]
+ServiceTypes=text/x-diff
+#uncomment when Exec is implemented
+#Actions=Apply
+X-KDE-Priority=TopLevel
+
+[Desktop Action Apply]
+Name=Apply patch...
+Icon=apply
+Exec=
+Comment=Apply the patch to another folder/file
+
