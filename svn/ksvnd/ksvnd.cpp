@@ -258,21 +258,16 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
 
-	if ( list.size() == 1 && 
-	     (listStatus & SomeAreFolders) &&
-	    !(listStatus & SomeAreInParentsEntries) && 
-	    !(listStatus & SomeAreExternalToParent) && 
-	    !(listStatus & SomeHaveSvn) ) {
-		// A folder not in svn.  Parent may or not be.
-		result << "Checkout";
-	}
-
-	if ( (listStatus & SomeParentsHaveSvn) && 
- 	    !(listStatus & AllAreInParentsEntries ) ) {
-		result << "Add";
-	}
-	
-	if ( (listStatus & AllAreInParentsEntries)) {
+	if ( !(listStatus & SomeAreInParentsEntries) &&
+	     !(listStatus & SomeAreExternalToParent) &&
+	     !(listStatus & SomeHaveSvn)) {
+		if( list.size() == 1 && listStatus & SomeAreFolders) {
+			result << "Checkout";
+			result << "Export";
+//			result << "CreateRepository";
+			result << "Import";
+		}
+	} else if ( (listStatus & AllAreInParentsEntries)) {
 		//In SVN
 //		result << "ShowLog";
 //		result << "CheckForModifications";
@@ -292,8 +287,8 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 		if( listStatus & SomeAreFolders && !(listStatus & SomeAreFiles)) {
 //			result << "Export";
 //			result << "Relocate";
-//			result << "_SEPARATOR_";
-//			result << "Add";		
+			result << "_SEPARATOR_";
+			result << "Add";		
 		}
 		result << "_SEPARATOR_";
 		if( listStatus & SomeAreFiles && !(listStatus & SomeAreFolders)) {

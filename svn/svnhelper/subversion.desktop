@@ -59,3 +59,8 @@ Exec=kio_svn_helper -b %U
 Name=Create Patch...
 Exec=kio_svn_helper -p %U
 
+[Desktop Action Export]
+Name=Export...
+Exec=kio_svn_helper -e %U
+Comment=Checkout out an unversioned copy of a tree from a repository
+
