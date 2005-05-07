@@ -53,5 +53,9 @@ Exec=kio_svn_helper -m %U
 [Desktop Action Blame]
 Name=Blame...
 Comment=See who wrote each line of the file and in what revision
-Exec=
+Exec=kio_svn_helper -b %U
+
+[Desktop Action CreatePatch]
+Name=Create Patch...
+Exec=kio_svn_helper -p %U
 

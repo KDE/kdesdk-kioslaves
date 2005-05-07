@@ -277,7 +277,7 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 //		result << "ShowLog";
 //		result << "CheckForModifications";
 //		result << "RevisionGraph";
-//		result << "";
+//		result << "_SEPARATOR_";
 //		result << "Update to revision..."
 		result << "Rename";
 		result << "Delete";
@@ -285,21 +285,21 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 			result << "Revert";
 //			result << "Cleanup";
 		}
-		result << "";
+		result << "_SEPARATOR_";
 //		result << "BranchTag";
 		result << "Switch";
 		result << "Merge";	
 		if( listStatus & SomeAreFolders && !(listStatus & SomeAreFiles)) {
 //			result << "Export";
 //			result << "Relocate";
-//			result << "";
+//			result << "_SEPARATOR_";
 //			result << "Add";		
 		}
-		result << "";
+		result << "_SEPARATOR_";
 		if( listStatus & SomeAreFiles && !(listStatus & SomeAreFolders)) {
 			result << "Blame";
 		}
-//		result << "CreatePatch";
+		result << "CreatePatch";
 		
 		if( list.size() == 1 && listStatus & SomeAreFolders) {
 //			result << "ApplyPatchToFolder";
