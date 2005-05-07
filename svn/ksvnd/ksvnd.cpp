@@ -267,7 +267,8 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 //			result << "CreateRepository";
 			result << "Import";
 		}
-	} else if ( (listStatus & AllAreInParentsEntries)) {
+	} else if ( (listStatus & AllAreInParentsEntries) ) {
+		result << "Diff";
 		//In SVN
 //		result << "ShowLog";
 //		result << "CheckForModifications";

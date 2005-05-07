@@ -23,6 +23,7 @@
 #include <kapplication.h>
 #include <kio/job.h>
 #include <kwinmodule.h>
+#include <qstringlist.h>
 
 class SvnHelper:public KApplication {
 	Q_OBJECT
@@ -34,6 +35,7 @@ private slots:
 	void slotResult( KIO::Job *);
 private:
 	WId m_id;
+	QStringList diffresult; //for diff commands ;)
 };
 
 #endif

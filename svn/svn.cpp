@@ -806,6 +806,23 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 				svn_switch(wc,url,revnumber,revkind,recurse);
 				break;
 			}
+		case SVN_DIFF:
+			{
+				KURL url1,url2;
+				int rev1, rev2;
+				bool recurse;
+				QString revkind1, revkind2;
+				stream >> url1;
+				stream >> url2;
+				stream >> rev1;
+				stream >> revkind1;
+				stream >> rev2;
+				stream >> revkind2;
+				stream >> recurse;
+				kdDebug(7128) << "kio_svnProtocol DIFF" << endl;
+				svn_diff(url1,url2,rev1,rev2,revkind1,revkind2,recurse);
+				break;
+			}
 		default:
 			{
 				kdDebug(7128) << "kio_svnProtocol DEFAULT" << endl;
@@ -821,6 +838,88 @@ void kio_svnProtocol::popupMessage( const QString& message ) {
 
 	if ( !dcopClient()->send( "kded","ksvnd","popupMessage(QString)", params ) )
 		kdWarning() << "Communication with KDED:KSvnd failed" << endl;
+}
+
+void kio_svnProtocol::svn_diff(const KURL & url1, const KURL& url2,int rev1, int rev2,const QString& revkind1,const QString& revkind2,bool recurse) {
+	kdDebug(7128) << "kio_svn::diff : " << url1.path() << " at revision " << rev1 << " or " << revkind1 << " with "
+		<< url2.path() << " at revision " << rev2 << " or " << revkind2
+		<< endl ;
+	
+	apr_pool_t *subpool = svn_pool_create (pool);
+	apr_array_header_t *options = svn_cstring_split( "", "\t\r\n", TRUE, subpool );
+
+	KURL nurl1 = url1;
+	KURL nurl2 = url2;
+	nurl1.setProtocol( chooseProtocol( url1.protocol() ) ); //svn+https -> https for eg
+	nurl2.setProtocol( chooseProtocol( url2.protocol() ) );
+	recordCurrentURL( nurl1 );
+	QString source = makeSvnURL( nurl1 );
+	QString target = makeSvnURL( nurl2 );
+
+	const char *path1 = svn_path_canonicalize( apr_pstrdup( subpool, source.utf8() ), subpool );
+	const char *path2 = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
+	//remove file:/// so we can diff for working copies, needs a better check (so we support URL for file:/// _repositories_ )
+	if ( nurl1.protocol() == "file" ) {
+		path1 = svn_path_canonicalize( apr_pstrdup( subpool, nurl1.path().utf8() ), subpool );
+	}
+	if ( nurl2.protocol() == "file" ) {
+		path2 = svn_path_canonicalize( apr_pstrdup( subpool, nurl2.path().utf8() ), subpool );
+	}
+	kdDebug( 7128 ) << "1 : " << path1 << " 2: " << path2 << endl;
+
+	svn_opt_revision_t revision1,revision2,endrev;
+	if ( rev1 != -1 ) {
+		revision1.value.number = rev1;
+		revision1.kind = svn_opt_revision_number;
+	} else if ( revkind1 == "WORKING" ) {
+		kdDebug( 7128 ) << "1 : WORKING "<< endl;
+		revision1.kind = svn_opt_revision_working;
+	} else if ( revkind1 == "BASE" ) {
+		kdDebug( 7128 ) << "1 : BASE"<< endl;
+		revision1.kind = svn_opt_revision_base;
+	} else if ( !revkind1.isNull() ) {
+		svn_opt_parse_revision(&revision1,&endrev,revkind1.utf8(),subpool);
+	}
+	if ( rev2 != -1 ) {
+		revision2.value.number = rev2;
+		revision2.kind = svn_opt_revision_number;
+	} else if ( revkind2 == "WORKING" ) {
+		kdDebug( 7128 ) << "2 : WORKING "<< endl;
+		revision2.kind = svn_opt_revision_working;
+	} else if ( revkind2 == "BASE" ) {
+		kdDebug( 7128 ) << "2 : BASE"<< endl;
+		revision2.kind = svn_opt_revision_base;
+	} else if ( !revkind2.isNull() ) {
+		svn_opt_parse_revision(&revision2,&endrev,revkind2.utf8(),subpool);
+	}
+
+	char *templ;
+    templ = apr_pstrdup ( subpool, "tempfile_XXXXXX" );
+	apr_file_t *outfile = NULL;
+	apr_file_mktemp( &outfile, templ , APR_READ|APR_WRITE|APR_CREATE|APR_TRUNCATE, subpool );
+
+	initNotifier(false, false, false, subpool);
+	svn_error_t *err = svn_client_diff (options, path1, &revision1, path2, &revision2, recurse, false, true, outfile, NULL, &ctx, subpool);
+	if ( err ) {
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+	}
+	//read the content of the outfile now
+	apr_status_t status;
+	QStringList tmp;
+	apr_size_t size = 1024;
+	char *buffer = ( char* )apr_pcalloc( subpool, size );
+	apr_file_close(outfile);
+	apr_file_open ( &outfile, templ, APR_READ|APR_DELONCLOSE, APR_OS_DEFAULT , subpool );
+	while ( !APR_STATUS_IS_EOF( status ) ) {
+		status = apr_file_read( outfile, buffer, &size );
+		tmp << buffer;
+	}
+	setMetaData("diffresult", tmp.join("") );
+	//delete file on close (see DELONCLOSE just below)
+	apr_file_close(outfile);
+
+	finished();
+	svn_pool_destroy (subpool);
 }
 
 void kio_svnProtocol::svn_switch( const KURL& wc, const KURL& repos, int revnumber, const QString& revkind, bool recurse) {

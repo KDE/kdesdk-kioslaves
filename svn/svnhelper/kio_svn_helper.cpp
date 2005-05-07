@@ -29,7 +29,6 @@
 #include <kio/job.h>
 #include <kio/jobclasses.h>
 #include <kio/netaccess.h>
-#include <kpassivepopup.h>
 #include <qpixmap.h>
 #include <kmessagebox.h>
 
@@ -38,6 +37,11 @@
 #include "subversionswitch.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
+#include <kprocess.h>
+#include <ktempfile.h>
+#include <qtextstream.h>
+#include <qtextedit.h>
+#include <kstandarddirs.h>
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
@@ -89,6 +93,43 @@ SvnHelper::SvnHelper():KApplication() {
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
+		}
+	} else if (args->isSet("D")) {
+		kdDebug(7128) << "diff " << list << endl;
+		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+			QByteArray parms;
+			QDataStream s( parms, IO_WriteOnly );
+			int cmd = 13;
+			kdDebug(7128) << "diffing : " << (*it).prettyURL() << endl;
+			int rev1=-1;
+			int rev2=-1;
+			QString revkind1 = "BASE";
+			QString revkind2 = "WORKING";
+			s << cmd << *it << *it << rev1 << revkind1 << rev2 << revkind2 << true ;
+			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
+			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+			KIO::NetAccess::synchronousRun( job, 0 );
+		}
+		if ( diffresult.count() > 0 ) {
+			//check kompare is available
+			if ( !KStandardDirs::findExe( "kompare" ).isNull() ) {
+				//start one kompare for each URL :)
+				for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					KTempFile *tmp = new KTempFile;
+					tmp->setAutoDelete(true);
+					QTextStream *stream = tmp->textStream();
+					( *stream ) << ( *it2 );
+					tmp->close();
+					KProcess *p = new KProcess;
+					*p << "kompare" << "-n" << "-o" << tmp->name();
+					p->start();
+				}
+			} else { //else do it with message box
+				for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					//TODO
+				}
+			}
 		}
 	} else if (args->isSet("d")) {
 		kdDebug(7128) << "delete " << list << endl;
@@ -197,13 +238,13 @@ void SvnHelper::slotResult( KIO::Job* job ) {
 				message << ma[ *it ];
 			}
 		}
+		//extra check to retrieve the diff output in case with run a diff command
+		if ( ( *it ).endsWith( "diffresult" ) ) {
+			diffresult << ma[ *it ];
+		}
 	}
-/*	KPassivePopup *pop = new KPassivePopup ( wm.activeWindow() );
-	pop->setView( "Subversion", message );
-	pop->setAutoDelete(true);
-	pop->setTimeout( 10 );
-	pop->show();*/
-	KMessageBox::informationListWId(m_id, "", message, "Subversion");
+	if ( message.count() > 0 )
+		KMessageBox::informationListWId(m_id, "", message, "Subversion");
 }
 
 void SvnHelper::finished() {
@@ -219,6 +260,7 @@ static KCmdLineOptions options[] = {
 	{ "s", I18N_NOOP("Switch given working copy to another branch"), 0 },
 	{ "r", I18N_NOOP("Revert local changes"), 0 },
 	{ "m", I18N_NOOP("Merge changes between two branches"), 0 },
+	{ "D", I18N_NOOP("Show locally made changements with diff"), 0 },
 	{"!+URL",   I18N_NOOP("URL to update/commit/add/delete from Subversion"), 0 },
 	KCmdLineLastOption
 };
