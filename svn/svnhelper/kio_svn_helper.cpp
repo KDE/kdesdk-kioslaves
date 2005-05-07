@@ -240,7 +240,8 @@ void SvnHelper::slotResult( KIO::Job* job ) {
 		}
 		//extra check to retrieve the diff output in case with run a diff command
 		if ( ( *it ).endsWith( "diffresult" ) ) {
-			diffresult << ma[ *it ];
+			if ( ma[ *it ].length() > 0 )
+				diffresult << ma[ *it ];
 		}
 	}
 	if ( message.count() > 0 )
