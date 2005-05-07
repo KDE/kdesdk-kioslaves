@@ -35,6 +35,7 @@
 
 #include "kio_svn_helper.h"
 #include "subversioncheckout.h"
+#include "subversionswitch.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
 
@@ -103,6 +104,35 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
+	} else if (args->isSet("s")) {
+		kdDebug(7128) << "switch " << list << endl;
+		SubversionSwitch d;
+		int result = d.exec();
+		if ( result == QDialog::Accepted ) {
+			for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+				kdDebug(7128) << "switching : " << (*it).prettyURL() << endl;
+				KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+				QByteArray parms;
+				QDataStream s( parms, IO_WriteOnly );
+				int revnumber = -1;
+				QString revkind = "HEAD";
+				if ( d.revision->value() != 0 ) {
+					revnumber = d.revision->value();
+					revkind = "";
+				}
+				bool recurse=true;
+				int cmd = 12;
+				s << cmd;
+				s << *it;
+				s << KURL( d.url->url() );
+				s << recurse;
+				s << revnumber;
+				s << revkind;
+				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
+				connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+				KIO::NetAccess::synchronousRun( job, 0 );
+			}
+		}
 	} else if (args->isSet("r")) {
 		kdDebug(7128) << "revert " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
