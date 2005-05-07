@@ -1,4 +1,4 @@
-SUBDIRS = ksvnd svnhelper
+SUBDIRS = ksvnd svnhelper icons
 
 INCLUDES = $(SVN_INCLUDE) $(all_includes)
 
