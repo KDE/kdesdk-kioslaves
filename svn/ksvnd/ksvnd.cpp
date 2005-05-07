@@ -258,8 +258,15 @@ QStringList KSvnd::getActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
 
-//	i! (listStatus & AllInSVN) )
-	
+	if ( list.size() == 1 && 
+	     (listStatus & SomeAreFolders) &&
+	    !(listStatus & SomeAreInParentsEntries) && 
+	    !(listStatus & SomeAreExternalToParent) && 
+	    !(listStatus & SomeHaveSvn) ) {
+		// A folder not in svn.  Parent may or not be.
+		result << "Checkout";
+	}
+
 	if ( (listStatus & SomeParentsHaveSvn) && 
  	    !(listStatus & AllAreInParentsEntries ) ) {
 		result << "Add";
@@ -284,14 +291,6 @@ QStringList KSvnd::getTopLevelActionMenu ( const KURL::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
 
-	if ( list.size() == 1 && 
-	     (listStatus & SomeAreFolders) &&
-	    !(listStatus & SomeAreInParentsEntries) && 
-	    !(listStatus & SomeAreExternalToParent) && 
-	    !(listStatus & SomeHaveSvn) ) {
-		// A folder not in svn.  Parent may or not be.
-		result << "Checkout";
-	}
 	
 	if ( ( listStatus & AllParentsHaveSvn &&
 			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) ) 

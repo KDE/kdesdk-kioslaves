@@ -14,8 +14,4 @@ Name=SVN Commit
 Icon=subversion
 Exec=kio_svn_helper -c %U
 
-[Desktop Action Checkout]
-Name=SVN Checkout
-Icon=subversion
-Exec=kio_svn_helper -C %U
 
