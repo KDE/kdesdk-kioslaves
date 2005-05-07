@@ -36,6 +36,7 @@
 #include "kio_svn_helper.h"
 #include "subversioncheckout.h"
 #include <kurlrequester.h>
+#include <qspinbox.h>
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
@@ -128,6 +129,10 @@ SvnHelper::SvnHelper():KApplication() {
 				int cmd = 1;
 				int rev = -1;
 				QString revkind = "HEAD";
+				if ( d.revision->value() != 0 ) {
+					rev = d.revision->value();
+					revkind = "";
+				}
 				s<<cmd;
 				s << KURL( d.url->url() );
 				s << ( *it );
