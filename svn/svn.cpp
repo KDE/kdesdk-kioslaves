@@ -48,6 +48,7 @@
 #include <subversion-1/svn_time.h>
 
 #include <kmimetype.h>
+#include <qfile.h>
 
 #include "svn.h"
 #include <apr_portable.h>
@@ -917,29 +918,33 @@ void kio_svnProtocol::svn_diff(const KURL & url1, const KURL& url2,int rev1, int
 	revision2 = createRevision(rev2, revkind2, subpool);
 
 	char *templ;
-    templ = apr_pstrdup ( subpool, "tempfile_XXXXXX" );
+    templ = apr_pstrdup ( subpool, "/tmp/tmpfile_XXXXXX" );
 	apr_file_t *outfile = NULL;
 	apr_file_mktemp( &outfile, templ , APR_READ|APR_WRITE|APR_CREATE|APR_TRUNCATE, subpool );
 
 	initNotifier(false, false, false, subpool);
 	svn_error_t *err = svn_client_diff (options, path1, &revision1, path2, &revision2, recurse, false, true, outfile, NULL, &ctx, subpool);
-	if ( err ) {
+	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
-	}
 	//read the content of the outfile now
-	apr_status_t status;
 	QStringList tmp;
-	apr_size_t size = 1024;
-	char *buffer = ( char* )apr_pcalloc( subpool, size );
 	apr_file_close(outfile);
-	apr_file_open ( &outfile, templ, APR_READ|APR_DELONCLOSE, APR_OS_DEFAULT , subpool );
-	while ( !APR_STATUS_IS_EOF( status ) ) {
-		status = apr_file_read( outfile, buffer, &size );
-		tmp << buffer;
+	QFile file(templ);
+	if ( file.open(  IO_ReadOnly ) ) {
+		QTextStream stream(  &file );
+		QString line;
+		while ( !stream.atEnd() ) {
+			line = stream.readLine();
+			tmp << line;
+		}
+		file.close();
 	}
-	setMetaData("diffresult", tmp.join("") );
-	//delete file on close (see DELONCLOSE just below)
-	apr_file_close(outfile);
+	for ( QStringList::Iterator itt = tmp.begin(); itt != tmp.end(); itt++ ) {
+		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "diffresult", ( *itt ) );
+		m_counter++;
+	}
+	//delete temp file
+	file.remove();
 
 	finished();
 	svn_pool_destroy (subpool);

@@ -35,6 +35,7 @@
 #include "kio_svn_helper.h"
 #include "subversioncheckout.h"
 #include "subversionswitch.h"
+#include "subversiondiff.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
 #include <kprocess.h>
@@ -42,6 +43,8 @@
 #include <qtextstream.h>
 #include <qtextedit.h>
 #include <kstandarddirs.h>
+#include <qtextbrowser.h>
+#include <qtextcodec.h>
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
@@ -110,26 +113,32 @@ SvnHelper::SvnHelper():KApplication() {
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
-		}
-		if ( diffresult.count() > 0 ) {
-			//check kompare is available
-			if ( !KStandardDirs::findExe( "kompare" ).isNull() ) {
-				//start one kompare for each URL :)
-				for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+			if ( diffresult.count() > 0 ) {
+				//check kompare is available
+				if ( !KStandardDirs::findExe( "kompare" ).isNull() ) {
 					KTempFile *tmp = new KTempFile;
 					tmp->setAutoDelete(true);
 					QTextStream *stream = tmp->textStream();
-					( *stream ) << ( *it2 );
+					stream->setCodec( QTextCodec::codecForName( "utf8" ) );
+					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+						( *stream ) << ( *it2 ) << "\n";
+					}
 					tmp->close();
 					KProcess *p = new KProcess;
 					*p << "kompare" << "-n" << "-o" << tmp->name();
 					p->start();
-				}
-			} else { //else do it with message box
-				for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
-					//TODO
+				} else { //else do it with message box
+					Subversion_Diff df;
+					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+						df.text->append( *it2 );
+					}
+					QFont f = df.font();
+					f.setFixedPitch( true );
+					df.text->setFont( f );
+					df.exec();
 				}
 			}
+			diffresult.clear();
 		}
 	} else if (args->isSet("d")) {
 		kdDebug(7128) << "delete " << list << endl;
@@ -232,7 +241,7 @@ void SvnHelper::slotResult( KIO::Job* job ) {
 
 	QStringList message;
 	for ( it = begin; it != end; ++it ) {
-		kdDebug(7128) << "METADATA helper : " << *it << ":" << ma[ *it ] << endl;
+	//	kdDebug(7128) << "METADATA helper : " << *it << ":" << ma[ *it ] << endl;
 		if ( ( *it ).endsWith( "string" ) ) {
 			if ( ma[ *it ].length() > 2 ) {
 				message << ma[ *it ];
@@ -240,7 +249,6 @@ void SvnHelper::slotResult( KIO::Job* job ) {
 		}
 		//extra check to retrieve the diff output in case with run a diff command
 		if ( ( *it ).endsWith( "diffresult" ) ) {
-			if ( ma[ *it ].length() > 0 )
 				diffresult << ma[ *it ];
 		}
 	}
