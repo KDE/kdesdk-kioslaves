@@ -81,6 +81,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
 		void import( const KURL& repos, const KURL& wc );
 		void svn_switch( const KURL& wc, const KURL& url, int revnumber, const QString& revkind, bool recurse);
+		void svn_log( int revstart, const QString& revkindstart, int revend, const QString& revkindend, const KURL::List& targets );
 		void svn_diff( const KURL& url1, const KURL& url2, int rev1, int rev2, const QString& revkind1, const QString& revkind2, bool recurse);
 		//TODO fix with svn 1.2 : support a KURL::List -> svn_client_update2()
 		void update( const KURL& wc, int revnumber, const QString& revkind );
@@ -108,6 +109,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		void popupMessage( const QString& message );
 		int counter() { return m_counter; }
 		void incCounter() { m_counter++; }
+		svn_opt_revision_t createRevision( int revision, const QString& revkind, apr_pool_t *pool );
 
 		KURL myURL;
 		svn_client_ctx_t ctx;
