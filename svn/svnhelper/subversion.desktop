@@ -24,6 +24,7 @@ Comment=Remove any changes make locally. Warning - this cannot be undone.
 
 [Desktop Action Rename]
 Name=Rename...
+Name[br]=Adenvel ...
 Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
@@ -64,6 +65,7 @@ Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
+Name[br]=Ezporzh ...
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
