@@ -72,6 +72,7 @@ Comment=Checkout out an unversioned copy of a tree from a repository
 
 [Desktop Action Diff]
 Name=Diff (local)
+Name[da]=Diff (lokal)
 Name[ga]=Diff (logánta)
 Icon=svn_diff
 Exec=kio_svn_helper -D %U
