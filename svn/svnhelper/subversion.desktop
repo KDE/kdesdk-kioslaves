@@ -20,7 +20,7 @@ Exec=kio_svn_helper -d %U
 Name=Revert local changes
 Icon=undo
 Exec=kio_svn_helper -r %U
-Comment=Remove any changes make locally. Warning - this cannot be undone.
+Comment=Remove any changes made locally. Warning - this cannot be undone.
 
 [Desktop Action Rename]
 Name=Rename...
