@@ -6,7 +6,11 @@ X-KDE-Priority=TopLevel
 
 [Desktop Action Apply]
 Name=Apply patch...
+Name[bg]=Прилагане на кръпка...
+Name[sv]=Utför programfix...
 Icon=apply
 Exec=
 Comment=Apply the patch to another folder/file
+Comment[bg]=Прилагане на кръпка към друга директория/файл.
+Comment[sv]=Utför en programfix för en annan katalog eller fil
 

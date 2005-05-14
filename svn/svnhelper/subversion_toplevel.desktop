@@ -6,11 +6,15 @@ X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KURL::List)
 
 [Desktop Action Update]
 Name=SVN Update
+Name[bg]=Обновяване SVN
+Name[sv]=SVN-uppdatera
 Icon=redo
 Exec=kio_svn_helper -u %U
 
 [Desktop Action Commit]
 Name=SVN Commit
+Name[bg]=Предаване SVN
+Name[sv]=SVN-arkivera
 Icon=undo
 Exec=kio_svn_helper -c %U
 
