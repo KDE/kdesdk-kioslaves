@@ -27,6 +27,8 @@ Name[sv]=Återställ lokal ändring
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
+Comment[bg]=Премахване на локалните промени, които са направени. Забележете, че данните ще се загубят безвъзвратно.
+Comment[sv]=Tar bort alla ändringar som gjorts lokalt. Varning: detta kan inte ångras.
 
 [Desktop Action Rename]
 Name=Rename...
