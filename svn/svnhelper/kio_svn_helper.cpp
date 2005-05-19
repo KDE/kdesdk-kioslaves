@@ -288,3 +288,5 @@ int main(int argc, char **argv) {
 //	app->dcopClient()->attach();
 	app->exec();
 }
+
+#include "kio_svn_helper.moc"
