@@ -1,4 +1,5 @@
 [Desktop Entry]
+Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
 X-KDE-Priority=TopLevel
 
@@ -17,5 +18,4 @@ Name[bg]=Предаване SVN
 Name[sv]=SVN-arkivera
 Icon=undo
 Exec=kio_svn_helper -c %U
-
 

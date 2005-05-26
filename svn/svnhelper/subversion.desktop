@@ -1,4 +1,5 @@
 [Desktop Entry]
+Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
 X-KDE-Submenu=Subversion
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
