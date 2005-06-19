@@ -8,21 +8,21 @@ X-KDE-Submenu=Subversion
 X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
-Name=Add to the repository
+Name=Add to Repository
 Name[bg]=Добавяне в хранилището
 Name[sv]=Lägg till i arkiv
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
-Name=Delete from the repository
+Name=Delete From Repository
 Name[bg]=Изтриване от хранилището
 Name[sv]=Ta bort från arkiv
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
-Name=Revert local changes
+Name=Revert Local Changes
 Name[bg]=Игнориране на локалните промени
 Name[sv]=Återställ lokal ändring
 Icon=undo
@@ -44,7 +44,7 @@ Comment[bg]=Преименуване на файл локално и в хран
 Comment[sv]=Byt namn på en fil lokalt och i arkivet. Använd detta istället för att lägga till och ta bort för att byta namn på en fil.
 
 [Desktop Action Import]
-Name=Import a repository
+Name=Import Repository
 Name[bg]=Импорт на директория
 Name[sv]=Importera ett arkiv
 Icon=svn_import
@@ -54,7 +54,7 @@ Comment[bg]=Импорт на директория в съществуващо �
 Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under versionskontroll
 
 [Desktop Action Checkout]
-Name=Checkout from a repository
+Name=Checkout From Repository...
 Name[bg]=Изтегляне от хранилището
 Name[sv]=Checka ut från ett arkiv
 Icon=svn_checkout
