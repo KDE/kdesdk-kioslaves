@@ -9,16 +9,19 @@ X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
 Name=Add to Repository
+Name[sv]=Lägg till i arkiv
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete From Repository
+Name[sv]=Ta bort från arkiv
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert Local Changes
+Name[sv]=Återställ lokal ändring
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
@@ -39,6 +42,7 @@ Comment[sv]=Byt namn på en fil lokalt och i arkivet. Använd detta istället f�
 
 [Desktop Action Import]
 Name=Import Repository
+Name[sv]=Importera arkiv
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
@@ -47,6 +51,7 @@ Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under ver
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
+Name[sv]=Checka ut från ett arkiv...
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
