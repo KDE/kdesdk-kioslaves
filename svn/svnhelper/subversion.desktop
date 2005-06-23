@@ -9,53 +9,63 @@ X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
 
 [Desktop Action Add]
 Name=Add to Repository
+Name[da]=Tilføj til lager
 Name[sv]=Lägg till i arkiv
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete From Repository
+Name[da]=Slet fra lager
 Name[sv]=Ta bort från arkiv
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert Local Changes
+Name[da]=Vend lokale ændringer om
 Name[sv]=Återställ lokal ändring
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
 Comment[bg]=Премахване на локалните промени, които са направени. Забележете, че данните ще се загубят безвъзвратно.
+Comment[da]=Fjern alle ændringer der er lavet lokalt. Advarsel - dette kan ikke fortrydes.
 Comment[sv]=Tar bort alla ändringar som gjorts lokalt. Varning: detta kan inte ångras.
 
 [Desktop Action Rename]
 Name=Rename...
 Name[bg]=Преименуване...
 Name[br]=Adenvel ...
+Name[da]=Omdøb...
 Name[ga]=Athainmnigh...
 Name[sv]=Byt namn...
 Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
 Comment[bg]=Преименуване на файл локално и в хранилището. За предпочитане е да използвате този метод, вместо изтриване и добавяне.
+Comment[da]=Omdøb en fil lokalt og i lageret. Brug dette i stedet for at tilføje og slette fro at omdøbe en fil.
 Comment[sv]=Byt namn på en fil lokalt och i arkivet. Använd detta istället för att lägga till och ta bort för att byta namn på en fil.
 
 [Desktop Action Import]
 Name=Import Repository
+Name[da]=Importér lager
 Name[sv]=Importera arkiv
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
 Comment[bg]=Импорт на директория в съществуващо хранилище.
+Comment[da]=Put mappe ind i et eksisterende lager for at få den ind under revisionskontrol.
 Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under versionskontroll
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
+Name[da]=Tjek ud fra lager...
 Name[sv]=Checka ut från ett arkiv...
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
 Comment[bg]=Изтегляне на файлове от хранилището в текущата директория.
+Comment[da]=Tjek filer ud fra et eksisterende lager til denne mappe.
 Comment[sv]=Checka ut filer från ett befintligt arkiv till katalogen.
 
 [Desktop Action Switch]
@@ -65,16 +75,19 @@ Name[sv]=Byt...
 Icon=svn_switch
 Comment=Switch given working copy to another branch
 Comment[bg]=Превключване на работното копие към друго разклонение.
+Comment[da]=Skift given arbejdskopi til en anden gren.
 Comment[sv]=Byt angiven arbetskopia till en annan gren
 Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
 Name=Merge...
 Name[bg]=Смесване...
+Name[da]=Indflet...
 Name[sv]=Sammanfoga...
 Icon=svn_merge
 Comment=Merge changes between this and another branch
 Comment[bg]=Смесване на промените от това разклонение с друго разклонение.
+Comment[da]=Indflet ændringer mellem denne og en anden gren
 Comment[sv]=Sammanfoga ändringar mellan den här och en annan gren
 Exec=kio_svn_helper -m %U
 
@@ -85,12 +98,14 @@ Name[sv]=Klandra...
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
 Comment[bg]=Информация за файла.
+Comment[da]=Se hvem der skrev hver linje i filen og i hvilken revision
 Comment[sv]=Se vem som skrev varje rad i filen och för vilken version
 Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
 Name=Create Patch...
 Name[bg]=Създаване на кръпка...
+Name[da]=Lav rettelse...
 Name[sv]=Skapa programfix...
 Exec=kio_svn_helper -p %U
 
@@ -98,12 +113,14 @@ Exec=kio_svn_helper -p %U
 Name=Export...
 Name[bg]=Експорт...
 Name[br]=Ezporzh ...
+Name[da]=Eksportér...
 Name[ga]=Easpórtáil...
 Name[sv]=Exportera...
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
 Comment[bg]=Изтегляне на копие на дървото от хранилището.
+Comment[da]=Tjek en kopi uden version ud af et træ fra et lager
 Comment[sv]=Checka ut en kopia utan versionskontroll från ett arkiv
 
 [Desktop Action Diff]
@@ -116,5 +133,6 @@ Icon=svn_diff
 Exec=kio_svn_helper -D %U
 Comment=Show local changes since last update
 Comment[bg]=Показване на локалните промени след последното обновяване.
+Comment[da]=Vis lokale ændringer siden sidste opdatering
 Comment[sv]=Visa lokala ändringar sedan senaste uppdateringen
 

@@ -13,5 +13,6 @@ Icon=apply
 Exec=
 Comment=Apply the patch to another folder/file
 Comment[bg]=Прилагане на кръпка към друга директория/файл.
+Comment[da]=Anvend rettelsen på en anden mappe/fil
 Comment[sv]=Utför en programfix för en annan katalog eller fil
 
