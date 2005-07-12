@@ -1,3 +1,11 @@
+AC_ARG_WITH(subversion,
+  [AS_HELP_STRING(--with-subversion,
+    [enable support for subversion @<:@default=check@:>@])],
+  [], with_subversion=check)
+
+SVN_SUBDIR=""
+if test "x$with_subversion" != xno; then
+
 APR_CONFIGS="apr-config /usr/local/apr/bin/apr-config"
 SVN_SUBDIR="svn"
 AC_ARG_WITH(apr-config,
@@ -136,6 +144,11 @@ fi
 SVN_LIB="$SVN_LIB $APR_LIBS -lsvn_client-1"
 SVN_INCLUDE="$SVN_INCLUDE $APR_INCLUDE"
 SVN_CPPFLAGS="$APR_CPPFLAGS $SVN_CPPFLAGS"
+
+if test "x$with_subversion" != xcheck && test -z "$SVN_SUBDIR"; then
+  AC_MSG_FAILURE([--with-subversion was given, but test for subversion failed])
+fi
+fi
 
 AC_SUBST(SVN_INCLUDE)
 AC_SUBST(SVN_LIB)
