@@ -1,5 +1,5 @@
 AC_ARG_WITH(subversion,
-  [AS_HELP_STRING(--with-subversion,
+  [AC_HELP_STRING(--with-subversion,
     [enable support for subversion @<:@default=check@:>@])],
   [], with_subversion=check)
 
@@ -146,7 +146,7 @@ SVN_INCLUDE="$SVN_INCLUDE $APR_INCLUDE"
 SVN_CPPFLAGS="$APR_CPPFLAGS $SVN_CPPFLAGS"
 
 if test "x$with_subversion" != xcheck && test -z "$SVN_SUBDIR"; then
-  AC_MSG_FAILURE([--with-subversion was given, but test for subversion failed])
+  AC_MSG_ERROR([--with-subversion was given, but test for subversion failed])
 fi
 fi
 
