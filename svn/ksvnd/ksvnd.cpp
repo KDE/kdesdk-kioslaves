@@ -24,6 +24,9 @@
 #include <kmessagebox.h>
 #include <qdir.h>
 #include <qfile.h>
+//Added by qt3to4:
+#include <QTextStream>
+#include <Q3CString>
 
 #include "config.h"
 
@@ -31,12 +34,12 @@
 #include "commitdlg.h"
 
 extern "C" {
-    KDE_EXPORT KDEDModule *create_ksvnd(const QCString &name) {
+    KDE_EXPORT KDEDModule *create_ksvnd(const Q3CString &name) {
        return new KSvnd(name);
     }
 }
 
-KSvnd::KSvnd(const QCString &name)
+KSvnd::KSvnd(const Q3CString &name)
  : KDEDModule(name) {
 }
 
@@ -54,7 +57,7 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 }
 
 bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -68,7 +71,7 @@ bool KSvnd::AreAnyFilesInSvn( const KURL::List& wclist ) {
 }
 
 bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -82,7 +85,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const KURL::List& wclist ) {
 }
 
 bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -96,7 +99,7 @@ bool KSvnd::AreAllFilesInSvn( const KURL::List& wclist ) {
 }
 
 bool KSvnd::AreAllFilesNotInSvn( const KURL::List& wclist ) {
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kdDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -111,7 +114,7 @@ bool KSvnd::AreAllFilesNotInSvn( const KURL::List& wclist ) {
 
 bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile ) {
 	QFile file( entfile );
-	if ( file.open( IO_ReadOnly ) ) {
+	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		QString line;
 		while ( !stream.atEnd() ) {
@@ -128,7 +131,7 @@ bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile )
 
 bool KSvnd::isFileInExternals ( const QString filename, const QString propfile ) {
 	QFile file( propfile );
-	if ( file.open( IO_ReadOnly ) ) {
+	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		QStringList line;
 		while ( !stream.atEnd() )
@@ -159,7 +162,7 @@ bool KSvnd::isFileInExternals ( const QString filename, const QString propfile )
 
 bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 	bool result = true; //one negative match is enough
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//exception for .svn dirs
 		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
 			return true;
@@ -178,7 +181,7 @@ bool KSvnd::anyNotValidWorkingCopy( const KURL::List& wclist ) {
 }
 
 bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
-	for ( QValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//skip .svn dirs
 		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
 			continue;
@@ -199,7 +202,7 @@ bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 int KSvnd::getStatus( const KURL::List& list ) {
 	int result = 0;
 	uint files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
-	for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+	for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 		if ( isFolder ( ( *it ) ) ) {
 			folders++;
 		} else {
@@ -325,7 +328,7 @@ void KSvnd::notify(const QString& path, int action, int kind, const QString& mim
 	kdDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
 	QByteArray params;
 
-	QDataStream stream(params, IO_WriteOnly);
+	QDataStream stream( &params,QIODevice::WriteOnly);
 	stream << path << action << kind << mime_type << content_state << prop_state << revision << userstring;
 
 	emitDCOPSignal( "subversionNotify(QString,int,int,QString,int,int,long int,QString)", params );
@@ -336,7 +339,7 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 			<< repos_text_status << " " << repos_prop_status << " " << rev << endl;
 	QByteArray params;
 
-	QDataStream stream(params, IO_WriteOnly);
+	QDataStream stream( &params,QIODevice::WriteOnly);
 	stream << path << text_status << prop_status << repos_text_status << repos_prop_status << rev;
 
 	emitDCOPSignal( "subversionStatus(QString,int,int,int,int,long int)", params );

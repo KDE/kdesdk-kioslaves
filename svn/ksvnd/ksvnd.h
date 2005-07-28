@@ -25,6 +25,8 @@
 #include <kdedmodule.h>
 #include <kurl.h>
 #include <qstringlist.h>
+//Added by qt3to4:
+#include <Q3CString>
 
 class KSvnd : public KDEDModule
 {
@@ -34,7 +36,7 @@ class KSvnd : public KDEDModule
   //note: InSVN means parent is added.  InRepos  means itself is added
   enum { SomeAreFiles = 1, SomeAreFolders = 2,  SomeAreInParentsEntries = 4, SomeParentsHaveSvn = 8, SomeHaveSvn = 16, SomeAreExternalToParent = 32, AllAreInParentsEntries = 64, AllParentsHaveSvn = 128, AllHaveSvn = 256, AllAreExternalToParent = 512, AllAreFolders = 1024 };
 public:
-  KSvnd(const QCString &);
+  KSvnd(const Q3CString &);
   ~KSvnd();
 
 k_dcop:

@@ -26,6 +26,8 @@
 #include <kdebug.h>
 #include <kglobal.h>
 #include <qtimer.h>
+//Added by qt3to4:
+#include <Q3ValueList>
 #include <kio/job.h>
 #include <kio/jobclasses.h>
 #include <kio/netaccess.h>
@@ -41,9 +43,9 @@
 #include <kprocess.h>
 #include <ktempfile.h>
 #include <qtextstream.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <kstandarddirs.h>
-#include <qtextbrowser.h>
+#include <q3textbrowser.h>
 #include <qtextcodec.h>
 
 SvnHelper::SvnHelper():KApplication() {
@@ -59,9 +61,9 @@ SvnHelper::SvnHelper():KApplication() {
 		kdDebug(7128) << "update " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 		//FIXME when 1.2 is out (move the loop inside kio_svn's ::update)
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
-			QDataStream s( parms, IO_WriteOnly );
+			QDataStream s( parms, QIODevice::WriteOnly );
 			int cmd = 2;
 			int rev = -1;
 			kdDebug(7128) << "updating : " << (*it).prettyURL() << endl;
@@ -74,10 +76,10 @@ SvnHelper::SvnHelper():KApplication() {
 		kdDebug(7128) << "commit " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 		QByteArray parms;
-		QDataStream s( parms, IO_WriteOnly );
+		QDataStream s( parms, QIODevice::WriteOnly );
 		int cmd = 3;
 		s<<cmd;
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			kdDebug(7128) << "commiting : " << (*it).prettyURL() << endl;
 			s << *it;
 		}
@@ -87,9 +89,9 @@ SvnHelper::SvnHelper():KApplication() {
 	} else if (args->isSet("a")) {
 		kdDebug(7128) << "add " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
-			QDataStream s( parms, IO_WriteOnly );
+			QDataStream s( parms, QIODevice::WriteOnly );
 			int cmd = 6;
 			kdDebug(7128) << "adding : " << (*it).prettyURL() << endl;
 			s << cmd << *it;
@@ -100,9 +102,9 @@ SvnHelper::SvnHelper():KApplication() {
 	} else if (args->isSet("D")) {
 		kdDebug(7128) << "diff " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
-			QDataStream s( parms, IO_WriteOnly );
+			QDataStream s( parms, QIODevice::WriteOnly );
 			int cmd = 13;
 			kdDebug(7128) << "diffing : " << (*it).prettyURL() << endl;
 			int rev1=-1;
@@ -144,10 +146,10 @@ SvnHelper::SvnHelper():KApplication() {
 		kdDebug(7128) << "delete " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 		QByteArray parms;
-		QDataStream s( parms, IO_WriteOnly );
+		QDataStream s( parms, QIODevice::WriteOnly );
 		int cmd = 7;
 		s<<cmd;
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			kdDebug(7128) << "deleting : " << (*it).prettyURL() << endl;
 			s << *it;
 		}
@@ -159,11 +161,11 @@ SvnHelper::SvnHelper():KApplication() {
 		SubversionSwitch d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
-			for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+			for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 				kdDebug(7128) << "switching : " << (*it).prettyURL() << endl;
 				KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 				QByteArray parms;
-				QDataStream s( parms, IO_WriteOnly );
+				QDataStream s( parms, QIODevice::WriteOnly );
 				int revnumber = -1;
 				QString revkind = "HEAD";
 				if ( d.revision->value() != 0 ) {
@@ -187,10 +189,10 @@ SvnHelper::SvnHelper():KApplication() {
 		kdDebug(7128) << "revert " << list << endl;
 		KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 		QByteArray parms;
-		QDataStream s( parms, IO_WriteOnly );
+		QDataStream s( parms, QIODevice::WriteOnly );
 		int cmd = 8;
 		s<<cmd;
-		for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+		for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 			kdDebug(7128) << "reverting : " << (*it).prettyURL() << endl;
 			s << *it;
 		}
@@ -202,10 +204,10 @@ SvnHelper::SvnHelper():KApplication() {
 		SubversionCheckout d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
-			for ( QValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
+			for ( Q3ValueListConstIterator<KURL> it = list.begin(); it != list.end() ; ++it ) {
 				KURL servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
 				QByteArray parms;
-				QDataStream s( parms, IO_WriteOnly );
+				QDataStream s( parms, QIODevice::WriteOnly );
 				int cmd = 1;
 				int rev = -1;
 				QString revkind = "HEAD";
@@ -235,9 +237,9 @@ void SvnHelper::slotResult( KIO::Job* job ) {
 		job->showErrorDialog( );
 
 	KIO::MetaData ma = job->metaData();
-	QValueList<QString> keys = ma.keys();
+	Q3ValueList<QString> keys = ma.keys();
 	qHeapSort( keys );
-	QValueList<QString>::Iterator begin = keys.begin(), end = keys.end(), it;
+	Q3ValueList<QString>::Iterator begin = keys.begin(), end = keys.end(), it;
 
 	QStringList message;
 	for ( it = begin; it != end; ++it ) {

@@ -21,7 +21,7 @@
 #define _svn_H_
 
 #include <qstring.h>
-#include <qcstring.h>
+#include <q3cstring.h>
 
 #include <kurl.h>
 #include <kio/global.h>
@@ -31,10 +31,10 @@
 #include <subversion-1/svn_client.h>
 #include <subversion-1/svn_config.h>
 #include <sys/stat.h>
-#include <qvaluelist.h>
+#include <q3valuelist.h>
 #include <subversion-1/svn_wc.h>
 
-class QCString;
+class Q3CString;
 class kio_svnProtocol;
 
 typedef struct kbaton {
@@ -67,7 +67,7 @@ typedef struct notify_baton {
 class kio_svnProtocol : public KIO::SlaveBase
 {
 	public:
-		kio_svnProtocol(const QCString &pool_socket, const QCString &app_socket);
+		kio_svnProtocol(const Q3CString &pool_socket, const Q3CString &app_socket);
 		virtual ~kio_svnProtocol();
 		virtual void special( const QByteArray& data );
 		virtual void get(const KURL& url);
