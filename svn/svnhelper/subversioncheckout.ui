@@ -142,7 +142,7 @@
                                 <cstring>textLabel1</cstring>
                             </property>
                             <property name="text">
-                                <string>Revision (0 for HEAD) :</string>
+                                <string>Revision (0 for HEAD):</string>
                             </property>
                         </widget>
                         <spacer>
