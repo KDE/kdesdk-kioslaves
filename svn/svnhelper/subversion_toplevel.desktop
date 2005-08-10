@@ -9,6 +9,7 @@ X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KURL::List)
 Name=SVN Update
 Name[bg]=Обновяване SVN
 Name[da]=SVN Opdatér
+Name[de]=Aktualisieren (SVN)
 Name[et]=SVN uuendamine
 Name[sr]=SVN ажурирање
 Name[sr@Latn]=SVN ažuriranje
@@ -20,6 +21,7 @@ Exec=kio_svn_helper -u %U
 [Desktop Action Commit]
 Name=SVN Commit
 Name[bg]=Предаване SVN
+Name[de]=Einspielen (SVN)
 Name[et]=SVN sissekanne
 Name[sr]=SVN предаја
 Name[sr@Latn]=SVN predaja
