@@ -32,9 +32,6 @@
             <property name="wordWrap">
                 <enum>NoWrap</enum>
             </property>
-            <property name="autoFormatting">
-                <set>AutoAll</set>
-            </property>
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">

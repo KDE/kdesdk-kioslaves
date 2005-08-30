@@ -39,7 +39,6 @@
 #include <kstandarddirs.h>
 #include <klocale.h>
 #include <kurl.h>
-#include <ksock.h>
 #include <dcopclient.h>
 #include <q3cstring.h>
 
@@ -1061,7 +1060,7 @@ void kio_svnProtocol::commit(const KURL::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
 
-	for ( Q3ValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
@@ -1073,7 +1072,7 @@ void kio_svnProtocol::commit(const KURL::List& wc) {
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
-	for ( Q3ValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 
@@ -1124,7 +1123,7 @@ void kio_svnProtocol::wc_delete(const KURL::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
 
-	for ( Q3ValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
@@ -1149,7 +1148,7 @@ void kio_svnProtocol::wc_revert(const KURL::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1 + wc.count(), sizeof(const char *));
 
-	for ( Q3ValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
@@ -1258,9 +1257,9 @@ svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_ce
 }
 
 svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **/*file*/, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
-	Q3CString replyType;
+	DCOPCString replyType;
 	QByteArray params;
-	QByteArray reply;
+	DCOPCString reply;
 	QString result;
 	QStringList slist;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
@@ -1300,7 +1299,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		slist << list;
 	}
 
-	QDataStream stream(params, QIODevice::WriteOnly);
+	QDataStream stream(&params, QIODevice::WriteOnly);
 	stream << slist.join("\n");	
 
 	if ( !p->dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
