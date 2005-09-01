@@ -20,6 +20,7 @@ Name[sr]=Додај у складиште
 Name[sr@Latn]=Dodaj u skladište
 Name[sv]=Lägg till i arkiv
 Name[tr]=Depoya Ekle
+Name[xx]=xxAdd to Repositoryxx
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
@@ -34,6 +35,7 @@ Name[sr]=Обриши из складишта
 Name[sr@Latn]=Obriši iz skladišta
 Name[sv]=Ta bort från arkiv
 Name[tr]=Depodan Sil
+Name[xx]=xxDelete From Repositoryxx
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
@@ -48,6 +50,7 @@ Name[sr]=Одбаци локалне измене
 Name[sr@Latn]=Odbaci lokalne izmene
 Name[sv]=Återställ lokal ändring
 Name[tr]=Yerel Değişiklikleri Ters Çevir
+Name[xx]=xxRevert Local Changesxx
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
@@ -60,6 +63,7 @@ Comment[sr]=Уклони све локално направљене измене
 Comment[sr@Latn]=Ukloni sve lokalno napravljene izmene. Upozorenje: ovo se ne može opozvati.
 Comment[sv]=Tar bort alla ändringar som gjorts lokalt. Varning: detta kan inte ångras.
 Comment[tr]=Yerel olarak yapılan değişiklikleri kaldır. Dikkat - bu işlem geri alınamaz.
+Comment[xx]=xxRemove any changes made locally. Warning - this cannot be undone.xx
 
 [Desktop Action Rename]
 Name=Rename...
@@ -77,6 +81,7 @@ Name[sr]=Преименуј...
 Name[sr@Latn]=Preimenuj...
 Name[sv]=Byt namn...
 Name[tr]=Yeniden Adlandır...
+Name[xx]=xxRename...xx
 Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
@@ -88,6 +93,7 @@ Comment[it]=Rinomina un file localmente e nel deposito. Usa questo invece di agg
 Comment[sr]=Преименуј фајл локално и у складишту. Користите ово уместо трика са додавањем и брисањем фајла.
 Comment[sr@Latn]=Preimenuj fajl lokalno i u skladištu. Koristite ovo umesto trika sa dodavanjem i brisanjem fajla.
 Comment[sv]=Byt namn på en fil lokalt och i arkivet. Använd detta istället för att lägga till och ta bort för att byta namn på en fil.
+Comment[xx]=xxRename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.xx
 
 [Desktop Action Import]
 Name=Import Repository
@@ -100,6 +106,7 @@ Name[sr]=Увези складиште
 Name[sr@Latn]=Uvezi skladište
 Name[sv]=Importera arkiv
 Name[tr]=Depoyu İçe Aktar
+Name[xx]=xxImport Repositoryxx
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
@@ -112,6 +119,7 @@ Comment[sr]=Стави фасциклу у постојеће складиште
 Comment[sr@Latn]=Stavi fasciklu u postojeće skladište, radi stavljanja pod kontrolu revizija.
 Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under versionskontroll
 Comment[tr]=Dizini başka bie alt düzeltme controlünde var olan bir depo içine koy.
+Comment[xx]=xxPut folder into an existing repository to put it under revision control.xx
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
@@ -124,6 +132,7 @@ Name[sr]=Довуци из складишта...
 Name[sr@Latn]=Dovuci iz skladišta...
 Name[sv]=Checka ut från ett arkiv...
 Name[tr]=Depodan Kontrol Et...
+Name[xx]=xxCheckout From Repository...xx
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
@@ -136,6 +145,7 @@ Comment[sr]=Довуци фајлове из постојећег складиш
 Comment[sr@Latn]=Dovuci fajlove iz postojećeg skladišta u ovu fasciklu.
 Comment[sv]=Checka ut filer från ett befintligt arkiv till katalogen.
 Comment[tr]=Bu dizinde var olan bir depodan hatalı dosyaları kontrol et.
+Comment[xx]=xxCheckout out files from an existing repository into this folder.xx
 
 [Desktop Action Switch]
 Name=Switch...
@@ -148,6 +158,7 @@ Name[sr]=Пребаци...
 Name[sr@Latn]=Prebaci...
 Name[sv]=Byt...
 Name[tr]=Değiştir...
+Name[xx]=xxSwitch...xx
 Icon=svn_switch
 Comment=Switch given working copy to another branch
 Comment[bg]=Превключване на работното копие към друго разклонение.
@@ -159,6 +170,7 @@ Comment[sr]=Пребаци дату радну копију на другу гр
 Comment[sr@Latn]=Prebaci datu radnu kopiju na drugu granu
 Comment[sv]=Byt angiven arbetskopia till en annan gren
 Comment[tr]=Çalışan belirli bir kopyayı başka bölüme değiştir
+Comment[xx]=xxSwitch given working copy to another branchxx
 Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
@@ -174,6 +186,7 @@ Name[sr]=Стопи...
 Name[sr@Latn]=Stopi...
 Name[sv]=Sammanfoga...
 Name[tr]=Birleştir...
+Name[xx]=xxMerge...xx
 Icon=svn_merge
 Comment=Merge changes between this and another branch
 Comment[bg]=Смесване на промените от това разклонение с друго разклонение.
@@ -185,6 +198,7 @@ Comment[sr]=Стопи измене између ове и друге гране
 Comment[sr@Latn]=Stopi izmene između ove i druge grane
 Comment[sv]=Sammanfoga ändringar mellan den här och en annan gren
 Comment[tr]=Bu ve başka bölüm arasındaki değişiklikleri birleştir
+Comment[xx]=xxMerge changes between this and another branchxx
 Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
@@ -196,6 +210,7 @@ Name[pa]=ਬਲਾਮੀ...
 Name[sr]=Окриви...
 Name[sr@Latn]=Okrivi...
 Name[sv]=Klandra...
+Name[xx]=xxBlame...xx
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
 Comment[bg]=Информация за файла.
@@ -206,6 +221,7 @@ Comment[it]=Vedi chi ha scritto ogni riga del file e in quale revisione
 Comment[sr]=Прикажи за сваку линију фајла ко ју је написао и у којој ревизији
 Comment[sr@Latn]=Prikaži za svaku liniju fajla ko ju je napisao i u kojoj reviziji
 Comment[sv]=Se vem som skrev varje rad i filen och för vilken version
+Comment[xx]=xxSee who wrote each line of the file and in what revisionxx
 Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
@@ -221,6 +237,7 @@ Name[sr]=Направи закрпу...
 Name[sr@Latn]=Napravi zakrpu...
 Name[sv]=Skapa programfix...
 Name[tr]=Yama Oluştur...
+Name[xx]=xxCreate Patch...xx
 Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
@@ -238,6 +255,7 @@ Name[sr]=Извези...
 Name[sr@Latn]=Izvezi...
 Name[sv]=Exportera...
 Name[tr]=Dışa Aktar...
+Name[xx]=xxExport...xx
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
@@ -250,6 +268,7 @@ Comment[sr]=Довуци неверзирану копију стабла из �
 Comment[sr@Latn]=Dovuci neverziranu kopiju stabla iz skladišta
 Comment[sv]=Checka ut en kopia utan versionskontroll från ett arkiv
 Comment[tr]=Depodaki bir ağaçtan kusurlu bir versionsuz kopyayı kontrol et
+Comment[xx]=xxCheckout out an unversioned copy of a tree from a repositoryxx
 
 [Desktop Action Diff]
 Name=Diff (local)
@@ -263,6 +282,7 @@ Name[sr]=Разликуј (локално)
 Name[sr@Latn]=Razlikuj (lokalno)
 Name[sv]=Jämför (lokalt)
 Name[tr]=Diff (yerel)
+Name[xx]=xxDiff (local)xx
 Icon=svn_diff
 Exec=kio_svn_helper -D %U
 Comment=Show local changes since last update
@@ -275,4 +295,5 @@ Comment[sr]=Прикажи локалне измене од последњег �
 Comment[sr@Latn]=Prikaži lokalne izmene od poslednjeg ažuriranja
 Comment[sv]=Visa lokala ändringar sedan senaste uppdateringen
 Comment[tr]=Son güncellemeden sonraki yerel değişiklikleri göster
+Comment[xx]=xxShow local changes since last updatexx
 

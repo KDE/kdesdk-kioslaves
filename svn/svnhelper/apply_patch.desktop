@@ -18,6 +18,7 @@ Name[sr]=Примени закрпу...
 Name[sr@Latn]=Primeni zakrpu...
 Name[sv]=Utför programfix...
 Name[tr]=Yamayı Uygula...
+Name[xx]=xxApply Patch...xx
 Icon=apply
 Exec=
 Comment=Apply the patch to another folder/file
@@ -30,4 +31,5 @@ Comment[sr]=Примени закрпу на другу фасциклу/фај�
 Comment[sr@Latn]=Primeni zakrpu na drugu fasciklu/fajl
 Comment[sv]=Utför en programfix för en annan katalog eller fil
 Comment[tr]=Yamayı diğer dizine/dosyaya uygula
+Comment[xx]=xxApply the patch to another folder/filexx
 
