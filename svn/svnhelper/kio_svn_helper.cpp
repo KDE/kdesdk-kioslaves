@@ -26,8 +26,6 @@
 #include <kdebug.h>
 #include <kglobal.h>
 #include <qtimer.h>
-//Added by qt3to4:
-#include <Q3ValueList>
 #include <kio/job.h>
 #include <kio/jobclasses.h>
 #include <kio/netaccess.h>
