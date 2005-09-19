@@ -136,7 +136,7 @@ bool KSvnd::isFileInExternals ( const QString filename, const QString propfile )
 		QStringList line;
 		while ( !stream.atEnd() )
 			line << stream.readLine().simplifyWhiteSpace();
-		for ( uint i = 0 ; i < line.count(); i++ ) {
+		for ( int i = 0 ; i < line.count(); i++ ) {
 			if ( line[ i ] == "K 13"  && line[ i+1 ] == "svn:externals" ) { //Key 13 : svn:externals
 				//next line should be "V xx"
 				if ( line [ i+2 ].startsWith( "V " ) ) {
@@ -201,7 +201,7 @@ bool KSvnd::anyValidWorkingCopy( const KURL::List& wclist ) {
 
 int KSvnd::getStatus( const KURL::List& list ) {
 	int result = 0;
-	uint files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
+	int files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
 	for ( QList<KURL>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 		if ( isFolder ( ( *it ) ) ) {
 			folders++;
