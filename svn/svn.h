@@ -34,7 +34,7 @@
 #include <q3valuelist.h>
 #include <subversion-1/svn_wc.h>
 
-class Q3CString;
+class QByteArray;
 class kio_svnProtocol;
 
 typedef struct kbaton {
@@ -67,7 +67,7 @@ typedef struct notify_baton {
 class kio_svnProtocol : public KIO::SlaveBase
 {
 	public:
-		kio_svnProtocol(const Q3CString &pool_socket, const Q3CString &app_socket);
+		kio_svnProtocol(const QByteArray &pool_socket, const QByteArray &app_socket);
 		virtual ~kio_svnProtocol();
 		virtual void special( const QByteArray& data );
 		virtual void get(const KURL& url);

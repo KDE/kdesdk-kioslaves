@@ -26,7 +26,7 @@
 #include <qfile.h>
 //Added by qt3to4:
 #include <QTextStream>
-#include <Q3CString>
+#include <QByteArray>
 
 #include "config.h"
 
@@ -34,12 +34,12 @@
 #include "commitdlg.h"
 
 extern "C" {
-    KDE_EXPORT KDEDModule *create_ksvnd(const Q3CString &name) {
+    KDE_EXPORT KDEDModule *create_ksvnd(const QByteArray &name) {
        return new KSvnd(name);
     }
 }
 
-KSvnd::KSvnd(const Q3CString &name)
+KSvnd::KSvnd(const QByteArray &name)
  : KDEDModule(name) {
 }
 

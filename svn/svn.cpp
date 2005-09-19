@@ -112,7 +112,7 @@ compare_items_as_paths (const svn_sort__item_t*a, const svn_sort__item_t*b) {
   return svn_path_compare_paths ((const char *)a->key, (const char *)b->key);
 }
 
-kio_svnProtocol::kio_svnProtocol(const Q3CString &pool_socket, const Q3CString &app_socket)
+kio_svnProtocol::kio_svnProtocol(const QByteArray &pool_socket, const QByteArray &app_socket)
 	: SlaveBase("kio_svn", pool_socket, app_socket) {
 		kdDebug(7128) << "kio_svnProtocol::kio_svnProtocol()" << endl;
 
