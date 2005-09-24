@@ -118,7 +118,7 @@ bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile )
 		QTextStream stream( &file );
 		QString line;
 		while ( !stream.atEnd() ) {
-			line = stream.readLine().simplifyWhiteSpace();
+			line = stream.readLine().simplified();
 			if ( line == "name=\""+ filename + "\"" ) {
 				file.close();
 				return true;
@@ -135,7 +135,7 @@ bool KSvnd::isFileInExternals ( const QString filename, const QString propfile )
 		QTextStream stream( &file );
 		QStringList line;
 		while ( !stream.atEnd() )
-			line << stream.readLine().simplifyWhiteSpace();
+			line << stream.readLine().simplified();
 		for ( int i = 0 ; i < line.count(); i++ ) {
 			if ( line[ i ] == "K 13"  && line[ i+1 ] == "svn:externals" ) { //Key 13 : svn:externals
 				//next line should be "V xx"
@@ -208,12 +208,12 @@ int KSvnd::getStatus( const KURL::List& list ) {
 		} else {
 			files++;
 		}
-		if ( isFileInSvnEntries ( (*it).filename(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
+		if ( isFileInSvnEntries ( (*it).fileName(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
 			parentsentries++;
 		} else if ( isFolder( *it ) ) { // other subfolders (either another module checkouted or an external, or something not known at all)
 			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) ) 
 				subdirhavesvn++;
-			if ( isFileInExternals( (*it).filename(), ( *it ).directory() + "/.svn/dir-props" ) ) {
+			if ( isFileInExternals( (*it).fileName(), ( *it ).directory() + "/.svn/dir-props" ) ) {
 				external++;
 			}
 		}
