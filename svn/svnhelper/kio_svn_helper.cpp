@@ -278,8 +278,8 @@ int main(int argc, char **argv) {
 	KCmdLineArgs::init(argc, argv, "kio_svn_helper", I18N_NOOP("Subversion Helper"), "KDE frontend for SVN", "0.1");
 
 	KCmdLineArgs::addCmdLineOptions( options );
-	KGlobal::locale()->setMainCatalogue("kio_svn");
-	KApplication::addCmdLineOptions();
+	KGlobal::locale()->setMainCatalog("kio_svn");
+	KCmdLineArgs::addStdCmdLineOptions();
 
 	if ( KCmdLineArgs::parsedArgs()->count()==0 )
 		KCmdLineArgs::usage();
