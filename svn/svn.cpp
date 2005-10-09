@@ -477,7 +477,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 	svn_pool_destroy (subpool);
 }
 
-bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long int size, bool isdir, time_t mtime, UDSEntry& entry) {
+bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long long int size, bool isdir, time_t mtime, UDSEntry& entry) {
 	kdDebug(7128) << "MTime : " << ( long )mtime << endl;
 	kdDebug(7128) << "UDS filename : " << filename << endl;
 	UDSAtom atom;
