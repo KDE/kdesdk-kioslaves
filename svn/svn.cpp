@@ -480,26 +480,15 @@ void kio_svnProtocol::listDir(const KURL& url){
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long long int size, bool isdir, time_t mtime, UDSEntry& entry) {
 	kdDebug(7128) << "MTime : " << ( long )mtime << endl;
 	kdDebug(7128) << "UDS filename : " << filename << endl;
-	UDSAtom atom;
-	atom.m_uds = KIO::UDS_NAME;
-	atom.m_str = filename;
-	entry.append( atom );
+	entry.insert(KIO::UDS_NAME,filename);
 
-	atom.m_uds = KIO::UDS_FILE_TYPE;
-	atom.m_long = isdir ? S_IFDIR : S_IFREG;
-	entry.append( atom );
+	entry.insert(KIO::UDS_FILE_TYPE,isdir ? S_IFDIR : S_IFREG);
 
-	atom.m_uds = KIO::UDS_SIZE;
-	atom.m_long = size;
-	entry.append( atom );
+	entry.insert(KIO::UDS_SIZE,size);
+
+	entry.insert(KIO::UDS_MODIFICATION_TIME,mtime);
 	
-	atom.m_uds = KIO::UDS_MODIFICATION_TIME;
-	atom.m_long = mtime;
-	entry.append( atom );
-	
-	atom.m_uds = KIO::UDS_USER;
-	atom.m_str = user;
-	entry.append( atom );
+	entry.insert(KIO::UDS_USER,user);
 
 	return true;
 }
