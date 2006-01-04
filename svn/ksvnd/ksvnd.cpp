@@ -24,9 +24,7 @@
 #include <kmessagebox.h>
 #include <qdir.h>
 #include <qfile.h>
-//Added by qt3to4:
 #include <QTextStream>
-#include <QByteArray>
 
 #include "config.h"
 

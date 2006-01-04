@@ -20,8 +20,7 @@
 #ifndef _svn_H_
 #define _svn_H_
 
-#include <qstring.h>
-#include <q3cstring.h>
+#include <QString>
 
 #include <kurl.h>
 #include <kio/global.h>
@@ -31,8 +30,8 @@
 #include <subversion-1/svn_client.h>
 #include <subversion-1/svn_config.h>
 #include <sys/stat.h>
-#include <q3valuelist.h>
 #include <subversion-1/svn_wc.h>
+#include <kdemacros.h>
 
 class QByteArray;
 class kio_svnProtocol;

@@ -17,11 +17,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <q3cstring.h>
-#include <q3socket.h>
-#include <qdatetime.h>
-#include <qbitarray.h>
-//Added by qt3to4:
+#include <QDateTime>
+#include <QBitArray>
 #include <QTextStream>
 
 #include <stdlib.h>
@@ -40,7 +37,6 @@
 #include <klocale.h>
 #include <kurl.h>
 #include <dcopclient.h>
-#include <q3cstring.h>
 
 #include <subversion-1/svn_sorts.h>
 #include <subversion-1/svn_path.h>
@@ -49,7 +45,7 @@
 #include <subversion-1/svn_time.h>
 
 #include <kmimetype.h>
-#include <qfile.h>
+#include <QFile>
 
 #include "svn.h"
 #include <apr_portable.h>

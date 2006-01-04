@@ -25,7 +25,6 @@
 #include <kdedmodule.h>
 #include <kurl.h>
 #include <qstringlist.h>
-//Added by qt3to4:
 #include <QByteArray>
 
 class KSvnd : public KDEDModule
