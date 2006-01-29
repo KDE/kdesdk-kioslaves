@@ -3,7 +3,7 @@ Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
 X-KDE-Priority=TopLevel
 
-X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KURL::List)
+X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KUrl::List)
 
 [Desktop Action Update]
 Name=SVN Update

@@ -69,28 +69,28 @@ class kio_svnProtocol : public KIO::SlaveBase
 		kio_svnProtocol(const QByteArray &pool_socket, const QByteArray &app_socket);
 		virtual ~kio_svnProtocol();
 		virtual void special( const QByteArray& data );
-		virtual void get(const KURL& url);
-		virtual void listDir(const KURL& url);
-		virtual void stat(const KURL& url);
-		virtual void mkdir(const KURL& url, int permissions);
-		virtual void mkdir(const KURL::List& list, int permissions);
-		virtual void del( const KURL& url, bool isfile );
-		virtual void copy(const KURL & src, const KURL& dest, int permissions, bool overwrite);
-		virtual void rename(const KURL& src, const KURL& dest, bool overwrite);
-		void checkout( const KURL& repos, const KURL& wc, int revnumber, const QString& revkind );
-		void import( const KURL& repos, const KURL& wc );
-		void svn_switch( const KURL& wc, const KURL& url, int revnumber, const QString& revkind, bool recurse);
-		void svn_log( int revstart, const QString& revkindstart, int revend, const QString& revkindend, const KURL::List& targets );
-		void svn_diff( const KURL& url1, const KURL& url2, int rev1, int rev2, const QString& revkind1, const QString& revkind2, bool recurse);
-		//TODO fix with svn 1.2 : support a KURL::List -> svn_client_update2()
-		void update( const KURL& wc, int revnumber, const QString& revkind );
-		void commit( const KURL::List& wc );
-		void add( const KURL& wc );
+		virtual void get(const KUrl& url);
+		virtual void listDir(const KUrl& url);
+		virtual void stat(const KUrl& url);
+		virtual void mkdir(const KUrl& url, int permissions);
+		virtual void mkdir(const KUrl::List& list, int permissions);
+		virtual void del( const KUrl& url, bool isfile );
+		virtual void copy(const KUrl & src, const KUrl& dest, int permissions, bool overwrite);
+		virtual void rename(const KUrl& src, const KUrl& dest, bool overwrite);
+		void checkout( const KUrl& repos, const KUrl& wc, int revnumber, const QString& revkind );
+		void import( const KUrl& repos, const KUrl& wc );
+		void svn_switch( const KUrl& wc, const KUrl& url, int revnumber, const QString& revkind, bool recurse);
+		void svn_log( int revstart, const QString& revkindstart, int revend, const QString& revkindend, const KUrl::List& targets );
+		void svn_diff( const KUrl& url1, const KUrl& url2, int rev1, int rev2, const QString& revkind1, const QString& revkind2, bool recurse);
+		//TODO fix with svn 1.2 : support a KUrl::List -> svn_client_update2()
+		void update( const KUrl& wc, int revnumber, const QString& revkind );
+		void commit( const KUrl::List& wc );
+		void add( const KUrl& wc );
 		//these work using the working copy
-		void wc_resolve( const KURL& wc, bool recurse = true );
-		void wc_delete( const KURL::List& wc );
-		void wc_revert( const KURL::List& wc );
-		void wc_status(const KURL& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
+		void wc_resolve( const KUrl& wc, bool recurse = true );
+		void wc_delete( const KUrl::List& wc );
+		void wc_revert( const KUrl::List& wc );
+		void wc_status(const KUrl& wc, bool checkRepos=false, bool fullRecurse=true, bool getAll=true, int revnumber=-1, const QString& revkind="HEAD");
 
 		static svn_error_t* checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t may_save, apr_pool_t *pool);
 		static svn_error_t *trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char *realm, apr_uint32_t failures, const svn_auth_ssl_server_cert_info_t *cert_info, svn_boolean_t may_save, apr_pool_t *pool);
@@ -101,22 +101,22 @@ class kio_svnProtocol : public KIO::SlaveBase
 		static void status(void *baton, const char *path, svn_wc_status_t *status);
 
 		QString chooseProtocol ( const QString& kproto ) const; 
-		QString makeSvnURL ( const KURL& url ) const;
+		QString makeSvnURL ( const KUrl& url ) const;
 		void initNotifier(bool is_checkout, bool is_export, bool suppress_final_line, apr_pool_t *spool);
 			
-		void recordCurrentURL(const KURL& url);
+		void recordCurrentURL(const KUrl& url);
 		void popupMessage( const QString& message );
 		int counter() { return m_counter; }
 		void incCounter() { m_counter++; }
 		svn_opt_revision_t createRevision( int revision, const QString& revkind, apr_pool_t *pool );
 
-		KURL myURL;
+		KUrl myURL;
 		svn_client_ctx_t ctx;
 		KIO::AuthInfo info;
 
 		enum SVN_METHOD { 
-			SVN_CHECKOUT=1, //KURL repository, KURL workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
-			SVN_UPDATE=2, // KURL wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
+			SVN_CHECKOUT=1, //KUrl repository, KUrl workingcopy, int revnumber=-1, QString revkind(HEAD, ...) //revnumber==-1 => use of revkind
+			SVN_UPDATE=2, // KUrl wc (svn:///tmp/test, int revnumber=-1, QString revkind(HEAD, ...) // revnumber==-1 => use of revkind
 			SVN_COMMIT=3, 
 			SVN_LOG=4, 
 			SVN_IMPORT=5,

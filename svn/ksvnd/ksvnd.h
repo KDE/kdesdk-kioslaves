@@ -41,14 +41,14 @@ public:
 k_dcop:
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
-  bool anyNotValidWorkingCopy( const KURL::List& wclist );
-  bool anyValidWorkingCopy( const KURL::List& wclist );
-  bool AreAnyFilesNotInSvn( const KURL::List& wclist );
-  bool AreAnyFilesInSvn( const KURL::List& wclist );
-  bool AreAllFilesNotInSvn( const KURL::List& wclist );
-  bool AreAllFilesInSvn( const KURL::List& wclist );
-  QStringList getActionMenu ( const KURL::List& list );
-  QStringList getTopLevelActionMenu ( const KURL::List &list );
+  bool anyNotValidWorkingCopy( const KUrl::List& wclist );
+  bool anyValidWorkingCopy( const KUrl::List& wclist );
+  bool AreAnyFilesNotInSvn( const KUrl::List& wclist );
+  bool AreAnyFilesInSvn( const KUrl::List& wclist );
+  bool AreAllFilesNotInSvn( const KUrl::List& wclist );
+  bool AreAllFilesInSvn( const KUrl::List& wclist );
+  QStringList getActionMenu ( const KUrl::List& list );
+  QStringList getTopLevelActionMenu ( const KUrl::List &list );
 //  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
 //  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
 //  void popupMessage( const QString& message );
@@ -63,8 +63,8 @@ public slots:
 protected:
   bool isFileInSvnEntries ( const QString filename, const QString entfile );
   bool isFileInExternals ( const QString filename, const QString propfile );
-  bool isFolder( const KURL& url );
-  int getStatus( const KURL::List& list );
+  bool isFolder( const KUrl& url );
+  int getStatus( const KUrl::List& list );
 };
 
 #endif

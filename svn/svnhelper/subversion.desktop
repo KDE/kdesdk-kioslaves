@@ -3,10 +3,10 @@ Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
 X-KDE-Submenu=Subversion
 X-KDE-Submenu[x-test]=xxSubversionxx
-#X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
+#X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KUrl::List)
 
 #Return type of below is a QStringList with a list of Actions which is appended to the Actions above
-X-KDE-GetActionMenu=kded ksvnd getActionMenu(KURL::List)
+X-KDE-GetActionMenu=kded ksvnd getActionMenu(KUrl::List)
 
 [Desktop Action Add]
 Name=Add to Repository
