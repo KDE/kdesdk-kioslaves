@@ -116,7 +116,7 @@
                         </widget>
                     </hbox>
                 </widget>
-                <widget class="KURLRequester" row="0" column="0">
+                <widget class="KUrlRequester" row="0" column="0">
                     <property name="name">
                         <cstring>url</cstring>
                     </property>
