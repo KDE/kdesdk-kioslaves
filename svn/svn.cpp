@@ -229,7 +229,7 @@ void kio_svnProtocol::get(const KUrl& url ){
 
 	QString target = makeSvnURL( url );
 	kDebug(7128) << "SvnURL: " << target << endl;
-	recordCurrentURL( KURL( target ) );
+	recordCurrentURL( KUrl( target ) );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -291,7 +291,7 @@ void kio_svnProtocol::stat(const KUrl & url){
 
 	QString target = makeSvnURL( url);
 	kDebug(7128) << "SvnURL: " << target << endl;
-	recordCurrentURL( KURL( target ) );
+	recordCurrentURL( KUrl( target ) );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -396,7 +396,7 @@ void kio_svnProtocol::listDir(const KUrl& url){
 
 	QString target = makeSvnURL( url);
 	kDebug(7128) << "SvnURL: " << target << endl;
-	recordCurrentURL( KURL( target ) );
+	recordCurrentURL( KUrl( target ) );
 	
 	//find the requested revision
 	svn_opt_revision_t rev;
@@ -571,7 +571,7 @@ void kio_svnProtocol::mkdir( const KUrl& url, int /*permissions*/ ) {
 
 	QString target = makeSvnURL( url);
 	kDebug(7128) << "SvnURL: " << target << endl;
-	recordCurrentURL( KURL( target ) );
+	recordCurrentURL( KUrl( target ) );
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.toUtf8() );
@@ -594,7 +594,7 @@ void kio_svnProtocol::del( const KUrl& url, bool /*isfile*/ ) {
 
 	QString target = makeSvnURL(url);
 	kDebug(7128) << "SvnURL: " << target << endl;
-	recordCurrentURL( KURL( target ) );
+	recordCurrentURL( KUrl( target ) );
 	
 	apr_array_header_t *targets = apr_array_make(subpool, 2, sizeof(const char *));
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.toUtf8() );

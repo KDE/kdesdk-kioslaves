@@ -174,7 +174,7 @@ SvnHelper::SvnHelper():KApplication() {
 				int cmd = 12;
 				s << cmd;
 				s << *it;
-				s << KURL( d.url->url() );
+				s << KUrl( d.url->url() );
 				s << recurse;
 				s << revnumber;
 				s << revkind;
@@ -214,7 +214,7 @@ SvnHelper::SvnHelper():KApplication() {
 					revkind = "";
 				}
 				s<<cmd;
-				s << KURL( d.url->url() );
+				s << KUrl( d.url->url() );
 				s << ( *it );
 				s << rev;
 				s << revkind;
