@@ -12,7 +12,7 @@
             <height>337</height>
         </rect>
     </property>
-    <property name="caption">
+    <property name="windowTitle">
         <string>Log Message</string>
     </property>
     <vbox>
