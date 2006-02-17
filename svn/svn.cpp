@@ -118,19 +118,29 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		m_counter = 0;
 
 		apr_initialize();
+		// CleanUP ctx preventing crash in svn_client_update and other
+		memset(&ctx, 0, sizeof(ctx));
 		pool = svn_pool_create (NULL);
-		svn_error_t *err = svn_config_ensure (NULL,pool);
+
+		svn_error_t *err = svn_client_create_context(&ctx, pool);
+                if ( err ) {
+                        kdDebug(7128) << "kio_svnProtocol::kio_svnProtocol() create_context ERROR" << endl;
+                        error( KIO::ERR_SLAVE_DEFINED, err->message );
+                        return;
+                }
+
+		err = svn_config_ensure (NULL,pool);
 		if ( err ) {
 			kdDebug(7128) << "kio_svnProtocol::kio_svnProtocol() configensure ERROR" << endl;
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
 			return;
 		}
-		svn_config_get_config (&ctx.config,NULL,pool);
+		svn_config_get_config (&ctx->config, NULL, pool);
 
-		ctx.log_msg_func = kio_svnProtocol::commitLogPrompt;
-		ctx.log_msg_baton = this; //pass this so that we can get a dcopClient from it
+		ctx->log_msg_func = kio_svnProtocol::commitLogPrompt;
+		ctx->log_msg_baton = this; //pass this so that we can get a dcopClient from it
 		//TODO
-		ctx.cancel_func = NULL;
+		ctx->cancel_func = NULL;
 
 		apr_array_header_t *providers = apr_array_make(pool, 9, sizeof(svn_auth_provider_object_t *));
 
@@ -166,7 +176,7 @@ kio_svnProtocol::kio_svnProtocol(const QCString &pool_socket, const QCString &ap
 		svn_client_get_ssl_client_cert_pw_prompt_provider (&provider, kio_svnProtocol::clientCertPasswdPrompt, NULL, 2, pool);
 		APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
-		svn_auth_open(&ctx.auth_baton, providers, pool);
+		svn_auth_open(&ctx->auth_baton, providers, pool);
 }
 
 kio_svnProtocol::~kio_svnProtocol(){
@@ -177,7 +187,7 @@ kio_svnProtocol::~kio_svnProtocol(){
 
 void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppress_final_line, apr_pool_t *spool) {
 	m_counter=0;//reset counter
-	ctx.notify_func = kio_svnProtocol::notify;
+	ctx->notify_func = kio_svnProtocol::notify;
 	struct notify_baton *nb = ( struct notify_baton* )apr_palloc(spool, sizeof( *nb ) );
 	nb->master = this;
 	nb->received_some_change = FALSE;
@@ -189,7 +199,7 @@ void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppre
 	nb->had_print_error = FALSE;
 	nb->pool = svn_pool_create (spool);
 
-	ctx.notify_baton = nb;
+	ctx->notify_baton = nb;
 }
 
 svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *baton, const char *realm, const char *username, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
@@ -260,7 +270,7 @@ void kio_svnProtocol::get(const KURL& url ){
 	}
 	initNotifier(false, false, false, subpool);
 
-	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target.utf8(),subpool ),&rev,&ctx, subpool);
+	svn_error_t *err = svn_client_cat (bt->string_stream, svn_path_canonicalize( target.utf8(),subpool ),&rev,ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -343,13 +353,13 @@ void kio_svnProtocol::stat(const KURL & url){
 	cbtable->get_wc_prop = NULL;
 	cbtable->set_wc_prop = NULL;
 	cbtable->push_wc_prop = NULL;
-	cbtable->auth_baton = ctx.auth_baton;
+	cbtable->auth_baton = ctx->auth_baton;
 
 	callbackbt->base_dir = target.utf8();
 	callbackbt->pool = subpool;
-	callbackbt->config = ctx.config;
+	callbackbt->config = ctx->config;
 	
-	err = ra_lib->open(&session,svn_path_canonicalize( target.utf8(), subpool ),cbtable,callbackbt,ctx.config,subpool);
+	err = ra_lib->open(&session,svn_path_canonicalize( target.utf8(), subpool ),cbtable,callbackbt,ctx->config,subpool);
 	if ( err ) {
 		kdDebug(7128)<< "Open session " << err->message << endl;
 		return;
@@ -427,7 +437,7 @@ void kio_svnProtocol::listDir(const KURL& url){
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target.utf8(), subpool ), &rev, false, &ctx, subpool);
+	svn_error_t *err = svn_client_ls (&dirents, svn_path_canonicalize( target.utf8(), subpool ), &rev, false, ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
@@ -507,7 +517,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int /*permissions
 	kdDebug(7128) << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 
 	KURL nsrc = src;
 	KURL ndest = dest;
@@ -540,7 +550,7 @@ void kio_svnProtocol::copy(const KURL & src, const KURL& dest, int /*permissions
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_copy(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), &ctx, subpool);
+	svn_error_t *err = svn_client_copy(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	}
@@ -553,7 +563,7 @@ void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
 	kdDebug(7128) << "kio_svnProtocol::mkdir(LIST) : " << list << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 
 	recordCurrentURL( list[ 0 ] );
 	
@@ -568,7 +578,7 @@ void kio_svnProtocol::mkdir( const KURL::List& list, int /*permissions*/ ) {
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
+	svn_error_t *err = svn_client_mkdir(&commit_info,targets,ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
 	}
@@ -581,7 +591,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int /*permissions*/ ) {
 	kdDebug(7128) << "kio_svnProtocol::mkdir() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 
 	QString target = makeSvnURL( url);
 	kdDebug(7128) << "SvnURL: " << target << endl;
@@ -591,7 +601,7 @@ void kio_svnProtocol::mkdir( const KURL& url, int /*permissions*/ ) {
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_mkdir(&commit_info,targets,&ctx,subpool);
+	svn_error_t *err = svn_client_mkdir(&commit_info,targets,ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_COULD_NOT_MKDIR, err->message );
 	}
@@ -604,7 +614,7 @@ void kio_svnProtocol::del( const KURL& url, bool /*isfile*/ ) {
 	kdDebug(7128) << "kio_svnProtocol::del() : " << url.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 
 	QString target = makeSvnURL(url);
 	kdDebug(7128) << "SvnURL: " << target << endl;
@@ -614,7 +624,7 @@ void kio_svnProtocol::del( const KURL& url, bool /*isfile*/ ) {
 	(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, target.utf8() );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_delete(&commit_info,targets,false/*force remove locally modified files in wc*/,&ctx,subpool);
+	svn_error_t *err = svn_client_delete(&commit_info,targets,false/*force remove locally modified files in wc*/,ctx,subpool);
 	if ( err ) {
 		error( KIO::ERR_CANNOT_DELETE, err->message );
 	}
@@ -627,7 +637,7 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool /*overwrite
 	kdDebug(7128) << "kio_svnProtocol::rename() Source : " << src.url() << " Dest : " << dest.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 
 	KURL nsrc = src;
 	KURL ndest = dest;
@@ -660,7 +670,7 @@ void kio_svnProtocol::rename(const KURL& src, const KURL& dest, bool /*overwrite
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_move(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), false/*force remove locally modified files in wc*/, &ctx, subpool);
+	svn_error_t *err = svn_client_move(&commit_info, srcsvn.utf8(), &rev, destsvn.utf8(), false/*force remove locally modified files in wc*/, ctx, subpool);
 	if ( err ) {
 		error( KIO::ERR_CANNOT_RENAME, err->message );
 	}
@@ -778,8 +788,8 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 		case SVN_STATUS: 
 			{
 				KURL wc;
-				bool checkRepos=false;
-				bool fullRecurse=false;
+				int checkRepos=false;
+				int fullRecurse=false;
 				stream >> wc;
 				stream >> checkRepos;
 				stream >> fullRecurse;
@@ -923,7 +933,7 @@ void kio_svnProtocol::svn_diff(const KURL & url1, const KURL& url2,int rev1, int
 	apr_file_mktemp( &outfile, templ , APR_READ|APR_WRITE|APR_CREATE|APR_TRUNCATE, subpool );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_diff (options, path1, &revision1, path2, &revision2, recurse, false, true, outfile, NULL, &ctx, subpool);
+	svn_error_t *err = svn_client_diff (options, path1, &revision1, path2, &revision2, recurse, false, true, outfile, NULL, ctx, subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	//read the content of the outfile now
@@ -969,7 +979,7 @@ void kio_svnProtocol::svn_switch( const KURL& wc, const KURL& repos, int revnumb
 	svn_opt_revision_t rev = createRevision( revnumber, revkind, subpool );
 	
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_switch (NULL/*result revision*/, path, url, &rev, recurse, &ctx, subpool);
+	svn_error_t *err = svn_client_switch (NULL/*result revision*/, path, url, &rev, recurse, ctx, subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
@@ -989,7 +999,7 @@ void kio_svnProtocol::update( const KURL& wc, int revnumber, const QString& revk
 	svn_opt_revision_t rev = createRevision( revnumber, revkind, subpool );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_update (NULL, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_update (NULL, svn_path_canonicalize( target.utf8(), subpool ), &rev, true, ctx, subpool);
 	if ( err ) 
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
@@ -1001,7 +1011,7 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	kdDebug(7128) << "kio_svnProtocol::import() : " << wc.url() << " into " << repos.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 	bool nonrecursive = false;
 
 	KURL nurl = repos;
@@ -1017,7 +1027,7 @@ void kio_svnProtocol::import( const KURL& repos, const KURL& wc ) {
 	const char *url = svn_path_canonicalize( apr_pstrdup( subpool, target.utf8() ), subpool );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,&ctx,subpool);
+	svn_error_t *err = svn_client_import(&commit_info,path,url,nonrecursive,ctx,subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	
@@ -1041,7 +1051,7 @@ void kio_svnProtocol::checkout( const KURL& repos, const KURL& wc, int revnumber
 	svn_opt_revision_t rev = createRevision( revnumber, revkind, subpool );
 
 	initNotifier(true, false, false, subpool);
-	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target.utf8(), subpool ), svn_path_canonicalize ( dpath.utf8(), subpool ), &rev, true, &ctx, subpool);
+	svn_error_t *err = svn_client_checkout (NULL/* rev actually checkedout */, svn_path_canonicalize( target.utf8(), subpool ), svn_path_canonicalize ( dpath.utf8(), subpool ), &rev, true, ctx, subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
@@ -1053,7 +1063,7 @@ void kio_svnProtocol::commit(const KURL::List& wc) {
 	kdDebug(7128) << "kio_svnProtocol::commit() : " << wc << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
-	svn_client_commit_info_t *commit_info = ( svn_client_commit_info_t* )apr_pcalloc(subpool, sizeof( *commit_info ));
+	svn_client_commit_info_t *commit_info = NULL;
 	bool nonrecursive = false;
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
@@ -1062,30 +1072,32 @@ void kio_svnProtocol::commit(const KURL::List& wc) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
-		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = svn_path_canonicalize( nurl.path().utf8(), subpool );
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,&ctx,subpool);
+	svn_error_t *err = svn_client_commit(&commit_info,targets,nonrecursive,ctx,subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
-	for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
-		KURL nurl = *it;
-		nurl.setProtocol( "file" );
+	if ( commit_info ) {
+		for ( QValueListConstIterator<KURL> it = wc.begin(); it != wc.end() ; ++it ) {
+			KURL nurl = *it;
+			nurl.setProtocol( "file" );
 
-		QString userstring = i18n ( "Nothing to commit." );
-		if ( commit_info && SVN_IS_VALID_REVNUM( commit_info->revision ) )
-			userstring = i18n( "Committed revision %1." ).arg(commit_info->revision);
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "path", nurl.path() );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "action", "0" ); 
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "kind", "0" );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "mime_t", "" );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "content", "0" );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "prop", "0" );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "rev" , QString::number( commit_info->revision ) );
-		setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "string", userstring );
-		m_counter++;
+			QString userstring = i18n ( "Nothing to commit." );
+			if ( SVN_IS_VALID_REVNUM( commit_info->revision ) )
+				userstring = i18n( "Committed revision %1." ).arg(commit_info->revision);
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "path", nurl.path() );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "action", "0" ); 
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "kind", "0" );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "mime_t", "" );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "content", "0" );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "prop", "0" );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "rev" , QString::number( commit_info->revision ) );
+			setMetaData(QString::number( m_counter ).rightJustify( 10,'0' )+ "string", userstring );
+			m_counter++;
+		}
 	}
 
 	finished();
@@ -1104,7 +1116,7 @@ void kio_svnProtocol::add(const KURL& wc) {
 	recordCurrentURL( nurl );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_add(nurl.path().utf8(),nonrecursive,&ctx,subpool);
+	svn_error_t *err = svn_client_add(svn_path_canonicalize( nurl.path().utf8(), subpool ),nonrecursive,ctx,subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	
@@ -1125,11 +1137,11 @@ void kio_svnProtocol::wc_delete(const KURL::List& wc) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
-		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = svn_path_canonicalize( nurl.path().utf8(), subpool );
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,&ctx,subpool);
+	svn_error_t *err = svn_client_delete(&commit_info,targets,nonrecursive,ctx,subpool);
 
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -1150,11 +1162,11 @@ void kio_svnProtocol::wc_revert(const KURL::List& wc) {
 		KURL nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
-		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = apr_pstrdup( subpool, nurl.path().utf8() );
+		(*(( const char ** )apr_array_push(( apr_array_header_t* )targets)) ) = svn_path_canonicalize( nurl.path().utf8(), subpool );
 	}
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_revert(targets,nonrecursive,&ctx,subpool);
+	svn_error_t *err = svn_client_revert(targets,nonrecursive,ctx,subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	
@@ -1166,16 +1178,19 @@ void kio_svnProtocol::wc_status(const KURL& wc, bool checkRepos, bool fullRecurs
 	kdDebug(7128) << "kio_svnProtocol::status() : " << wc.url() << endl;
 	
 	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_revnum_t result_rev;
+	bool no_ignore = FALSE;
 
 	KURL nurl = wc;
 	nurl.setProtocol( "file" );
-	QString target = nurl.url();
 	recordCurrentURL( nurl );
 
 	svn_opt_revision_t rev = createRevision( revnumber, revkind, subpool );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_status(NULL,nurl.path().utf8(),&rev,kio_svnProtocol::status,this,fullRecurse,getAll,checkRepos,false,&ctx,subpool);
+
+	svn_error_t *err = svn_client_status(&result_rev, svn_path_canonicalize( nurl.path().utf8(), subpool ), &rev, kio_svnProtocol::status, this, fullRecurse, getAll, checkRepos, no_ignore, ctx, subpool);
+
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	
@@ -1545,11 +1560,10 @@ void kio_svnProtocol::wc_resolve( const KURL& wc, bool recurse ) {
 
 	KURL nurl = wc;
 	nurl.setProtocol( "file" );
-	QString target = nurl.url();
 	recordCurrentURL( nurl );
 
 	initNotifier(false, false, false, subpool);
-	svn_error_t *err = svn_client_resolved(nurl.path().utf8(),recurse,&ctx,subpool);
+	svn_error_t *err = svn_client_resolved(svn_path_canonicalize( nurl.path().utf8(), subpool ), recurse,ctx,subpool);
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 	

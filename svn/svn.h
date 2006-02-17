@@ -112,7 +112,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		svn_opt_revision_t createRevision( int revision, const QString& revkind, apr_pool_t *pool );
 
 		KURL myURL;
-		svn_client_ctx_t ctx;
+		svn_client_ctx_t *ctx;
 		KIO::AuthInfo info;
 
 		enum SVN_METHOD { 
