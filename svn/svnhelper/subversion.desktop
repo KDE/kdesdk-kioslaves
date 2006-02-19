@@ -10,90 +10,111 @@ X-KDE-GetActionMenu=kded ksvnd getActionMenu(KUrl::List)
 
 [Desktop Action Add]
 Name=Add to Repository
+Name[fr]=Ajouter au référentiel
 Name[x-test]=xxAdd to Repositoryxx
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete From Repository
+Name[fr]=Supprimer du référentiel
 Name[x-test]=xxDelete From Repositoryxx
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert Local Changes
+Name[fr]=Annuler les modifications locales
 Name[x-test]=xxRevert Local Changesxx
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
+Comment[fr]=Annuler toutes les modifications effectuées localement. Attention, cela ne peut pas être annulé.
 Comment[x-test]=xxRemove any changes made locally. Warning - this cannot be undone.xx
 
 [Desktop Action Rename]
 Name=Rename...
+Name[fr]=Renommer...
 Name[x-test]=xxRename...xx
 Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
+Comment[fr]=Renommer un fichier localement et dans le référentiel. Utilisez cette option pour renommer un fichier, au lieu de le supprimer puis l'ajouter sous le nouveau nom.
 Comment[x-test]=xxRename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.xx
 
 [Desktop Action Import]
 Name=Import Repository
+Name[fr]=Importer dans un référentiel
 Name[x-test]=xxImport Repositoryxx
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
+Comment[fr]=Place le dossier dans un référentiel existant afin de le mettre sous contrôle de version.
 Comment[x-test]=xxPut folder into an existing repository to put it under revision control.xx
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
+Name[fr]=Extraire depuis un référentiel...
 Name[x-test]=xxCheckout From Repository...xx
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
+Comment[fr]=Extraire dans ce dossier les fichiers d'un référentiel existant
 Comment[x-test]=xxCheckout out files from an existing repository into this folder.xx
 
 [Desktop Action Switch]
 Name=Switch...
+Name[fr]=Basculer...
 Name[x-test]=xxSwitch...xx
 Icon=svn_switch
 Comment=Switch given working copy to another branch
+Comment[fr]=Basculer la copie de travail vers une autre branche
 Comment[x-test]=xxSwitch given working copy to another branchxx
 Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
 Name=Merge...
+Name[fr]=Fusionner...
 Name[x-test]=xxMerge...xx
 Icon=svn_merge
 Comment=Merge changes between this and another branch
+Comment[fr]=Fusionner les modifications entre cette branche et une autre
 Comment[x-test]=xxMerge changes between this and another branchxx
 Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
 Name=Blame...
+Name[fr]=Blâmer...
 Name[x-test]=xxBlame...xx
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
+Comment[fr]=Voir qui a écrit chacune des lignes du fichier, et dans quelle version.
 Comment[x-test]=xxSee who wrote each line of the file and in what revisionxx
 Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
 Name=Create Patch...
+Name[fr]=Créer un correctif...
 Name[x-test]=xxCreate Patch...xx
 Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
+Name[fr]=Exporter...
 Name[x-test]=xxExport...xx
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
+Comment[fr]=Extraire une copie sans contrôle de version d'une arborescence depuis un référentiel
 Comment[x-test]=xxCheckout out an unversioned copy of a tree from a repositoryxx
 
 [Desktop Action Diff]
 Name=Diff (local)
+Name[fr]=Différences (locales)
 Name[x-test]=xxDiff (local)xx
 Icon=svn_diff
 Exec=kio_svn_helper -D %U
 Comment=Show local changes since last update
+Comment[fr]=Afficher les changements locaux effectués depuis la dernière mise à jour
 Comment[x-test]=xxShow local changes since last updatexx
 

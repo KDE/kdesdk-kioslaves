@@ -6,9 +6,11 @@ X-KDE-Priority=TopLevel
 
 [Desktop Action Apply]
 Name=Apply Patch...
+Name[fr]=Appliquer le correctif...
 Name[x-test]=xxApply Patch...xx
 Icon=apply
 Exec=
 Comment=Apply the patch to another folder/file
+Comment[fr]=Appliquer le correctif sur un autre dossier / fichier
 Comment[x-test]=xxApply the patch to another folder/filexx
 

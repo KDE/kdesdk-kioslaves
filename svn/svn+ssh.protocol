@@ -13,6 +13,7 @@ listing=Name,Size,Date,Owner
 defaultMimetype=application/octet-stream
 Icon=remote
 Description=Subversion ioslave
+Description[fr]=ioslave subversion
 Description[x-test]=xxSubversion ioslavexx
 maxInstances=5
 class=:internet
