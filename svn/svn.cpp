@@ -1045,7 +1045,7 @@ void kio_svnProtocol::commit(const KUrl::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
 
-	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KUrl nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
@@ -1057,7 +1057,7 @@ void kio_svnProtocol::commit(const KUrl::List& wc) {
 	if ( err )
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 
-	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KUrl nurl = *it;
 		nurl.setProtocol( "file" );
 
@@ -1108,7 +1108,7 @@ void kio_svnProtocol::wc_delete(const KUrl::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1+wc.count(), sizeof(const char *));
 
-	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KUrl nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );
@@ -1133,7 +1133,7 @@ void kio_svnProtocol::wc_revert(const KUrl::List& wc) {
 
 	apr_array_header_t *targets = apr_array_make(subpool, 1 + wc.count(), sizeof(const char *));
 
-	for ( QList<KURL>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wc.begin(); it != wc.end() ; ++it ) {
 		KUrl nurl = *it;
 		nurl.setProtocol( "file" );
 		recordCurrentURL( nurl );

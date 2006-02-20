@@ -55,7 +55,7 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 }
 
 bool KSvnd::AreAnyFilesInSvn( const KUrl::List& wclist ) {
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -69,7 +69,7 @@ bool KSvnd::AreAnyFilesInSvn( const KUrl::List& wclist ) {
 }
 
 bool KSvnd::AreAnyFilesNotInSvn( const KUrl::List& wclist ) {
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -83,7 +83,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const KUrl::List& wclist ) {
 }
 
 bool KSvnd::AreAllFilesInSvn( const KUrl::List& wclist ) {
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -97,7 +97,7 @@ bool KSvnd::AreAllFilesInSvn( const KUrl::List& wclist ) {
 }
 
 bool KSvnd::AreAllFilesNotInSvn( const KUrl::List& wclist ) {
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
@@ -160,7 +160,7 @@ bool KSvnd::isFileInExternals ( const QString filename, const QString propfile )
 
 bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
 	bool result = true; //one negative match is enough
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//exception for .svn dirs
 		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
 			return true;
@@ -179,7 +179,7 @@ bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
 }
 
 bool KSvnd::anyValidWorkingCopy( const KUrl::List& wclist ) {
-	for ( QList<KURL>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//skip .svn dirs
 		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
 			continue;
@@ -200,7 +200,7 @@ bool KSvnd::anyValidWorkingCopy( const KUrl::List& wclist ) {
 int KSvnd::getStatus( const KUrl::List& list ) {
 	int result = 0;
 	int files = 0, folders = 0, parentsentries = 0, parentshavesvn = 0, subdirhavesvn = 0, external = 0;
-	for ( QList<KURL>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 		if ( isFolder ( ( *it ) ) ) {
 			folders++;
 		} else {
