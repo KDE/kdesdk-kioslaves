@@ -57,7 +57,7 @@ SvnHelper::SvnHelper():KApplication() {
 
 	if (args->isSet("u")) {
 		kDebug(7128) << "update " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		//FIXME when 1.2 is out (move the loop inside kio_svn's ::update)
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
@@ -72,7 +72,7 @@ SvnHelper::SvnHelper():KApplication() {
 		}
 	} else if (args->isSet("c")) {
 		kDebug(7128) << "commit " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 3;
@@ -86,7 +86,7 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("a")) {
 		kDebug(7128) << "add " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
@@ -99,7 +99,7 @@ SvnHelper::SvnHelper():KApplication() {
 		}
 	} else if (args->isSet("D")) {
 		kDebug(7128) << "diff " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
@@ -142,7 +142,7 @@ SvnHelper::SvnHelper():KApplication() {
 		}
 	} else if (args->isSet("d")) {
 		kDebug(7128) << "delete " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 7;
@@ -161,7 +161,7 @@ SvnHelper::SvnHelper():KApplication() {
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 				kDebug(7128) << "switching : " << (*it).prettyURL() << endl;
-				KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
 				QDataStream s( &parms, QIODevice::WriteOnly );
 				int revnumber = -1;
@@ -185,7 +185,7 @@ SvnHelper::SvnHelper():KApplication() {
 		}
 	} else if (args->isSet("r")) {
 		kDebug(7128) << "revert " << list << endl;
-		KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 8;
@@ -203,7 +203,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-				KUrl servURL = "svn+http://this_is_a_fake_URL_and_this_is_normal/";
+				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
 				QDataStream s( &parms, QIODevice::WriteOnly );
 				int cmd = 1;
