@@ -17,7 +17,7 @@ kde4_add_ui_files(kio_svn_helper_SRCS
 
 kde4_add_executable(kio_svn_helper ${kio_svn_helper_SRCS})
 
-target_link_libraries(kio_svn_helper  ${QT_AND_KDECORE_LIBS} kdeui kio kio )
+target_link_libraries(kio_svn_helper  ${KDE4_KDECORE_LIBS} kdeui kio kio )
 
 install_targets(/bin kio_svn_helper )
 

@@ -17,7 +17,7 @@ kde4_add_plugin(kio_svn ${kio_svn_PART_SRCS})
 
 kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kio_svn )
 
-target_link_libraries(kio_svn  ${QT_AND_KDECORE_LIBS} kio )
+target_link_libraries(kio_svn  ${KDE4_KDECORE_LIBS} kio )
 
 install_targets(${LIB_INSTALL_DIR}/kde4 kio_svn )
 
