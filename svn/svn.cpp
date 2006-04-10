@@ -226,7 +226,7 @@ void kio_svnProtocol::get(const KUrl& url ){
 	kDebug(7128) << "kio_svn::get(const KUrl& url)" << endl ;
 
 	QString remoteServer = url.host();
-	infoMessage(i18n("Looking for %1...").arg( remoteServer ) );
+	infoMessage(i18n("Looking for %1...", remoteServer ) );
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	kbaton *bt = (kbaton*)apr_pcalloc(subpool, sizeof(*bt));
@@ -1071,7 +1071,7 @@ void kio_svnProtocol::commit(const KUrl::List& wc) {
 
 			QString userstring = i18n ( "Nothing to commit." );
 			if ( SVN_IS_VALID_REVNUM( commit_info->revision ) )
-				userstring = i18n( "Committed revision %1." ).arg(commit_info->revision);
+				userstring = i18n( "Committed revision %1." , commit_info->revision);
 			setMetaData(QString::number( m_counter ).rightJustified( 10,'0' )+ "path", nurl.path() );
 			setMetaData(QString::number( m_counter ).rightJustified( 10,'0' )+ "action", "0" ); 
 			setMetaData(QString::number( m_counter ).rightJustified( 10,'0' )+ "kind", "0" );
@@ -1331,41 +1331,41 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 	switch ( action ) {
 		case svn_wc_notify_add : //add
 			if (mime_type && (svn_mime_type_is_binary (mime_type)))
-				userstring = i18n( "A (bin) %1" ).arg( path );
+				userstring = i18n( "A (bin) %1", path );
 			else
-				userstring = i18n( "A %1" ).arg( path );
+				userstring = i18n( "A %1", path );
 			break;
 		case svn_wc_notify_copy: //copy
 			break;
 		case svn_wc_notify_delete: //delete
 			nb->received_some_change = TRUE;
-			userstring = i18n( "D %1" ).arg( path );
+			userstring = i18n( "D %1", path );
 			break;
 		case svn_wc_notify_restore : //restore
-			userstring=i18n( "Restored %1." ).arg( path );
+			userstring=i18n( "Restored %1.", path );
 			break;
 		case svn_wc_notify_revert : //revert
-			userstring=i18n( "Reverted %1." ).arg( path );
+			userstring=i18n( "Reverted %1.", path );
 			break;
 		case svn_wc_notify_failed_revert: //failed revert
-			userstring=i18n( "Failed to revert %1.\nTry updating instead." ).arg( path );
+			userstring=i18n( "Failed to revert %1.\nTry updating instead.", path );
 			break;
 		case svn_wc_notify_resolved: //resolved
-			userstring=i18n( "Resolved conflicted state of %1." ).arg( path );
+			userstring=i18n( "Resolved conflicted state of %1.", path );
 			break;
 		case svn_wc_notify_skip: //skip
 			if ( content_state == svn_wc_notify_state_missing )
-				userstring=i18n("Skipped missing target %1.").arg( path );
+				userstring=i18n("Skipped missing target %1.", path );
 			else 
-				userstring=i18n("Skipped  %1.").arg( path );
+				userstring=i18n("Skipped  %1.", path );
 			break;
 		case svn_wc_notify_update_delete: //update_delete
 			nb->received_some_change = TRUE;
-			userstring=i18n( "D %1" ).arg( path );
+			userstring=i18n( "D %1", path );
 			break;
 		case svn_wc_notify_update_add: //update_add
 			nb->received_some_change = TRUE;
-			userstring=i18n( "A %1" ).arg( path );
+			userstring=i18n( "A %1", path );
 			break;
 		case svn_wc_notify_update_update: //update_update
 			{
@@ -1410,25 +1410,25 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 					if (SVN_IS_VALID_REVNUM (revision)) {
 						if (nb->is_export) {
 							if ( nb->in_external ) 
-								userstring = i18n("Exported external at revision %1.").arg( revision );
+								userstring = i18n("Exported external at revision %1.", revision );
 							else 
-								userstring = i18n("Exported revision %1.").arg( revision );
+								userstring = i18n("Exported revision %1.", revision );
 						} else if (nb->is_checkout) {
 							if ( nb->in_external )
-								userstring = i18n("Checked out external at revision %1.").arg( revision );
+								userstring = i18n("Checked out external at revision %1.", revision );
 							else
-								userstring = i18n("Checked out revision %1.").arg( revision);
+								userstring = i18n("Checked out revision %1.", revision);
 						} else {
 							if (nb->received_some_change) {
 								if ( nb->in_external )
-									userstring=i18n("Updated external to revision %1.").arg( revision );
+									userstring=i18n("Updated external to revision %1.", revision );
 								else 
-									userstring = i18n("Updated to revision %1.").arg( revision);
+									userstring = i18n("Updated to revision %1.", revision);
 							} else {
 								if ( nb->in_external )
-									userstring = i18n("External at revision %1.").arg( revision );
+									userstring = i18n("External at revision %1.", revision );
 								else
-									userstring = i18n("At revision %1.").arg( revision);
+									userstring = i18n("At revision %1.", revision);
 							}
 						}
 					} else  /* no revision */ {
@@ -1456,30 +1456,30 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 			break;
 		case svn_wc_notify_update_external: //update_external
 			nb->in_external = TRUE;
-			userstring = i18n("Fetching external item into %1." ).arg( path );
+			userstring = i18n("Fetching external item into %1.", path );
 			break;
 		case svn_wc_notify_status_completed: //status_completed
 			if (SVN_IS_VALID_REVNUM (revision))
-				userstring = i18n( "Status against revision: %1.").arg( revision );
+				userstring = i18n( "Status against revision: %1.", revision );
 			break;
 		case svn_wc_notify_status_external: //status_external
-             userstring = i18n("Performing status on external item at %1.").arg( path ); 
+             userstring = i18n("Performing status on external item at %1.", path ); 
 			break;
 		case svn_wc_notify_commit_modified: //commit_modified
-			userstring = i18n( "Sending %1").arg( path );
+			userstring = i18n( "Sending %1", path );
 			break;
 		case svn_wc_notify_commit_added: //commit_added
 			if (mime_type && svn_mime_type_is_binary (mime_type)) {
-				userstring = i18n( "Adding (bin) %1.").arg( path );
+				userstring = i18n( "Adding (bin) %1.", path );
 			} else {
-				userstring = i18n( "Adding %1.").arg( path );
+				userstring = i18n( "Adding %1.", path );
 			}
 			break;
 		case svn_wc_notify_commit_deleted: //commit_deleted
-			userstring = i18n( "Deleting %1.").arg( path );
+			userstring = i18n( "Deleting %1.", path );
 			break; 
 		case svn_wc_notify_commit_replaced: //commit_replaced
-			userstring = i18n( "Replacing %1.").arg( path );
+			userstring = i18n( "Replacing %1.", path );
 			break;
 		case svn_wc_notify_commit_postfix_txdelta: //commit_postfix_txdelta
 			if (! nb->sent_first_txdelta) {
