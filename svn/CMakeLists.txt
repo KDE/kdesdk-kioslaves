@@ -19,7 +19,7 @@ kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kio_svn )
 
 target_link_libraries(kio_svn  ${KDE4_KIO_LIBS} )
 
-install_targets(${LIB_INSTALL_DIR}/kde4 kio_svn )
+install_targets(${PLUGIN_INSTALL_DIR} kio_svn )
 
 
 ########### install files ###############
