@@ -67,7 +67,7 @@ SvnHelper::SvnHelper():KApplication() {
 			kDebug(7128) << "updating : " << (*it).prettyURL() << endl;
 			s << cmd << *it << rev << QString( "HEAD" );
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
 		}
 	} else if (args->isSet("c")) {
@@ -82,7 +82,7 @@ SvnHelper::SvnHelper():KApplication() {
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("a")) {
 		kDebug(7128) << "add " << list << endl;
@@ -94,7 +94,7 @@ SvnHelper::SvnHelper():KApplication() {
 			kDebug(7128) << "adding : " << (*it).prettyURL() << endl;
 			s << cmd << *it;
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
 		}
 	} else if (args->isSet("D")) {
@@ -111,7 +111,7 @@ SvnHelper::SvnHelper():KApplication() {
 			QString revkind2 = "WORKING";
 			s << cmd << *it << *it << rev1 << revkind1 << rev2 << revkind2 << true ;
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-			connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
 			if ( diffresult.count() > 0 ) {
 				//check kompare is available
@@ -152,7 +152,7 @@ SvnHelper::SvnHelper():KApplication() {
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("s")) {
 		kDebug(7128) << "switch " << list << endl;
@@ -179,7 +179,7 @@ SvnHelper::SvnHelper():KApplication() {
 				s << revnumber;
 				s << revkind;
 				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-				connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+				connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 				KIO::NetAccess::synchronousRun( job, 0 );
 			}
 		}
@@ -195,7 +195,7 @@ SvnHelper::SvnHelper():KApplication() {
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-		connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("C")) {
 		kDebug(7128) << "checkout " << list << endl;
@@ -220,7 +220,7 @@ SvnHelper::SvnHelper():KApplication() {
 				s << revkind;
 				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyURL() << " at rev : " << rev << " or " << revkind << endl;
 				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
-				connect( job, SIGNAL( result( KIO::Job * ) ), this, SLOT( slotResult( KIO::Job * ) ) );
+				connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 				KIO::NetAccess::synchronousRun( job, 0 );
 			}
 		}

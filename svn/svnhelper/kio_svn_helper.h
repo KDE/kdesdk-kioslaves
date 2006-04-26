@@ -32,7 +32,7 @@ public:
 	SvnHelper();
 private slots:
 	void finished();
-	void slotResult( KIO::Job *);
+	void slotResult( KJob *);
 private:
 	WId m_id;
 	QStringList diffresult; //for diff commands ;)
