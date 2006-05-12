@@ -1,4 +1,3 @@
-kde4_header()
 
 add_subdirectory( ksvnd ) 
 add_subdirectory( svnhelper ) 
@@ -26,7 +25,6 @@ install_targets(${PLUGIN_INSTALL_DIR} kio_svn )
 
 install_files( ${SERVICES_INSTALL_DIR} FILES svn+http.protocol svn+https.protocol svn+file.protocol svn+ssh.protocol svn.protocol )
 
-kde4_footer()
 
 
 

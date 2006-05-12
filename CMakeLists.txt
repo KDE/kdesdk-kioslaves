@@ -1,4 +1,3 @@
-kde4_header()
 
 message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}: skipped subdir $(SVN_SUBDIR)")
 
@@ -7,7 +6,6 @@ message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}: skipped subdir $(SVN_SUBDIR)")
 ########### install files ###############
 
 
-kde4_footer()
 
 
 

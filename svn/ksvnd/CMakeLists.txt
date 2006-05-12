@@ -1,4 +1,3 @@
-kde4_header()
 
 
 
@@ -26,7 +25,6 @@ install_targets(${PLUGIN_INSTALL_DIR} kded_ksvnd )
 
 install_files( ${SERVICES_INSTALL_DIR}/kded FILES ksvnd.desktop )
 
-kde4_footer()
 
 
 

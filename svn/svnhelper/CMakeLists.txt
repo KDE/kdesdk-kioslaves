@@ -1,4 +1,3 @@
-kde4_header()
 
 
 
@@ -26,7 +25,6 @@ install_targets(/bin kio_svn_helper )
 
 install_files( ${DATA_INSTALL_DIR}/konqueror/servicemenus FILES subversion.desktop subversion_toplevel.desktop )
 
-kde4_footer()
 
 
 
