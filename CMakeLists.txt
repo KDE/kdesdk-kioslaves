@@ -1,12 +1,13 @@
+option(WITH_subversion "enable support for subversion" ON)
 
-message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}: skipped subdir $(SVN_SUBDIR)")
+if(WITH_subversion)
+	message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}: skipped subdir $(SVN_SUBDIR)")
+	#add_subdirectory(svn)
+endif(WITH_subversion)
 
 
 
 ########### install files ###############
-
-
-
 
 
 #original Makefile.am contents follow:
