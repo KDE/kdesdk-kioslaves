@@ -64,7 +64,7 @@ SvnHelper::SvnHelper():KApplication() {
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 2;
 			int rev = -1;
-			kDebug(7128) << "updating : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "updating : " << (*it).prettyUrl() << endl;
 			s << cmd << *it << rev << QString( "HEAD" );
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
@@ -78,7 +78,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int cmd = 3;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "commiting : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "commiting : " << (*it).prettyUrl() << endl;
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
@@ -91,7 +91,7 @@ SvnHelper::SvnHelper():KApplication() {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 6;
-			kDebug(7128) << "adding : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "adding : " << (*it).prettyUrl() << endl;
 			s << cmd << *it;
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
@@ -104,7 +104,7 @@ SvnHelper::SvnHelper():KApplication() {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 13;
-			kDebug(7128) << "diffing : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "diffing : " << (*it).prettyUrl() << endl;
 			int rev1=-1;
 			int rev2=-1;
 			QString revkind1 = "BASE";
@@ -148,7 +148,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int cmd = 7;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "deleting : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "deleting : " << (*it).prettyUrl() << endl;
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
@@ -160,7 +160,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-				kDebug(7128) << "switching : " << (*it).prettyURL() << endl;
+				kDebug(7128) << "switching : " << (*it).prettyUrl() << endl;
 				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
 				QDataStream s( &parms, QIODevice::WriteOnly );
@@ -191,7 +191,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int cmd = 8;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "reverting : " << (*it).prettyURL() << endl;
+			kDebug(7128) << "reverting : " << (*it).prettyUrl() << endl;
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
@@ -218,7 +218,7 @@ SvnHelper::SvnHelper():KApplication() {
 				s << ( *it );
 				s << rev;
 				s << revkind;
-				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyURL() << " at rev : " << rev << " or " << revkind << endl;
+				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyUrl() << " at rev : " << rev << " or " << revkind << endl;
 				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 				connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 				KIO::NetAccess::synchronousRun( job, 0 );
