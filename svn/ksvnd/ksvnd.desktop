@@ -34,6 +34,7 @@ Name[sv]=KDED Subversion-modul
 Name[tr]=KDED Alt Versiyon Modülü
 Name[uk]=Модуль KDED Subversion
 Name[zh_CN]=KDED Subversion 模块
+Name[zh_TW]=KDED Subversion 模組
 ServiceTypes=KDEDModule
 X-KDE-ModuleType=Library
 X-KDE-Library=ksvnd

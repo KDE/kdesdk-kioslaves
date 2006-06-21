@@ -37,6 +37,7 @@ Name[sv]=SVN-uppdatera
 Name[tr]=SVN Güncelleme
 Name[uk]=SVN-оновлення
 Name[zh_CN]=SVN 更新
+Name[zh_TW]=SVN 更新
 Icon=redo
 Exec=kio_svn_helper -u %U
 
@@ -71,6 +72,7 @@ Name[sv]=SVN-arkivera
 Name[tr]=SVN Teslim Etme
 Name[uk]=SVN-передання
 Name[zh_CN]=SVN 提交
+Name[zh_TW]=SVN 提交
 Icon=undo
 Exec=kio_svn_helper -c %U
 

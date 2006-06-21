@@ -42,6 +42,7 @@ Name[sv]=Lägg till i arkiv
 Name[tr]=Depoya Ekle
 Name[uk]=Додати до сховища
 Name[zh_CN]=添加到仓库
+Name[zh_TW]=新增到主目錄
 Icon=svn_add
 Exec=kio_svn_helper -a %U
 
@@ -80,6 +81,7 @@ Name[sv]=Ta bort från arkiv
 Name[tr]=Depodan Sil
 Name[uk]=Видалити зі сховища
 Name[zh_CN]=从仓库删除
+Name[zh_TW]=從主目錄刪除
 Icon=svn_remove
 Exec=kio_svn_helper -d %U
 
@@ -116,6 +118,7 @@ Name[sv]=Återställ lokal ändring
 Name[tr]=Yerel Değişiklikleri Ters Çevir
 Name[uk]=Повернути локальні зміни
 Name[zh_CN]=恢复本地更改
+Name[zh_TW]=回復本地端變更
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
@@ -148,6 +151,7 @@ Comment[sv]=Tar bort alla ändringar som gjorts lokalt. Varning: detta kan inte 
 Comment[tr]=Yerel olarak yapılan değişiklikleri kaldır. Dikkat - bu işlem geri alınamaz.
 Comment[uk]=Вилучити всі зміни, які було зроблено локально. Попередження - зміни буде вилучено назавжди.
 Comment[zh_CN]=删除本地进行的任何更改。警告 - 此操作无法撤消。
+Comment[zh_TW]=移除任何已做的變更。警告：無法再復原。
 
 [Desktop Action Rename]
 Name=Rename...
@@ -185,6 +189,7 @@ Name[sv]=Byt namn...
 Name[tr]=Yeniden Adlandır...
 Name[uk]=Перейменувати...
 Name[zh_CN]=重命名...
+Name[zh_TW]=重新命名…
 Icon=pencil
 Exec=kio_svn_helper -r %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
@@ -216,6 +221,7 @@ Comment[sr@Latn]=Preimenuj fajl lokalno i u skladištu. Koristite ovo umesto tri
 Comment[sv]=Byt namn på en fil lokalt och i arkivet. Använd detta istället för att lägga till och ta bort för att byta namn på en fil.
 Comment[uk]=Перейменувати файл локально і в сховищі. Вживайте замість додавання і видалення файла, щоб його перейменувати.
 Comment[zh_CN]=在本地和仓库中重命名文件。使用此功能来取代对文件的添加和删除。
+Comment[zh_TW]=在本地端與主目錄中重新命名檔案。不必先新增再刪除檔案。
 
 [Desktop Action Import]
 Name=Import Repository
@@ -251,6 +257,7 @@ Name[sv]=Importera arkiv
 Name[tr]=Depoyu İçe Aktar
 Name[uk]=Імпортувати сховище
 Name[zh_CN]=导入仓库
+Name[zh_TW]=匯入主目錄
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
@@ -283,6 +290,7 @@ Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under ver
 Comment[tr]=Dizini başka bie alt düzeltme controlünde var olan bir depo içine koy.
 Comment[uk]=Вставити теку в існуюче сховище, щоб уможливити для неї керування версіями.
 Comment[zh_CN]=将文件夹放入现有仓库，以便让其受到版本控制。
+Comment[zh_TW]=將資料夾放進現存的主目錄，並開始做版本控制。
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
@@ -316,6 +324,7 @@ Name[sv]=Checka ut från ett arkiv...
 Name[tr]=Depodan Kontrol Et...
 Name[uk]=Взяти зі сховища...
 Name[zh_CN]=从仓库中检出...
+Name[zh_TW]=從主目錄取出…
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
@@ -348,6 +357,7 @@ Comment[sv]=Checka ut filer från ett befintligt arkiv till katalogen.
 Comment[tr]=Bu dizinde var olan bir depodan hatalı dosyaları kontrol et.
 Comment[uk]=Взяти файли з існуючого сховища і покласти в цю теку.
 Comment[zh_CN]=从已有仓库中检出文件并存放至此文件夹。
+Comment[zh_TW]=從現存的主目錄取出檔案到此資料夾。
 
 [Desktop Action Switch]
 Name=Switch...
@@ -382,6 +392,7 @@ Name[sv]=Byt...
 Name[tr]=Değiştir...
 Name[uk]=Перемкнути...
 Name[zh_CN]=切换...
+Name[zh_TW]=切換…
 Icon=svn_switch
 Comment=Switch given working copy to another branch
 Comment[bg]=Превключване на работното копие към друго разклонение.
@@ -413,6 +424,7 @@ Comment[sv]=Byt angiven arbetskopia till en annan gren
 Comment[tr]=Çalışan belirli bir kopyayı başka bölüme değiştir
 Comment[uk]=Перемкнути поточну робочу копію на іншу гілку
 Comment[zh_CN]=将工作副本切换到另外一个分支
+Comment[zh_TW]=將指定的工作複本切換到另一個分支
 Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
@@ -449,6 +461,7 @@ Name[sv]=Sammanfoga...
 Name[tr]=Birleştir...
 Name[uk]=Об'єднати...
 Name[zh_CN]=合并...
+Name[zh_TW]=合併…
 Icon=svn_merge
 Comment=Merge changes between this and another branch
 Comment[bg]=Смесване на промените от това разклонение с друго разклонение.
@@ -480,6 +493,7 @@ Comment[sv]=Sammanfoga ändringar mellan den här och en annan gren
 Comment[tr]=Bu ve başka bölüm arasındaki değişiklikleri birleştir
 Comment[uk]=Об'єднати зміни в цій та іншій гілках
 Comment[zh_CN]=合并本地和另外一个分支的更改
+Comment[zh_TW]=將這個與另一個分支合併
 Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
@@ -513,6 +527,7 @@ Name[sr@Latn]=Okrivi...
 Name[sv]=Klandra...
 Name[uk]=Вина...
 Name[zh_CN]=历史...
+Name[zh_TW]=最後狀態註記…
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
 Comment[bg]=Информация за файла.
@@ -543,6 +558,7 @@ Comment[sr@Latn]=Prikaži za svaku liniju fajla ko ju je napisao i u kojoj reviz
 Comment[sv]=Se vem som skrev varje rad i filen och för vilken version
 Comment[uk]=Подивитись хто написав кожний рядок файла і в якій модифікації
 Comment[zh_CN]=查看谁在哪次修订中写了文件的哪一行
+Comment[zh_TW]=看檔案中的每一行是誰寫的，其版本為何
 Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
@@ -579,6 +595,7 @@ Name[sv]=Skapa programfix...
 Name[tr]=Yama Oluştur...
 Name[uk]=Створити латку...
 Name[zh_CN]=创建补丁...
+Name[zh_TW]=建立修補檔…
 Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
@@ -617,6 +634,7 @@ Name[sv]=Exportera...
 Name[tr]=Dışa Aktar...
 Name[uk]=Експортувати...
 Name[zh_CN]=导出...
+Name[zh_TW]=匯出…
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
@@ -649,6 +667,7 @@ Comment[sv]=Checka ut en kopia utan versionskontroll från ett arkiv
 Comment[tr]=Depodaki bir ağaçtan kusurlu bir versionsuz kopyayı kontrol et
 Comment[uk]=Взяти зі сховища копію дерева без версій
 Comment[zh_CN]=从仓库中检出无版本副本
+Comment[zh_TW]=從主目錄中取出不含版本資訊的工作複本
 
 [Desktop Action Diff]
 Name=Diff (local)
@@ -683,6 +702,7 @@ Name[sv]=Jämför (lokalt)
 Name[tr]=Diff (yerel)
 Name[uk]=Розбіжності (локальні)
 Name[zh_CN]=Diff (本地)
+Name[zh_TW]=比較（本地端）
 Icon=svn_diff
 Exec=kio_svn_helper -D %U
 Comment=Show local changes since last update
@@ -715,4 +735,5 @@ Comment[sv]=Visa lokala ändringar sedan senaste uppdateringen
 Comment[tr]=Son güncellemeden sonraki yerel değişiklikleri göster
 Comment[uk]=Показати локальні зміни з часу останнього оновлення
 Comment[zh_CN]=显示上次更新后本地的更改
+Comment[zh_TW]=顯示最後一次更新之後於本地端所做的改變
 
