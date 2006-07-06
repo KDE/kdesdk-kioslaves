@@ -18,12 +18,12 @@ kde4_add_executable(kio_svn_helper ${kio_svn_helper_SRCS})
 
 target_link_libraries(kio_svn_helper  ${KDE4_KDECORE_LIBS} kdeui kio kio )
 
-install_targets(/bin kio_svn_helper )
+install(TARGETS kio_svn_helper  DESTINATION ${BIN_INSTALL_DIR} )
 
 
 ########### install files ###############
 
-install_files( ${DATA_INSTALL_DIR}/konqueror/servicemenus FILES subversion.desktop subversion_toplevel.desktop )
+install( FILES subversion.desktop subversion_toplevel.desktop  DESTINATION  ${DATA_INSTALL_DIR}/konqueror/servicemenus )
 
 
 

@@ -18,12 +18,12 @@ kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kio_svn )
 
 target_link_libraries(kio_svn  ${KDE4_KIO_LIBS} )
 
-install_targets(${PLUGIN_INSTALL_DIR} kio_svn )
+install(TARGETS kio_svn  DESTINATION ${PLUGIN_INSTALL_DIR} )
 
 
 ########### install files ###############
 
-install_files( ${SERVICES_INSTALL_DIR} FILES svn+http.protocol svn+https.protocol svn+file.protocol svn+ssh.protocol svn.protocol )
+install( FILES svn+http.protocol svn+https.protocol svn+file.protocol svn+ssh.protocol svn.protocol  DESTINATION  ${SERVICES_INSTALL_DIR} )
 
 
 

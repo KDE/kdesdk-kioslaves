@@ -18,12 +18,12 @@ kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kded_ksvnd )
 
 target_link_libraries(kded_ksvnd  ${KDE4_KIO_LIBS} )
 
-install_targets(${PLUGIN_INSTALL_DIR} kded_ksvnd )
+install(TARGETS kded_ksvnd  DESTINATION ${PLUGIN_INSTALL_DIR} )
 
 
 ########### install files ###############
 
-install_files( ${SERVICES_INSTALL_DIR}/kded FILES ksvnd.desktop )
+install( FILES ksvnd.desktop  DESTINATION  ${SERVICES_INSTALL_DIR}/kded )
 
 
 
