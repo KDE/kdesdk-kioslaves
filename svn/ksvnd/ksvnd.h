@@ -21,7 +21,6 @@
 #ifndef KSVND_H
 #define KSVND_H
 
-#include <dcopclient.h>
 #include <kdedmodule.h>
 #include <kurl.h>
 #include <qstringlist.h>
@@ -30,15 +29,14 @@
 class KSvnd : public KDEDModule
 {
   Q_OBJECT
-  K_DCOP
-
+      
   //note: InSVN means parent is added.  InRepos  means itself is added
   enum { SomeAreFiles = 1, SomeAreFolders = 2,  SomeAreInParentsEntries = 4, SomeParentsHaveSvn = 8, SomeHaveSvn = 16, SomeAreExternalToParent = 32, AllAreInParentsEntries = 64, AllParentsHaveSvn = 128, AllHaveSvn = 256, AllAreExternalToParent = 512, AllAreFolders = 1024 };
 public:
-  KSvnd(const QByteArray &);
+  KSvnd();
   ~KSvnd();
 
-k_dcop:
+  public Q_SLOTS: //dbus function for me KUrl::List must be changed
 //  void addAuthInfo(KIO::AuthInfo, long);
   QString commitDialog(QString);
   bool anyNotValidWorkingCopy( const KUrl::List& wclist );
@@ -49,14 +47,6 @@ k_dcop:
   bool AreAllFilesInSvn( const KUrl::List& wclist );
   QStringList getActionMenu ( const KUrl::List& list );
   QStringList getTopLevelActionMenu ( const KUrl::List &list );
-//  void notify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
-//  void status(const QString& path, int text_status, int prop_status, int repos_text_status, int repos_prop_status ,long int rev);
-//  void popupMessage( const QString& message );
-
-k_dcop_signals:
-  //emitted whenever something happens using subversion ;)
-//  void subversionNotify(const QString&, int ,int, const QString& , int , int, long int, const QString&);
-//  void subversionStatus(const QString&,int,int,int,int,long int);
 
 public slots:
 

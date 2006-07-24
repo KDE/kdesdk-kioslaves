@@ -32,13 +32,13 @@
 #include "commitdlg.h"
 
 extern "C" {
-    KDE_EXPORT KDEDModule *create_ksvnd(const QByteArray &name) {
-       return new KSvnd(name);
+    KDE_EXPORT KDEDModule *create_ksvnd() {
+       return new KSvnd();
     }
 }
 
-KSvnd::KSvnd(const QByteArray &name)
- : KDEDModule(name) {
+KSvnd::KSvnd()
+ : KDEDModule() {
 }
 
 KSvnd::~KSvnd() {
@@ -75,7 +75,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const KUrl::List& wclist ) {
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return true;
 		} else if ( !bdir.exists() ) {
-			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) ) 
+			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
 				return true;
 		}
 	}
@@ -209,7 +209,7 @@ int KSvnd::getStatus( const KUrl::List& list ) {
 		if ( isFileInSvnEntries ( (*it).fileName(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
 			parentsentries++;
 		} else if ( isFolder( *it ) ) { // other subfolders (either another module checkouted or an external, or something not known at all)
-			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) ) 
+			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) )
 				subdirhavesvn++;
 			if ( isFileInExternals( (*it).fileName(), ( *it ).directory() + "/.svn/dir-props" ) ) {
 				external++;
@@ -218,7 +218,7 @@ int KSvnd::getStatus( const KUrl::List& list ) {
 		if ( ( isFolder( ( *it ) ) && QFile::exists( ( *it ).directory() + "../.svn/entries" ) ) || QFile::exists( ( *it ).directory() + "/.svn/entries" ) ) //parent has a .svn ?
 			parentshavesvn++;
 	}
-	if ( files > 0 ) 
+	if ( files > 0 )
 		result |= SomeAreFiles;
 	if ( folders == list.count() ) {
 		result |= AllAreFolders;
@@ -246,7 +246,7 @@ int KSvnd::getStatus( const KUrl::List& list ) {
 		result |= SomeAreExternalToParent;
 	} else if ( external > 0 )
 		result |= SomeAreExternalToParent;
-	
+
 	return result;
 }
 
@@ -285,19 +285,19 @@ QStringList KSvnd::getActionMenu ( const KUrl::List &list ) {
 		result << "_SEPARATOR_";
 //		result << "BranchTag";
 		result << "Switch";
-		result << "Merge";	
+		result << "Merge";
 		if( listStatus & SomeAreFolders && !(listStatus & SomeAreFiles)) {
 //			result << "Export";
 //			result << "Relocate";
 			result << "_SEPARATOR_";
-			result << "Add";		
+			result << "Add";
 		}
 		result << "_SEPARATOR_";
 		if( listStatus & SomeAreFiles && !(listStatus & SomeAreFolders)) {
 			result << "Blame";
 		}
 		result << "CreatePatch";
-		
+
 		if( list.size() == 1 && listStatus & SomeAreFolders) {
 //			result << "ApplyPatchToFolder";
 		}
@@ -309,9 +309,9 @@ QStringList KSvnd::getTopLevelActionMenu ( const KUrl::List &list ) {
 	QStringList result;
 	int listStatus = getStatus( list );
 
-	
+
 	if ( ( listStatus & AllParentsHaveSvn &&
-			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) ) 
+			( ( listStatus & SomeAreExternalToParent ) || ( listStatus & SomeAreInParentsEntries ) )
 				|| ( listStatus & SomeHaveSvn ) )
 		) {
 		result << "Update";
@@ -323,7 +323,7 @@ QStringList KSvnd::getTopLevelActionMenu ( const KUrl::List &list ) {
 
 #if 0
 void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
-	kDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl; 
+	kDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl;
 	QByteArray params;
 
 	QDataStream stream( &params,QIODevice::WriteOnly);

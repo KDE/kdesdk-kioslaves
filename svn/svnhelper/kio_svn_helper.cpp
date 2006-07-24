@@ -22,7 +22,6 @@
 #include <kapplication.h>
 #include <kurl.h>
 #include <kmessagebox.h>
-#include <dcopclient.h>
 #include <kdebug.h>
 #include <kglobal.h>
 #include <qtimer.h>
@@ -230,11 +229,11 @@ SvnHelper::SvnHelper():KApplication() {
 	QTimer::singleShot( 0, this, SLOT( finished() ) );
 }
 
-void SvnHelper::slotResult( KIO::Job* job ) {
+void SvnHelper::slotResult( KJob* job ) {
 	if ( job->error() )
-		job->showErrorDialog( );
+		static_cast<KIO::Job*>( job )->showErrorDialog( );
 
-	KIO::MetaData ma = job->metaData();
+	KIO::MetaData ma = static_cast<KIO::Job*>(job )->metaData();
 	QList<QString> keys = ma.keys();
 	qSort( keys );
 	QList<QString>::Iterator begin = keys.begin(), end = keys.end(), it;
@@ -285,7 +284,6 @@ int main(int argc, char **argv) {
 		KCmdLineArgs::usage();
 	KApplication *app = new SvnHelper();
 
-//	app->dcopClient()->attach();
 	app->exec();
 }
 

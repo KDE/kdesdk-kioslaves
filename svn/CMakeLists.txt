@@ -1,4 +1,4 @@
-
+add_definitions(${SVN_INCLUDES})
 add_subdirectory( ksvnd ) 
 add_subdirectory( svnhelper ) 
 add_subdirectory( icons ) 
