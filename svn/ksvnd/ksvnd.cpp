@@ -162,7 +162,7 @@ bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
 	bool result = true; //one negative match is enough
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//exception for .svn dirs
-		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
+		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			return true;
 		//if is a directory check whether it contains a .svn/entries file
 		QDir dir( ( *it ).path() );
@@ -181,7 +181,7 @@ bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
 bool KSvnd::anyValidWorkingCopy( const KUrl::List& wclist ) {
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//skip .svn dirs
-		if ( ( *it ).path(-1).endsWith( "/.svn" ) )
+		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			continue;
 		//if is a directory check whether it contains a .svn/entries file
 		QDir dir( ( *it ).path() );

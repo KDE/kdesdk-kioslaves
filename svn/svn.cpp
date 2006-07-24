@@ -1005,8 +1005,8 @@ void kio_svnProtocol::import( const KUrl& repos, const KUrl& wc ) {
 	nurl.setProtocol( chooseProtocol( repos.protocol() ) );
 	dest.setProtocol( "file" );
 	recordCurrentURL( nurl );
-	dest.cleanPath( true ); // remove doubled '/'
-	QString source = dest.path(-1);
+	dest.cleanPath( KUrl::SimplifyDirSeparators ); // remove doubled '/'
+	QString source = dest.path( KUrl::RemoveTrailingSlash );
 	QString target = makeSvnURL( repos );
 
 	const char *path = svn_path_canonicalize( apr_pstrdup( subpool, source.toUtf8() ), subpool );
@@ -1187,42 +1187,42 @@ void kio_svnProtocol::wc_status(const KUrl& wc, bool checkRepos, bool fullRecurs
 QString kio_svnProtocol::makeSvnURL ( const KUrl& url ) const {
 	QString kproto = url.protocol();
 	KUrl tpURL = url;
-	tpURL.cleanPath( true );
+	tpURL.cleanPath( KUrl::SimplifyDirSeparators );
 	QString svnUrl;
 	if ( kproto == "svn+http" ) {
 		kDebug(7128) << "http:/ " << url.url() << endl;
 		tpURL.setProtocol("http");
-		svnUrl = tpURL.url(-1);
+		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		return svnUrl;
 	}
 	else if ( kproto == "svn+https" ) {
 		kDebug(7128) << "https:/ " << url.url() << endl;
 		tpURL.setProtocol("https");
-		svnUrl = tpURL.url(-1);
+		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		return svnUrl;
 	}
 	else if ( kproto == "svn+ssh" ) {
 		kDebug(7128) << "svn+ssh:/ " << url.url() << endl;
 		tpURL.setProtocol("svn+ssh");
-		svnUrl = tpURL.url(-1);
+		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		return svnUrl;
 	}
 	else if ( kproto == "svn" ) {
 		kDebug(7128) << "svn:/ " << url.url() << endl;
 		tpURL.setProtocol("svn");
-		svnUrl = tpURL.url(-1);
+		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		return svnUrl;
 	}
 	else if ( kproto == "svn+file" ) {
 		kDebug(7128) << "file:/ " << url.url() << endl;
 		tpURL.setProtocol("file");
-		svnUrl = tpURL.url(-1);
+		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		//hack : add one more / after file:/
 		int idx = svnUrl.find("/");
 		svnUrl.insert( idx, "//" );
 		return svnUrl;
 	}
-	return tpURL.url(-1);
+	return tpURL.url( KUrl::RemoveTrailingSlash );
 }
 
 QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
@@ -1529,7 +1529,7 @@ void kio_svnProtocol::status(void *baton, const char *path, svn_wc_status_t *sta
 
 	QDataStream stream(&params, QIODevice::WriteOnly);
 	long int rev = status->entry ? status->entry->revision : 0;
-	stream << QString::fromUtf8( path ) << status->text_status << status->prop_status << status->repos_text_status << status->repos_prop_status << rev;
+	stream << QString::fromUtf8( path ) << QString::number( status->text_status ) << QString::number( status->prop_status ) << QString::number( status->repos_text_status ) << QString::number( status->repos_prop_status ) << QString::number( rev );
 
 	p->setMetaData(QString::number( p->counter() ).rightJustified( 10,'0' )+ "path", QString::fromUtf8( path ));
 	p->setMetaData(QString::number( p->counter() ).rightJustified( 10,'0' )+ "text", QString::number( status->text_status ));
