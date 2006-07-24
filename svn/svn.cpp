@@ -36,7 +36,6 @@
 #include <kstandarddirs.h>
 #include <klocale.h>
 #include <kurl.h>
-#include <dcopclient.h>
 
 #include <subversion-1/svn_sorts.h>
 #include <subversion-1/svn_path.h>

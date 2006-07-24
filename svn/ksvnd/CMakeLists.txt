@@ -8,9 +8,9 @@ set(kded_ksvnd_PART_SRCS ksvnd.cpp )
 
 kde4_automoc(${kded_ksvnd_PART_SRCS})
 
-kde4_add_ui_files(kded_ksvnd_PART_SRCS commitdlg.ui )
+kde4_add_ui3_files(kded_ksvnd_PART_SRCS commitdlg.ui )
 
-kde4_add_dcop_skels(kded_ksvnd_PART_SRCS ksvnd.h )
+#kde4_add_dcop_skels(kded_ksvnd_PART_SRCS ksvnd.h )
 
 kde4_add_plugin(kded_ksvnd ${kded_ksvnd_PART_SRCS})
 

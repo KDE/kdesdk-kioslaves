@@ -1,20 +1,7 @@
-option(WITH_subversion "enable support for subversion" ON)
 
-if(WITH_subversion)
+if(SVN_FOUND)
 	message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}: skipped subdir $(SVN_SUBDIR)")
-	#add_subdirectory(svn)
-endif(WITH_subversion)
+    #add_subdirectory(svn)
+endif(SVN_FOUND)
 
 
-
-########### install files ###############
-
-
-#original Makefile.am contents follow:
-
-#if include_kioslave_svn
-#SVN_SUBDIR = svn
-#endif
-#
-#SUBDIRS= $(SVN_SUBDIR)
-#
