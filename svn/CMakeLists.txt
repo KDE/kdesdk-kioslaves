@@ -16,7 +16,7 @@ kde4_add_plugin(kio_svn ${kio_svn_PART_SRCS})
 
 kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kio_svn )
 
-target_link_libraries(kio_svn  ${KDE4_KIO_LIBS} svn_client-1 svn_subr-1 svn_ra-1 apr-0 )
+target_link_libraries(kio_svn  ${KDE4_KIO_LIBS} ${SVN_LIBRARIES} )
 
 install(TARGETS kio_svn  DESTINATION ${PLUGIN_INSTALL_DIR} )
 
