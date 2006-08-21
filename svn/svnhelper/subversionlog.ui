@@ -27,7 +27,7 @@
                 <cstring>text</cstring>
             </property>
             <property name="textFormat">
-                <enum>PlainText</enum>
+                <enum>Qt::PlainText</enum>
             </property>
             <property name="wordWrap">
                 <enum>NoWrap</enum>
