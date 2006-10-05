@@ -38,7 +38,7 @@
 #include <kurlrequester.h>
 #include <qspinbox.h>
 #include <kprocess.h>
-#include <ktempfile.h>
+#include <ktemporaryfile.h>
 #include <qtextstream.h>
 #include <q3textedit.h>
 #include <kstandarddirs.h>
@@ -115,16 +115,16 @@ SvnHelper::SvnHelper():KApplication() {
 			if ( diffresult.count() > 0 ) {
 				//check kompare is available
 				if ( !KStandardDirs::findExe( "kompare" ).isNull() ) {
-					KTempFile *tmp = new KTempFile;
-					tmp->setAutoDelete(true);
-					QTextStream *stream = tmp->textStream();
-					stream->setCodec( QTextCodec::codecForName( "utf8" ) );
+					KTemporaryFile *tmp = new KTemporaryFile; //TODO: Found while porting: This is never deleted! Needs fixed.
+					tmp->open(true);
+					QTextStream stream ( tmp );
+					stream.setCodec( QTextCodec::codecForName( "utf8" ) );
 					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
-						( *stream ) << ( *it2 ) << "\n";
+						stream << ( *it2 ) << "\n";
 					}
-					tmp->close();
+					stream.flush();
 					KProcess *p = new KProcess;
-					*p << "kompare" << "-n" << "-o" << tmp->name();
+					*p << "kompare" << "-n" << "-o" << tmp->fileName();
 					p->start();
 				} else { //else do it with message box
 					Subversion_Diff df;
