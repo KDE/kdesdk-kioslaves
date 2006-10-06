@@ -116,7 +116,7 @@ SvnHelper::SvnHelper():KApplication() {
 				//check kompare is available
 				if ( !KStandardDirs::findExe( "kompare" ).isNull() ) {
 					KTemporaryFile *tmp = new KTemporaryFile; //TODO: Found while porting: This is never deleted! Needs fixed.
-					tmp->open(true);
+					tmp->open();
 					QTextStream stream ( tmp );
 					stream.setCodec( QTextCodec::codecForName( "utf8" ) );
 					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
