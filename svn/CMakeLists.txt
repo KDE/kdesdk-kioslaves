@@ -10,7 +10,7 @@ add_subdirectory( icons )
 
 set(kio_svn_PART_SRCS svn.cpp )
 
-kde4_automoc(${kio_svn_PART_SRCS})
+kde4_automoc(kio_svn ${kio_svn_PART_SRCS})
 
 kde4_add_plugin(kio_svn ${kio_svn_PART_SRCS})
 
