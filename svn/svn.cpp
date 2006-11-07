@@ -839,7 +839,9 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 }
 
 void kio_svnProtocol::popupMessage( const QString& message ) {
+#ifdef __GNUC__
 #warning "kde4: port dbus stuff"
+#endif	
 #if 0
     QByteArray params;
 	QDataStream stream(&params, QIODevice::WriteOnly);
@@ -1254,7 +1256,9 @@ svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_ce
 }
 
 svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **/*file*/, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
+#ifdef __GNUC__
 #warning "kde4 port dbus stuff"
+#endif	
 #if 0
     DCOPCString replyType;
 	QByteArray params;
