@@ -14,7 +14,7 @@ kde4_automoc(${kio_svn_PART_SRCS})
 
 kde4_add_plugin(kio_svn ${kio_svn_PART_SRCS})
 
-kde4_install_libtool_file( ${PLUGIN_INSTALL_DIR} kio_svn )
+
 
 target_link_libraries(kio_svn  ${KDE4_KIO_LIBS} ${SVN_LIBRARIES} )
 
