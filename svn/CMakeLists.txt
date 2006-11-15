@@ -1,4 +1,9 @@
+if(SUBVERSION14)
+include_directories(${SVN_INCLUDES})
+else(SUBVERSION14)
 add_definitions(${SVN_INCLUDES})
+endif(SUBVERSION14)
+
 add_subdirectory( ksvnd ) 
 add_subdirectory( svnhelper ) 
 add_subdirectory( icons ) 
