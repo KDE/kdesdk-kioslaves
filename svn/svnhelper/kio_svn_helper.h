@@ -24,6 +24,28 @@
 #include <kio/job.h>
 #include <kwinmodule.h>
 #include <qstringlist.h>
+#include "ui_subversioncheckout.h"
+#include "ui_subversionswitch.h"
+#include "ui_subversiondiff.h"
+
+class SubversionCheckout : public QDialog, public Ui::SubversionCheckout
+{
+public:
+  SubversionCheckout( QWidget *parent = 0);
+};
+
+class SubversionSwitch : public QDialog, public Ui::SubversionSwitch
+{
+public:
+  SubversionSwitch( QWidget *parent = 0 );
+};
+
+class Subversion_Diff : public QDialog, public Ui::Subversion_Diff
+{
+public:
+  Subversion_Diff( QWidget *parent = 0 );
+};
+
 
 class SvnHelper:public KApplication {
 	Q_OBJECT

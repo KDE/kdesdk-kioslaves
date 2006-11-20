@@ -32,9 +32,6 @@
 #include <kmessagebox.h>
 
 #include "kio_svn_helper.h"
-#include "subversioncheckout.h"
-#include "subversionswitch.h"
-#include "subversiondiff.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
 #include <kprocess.h>
@@ -44,6 +41,31 @@
 #include <kstandarddirs.h>
 #include <q3textbrowser.h>
 #include <qtextcodec.h>
+
+SubversionCheckout::SubversionCheckout(QWidget *parent )
+: QDialog(parent)
+{
+   setupUi( this );
+   connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+SubversionSwitch::SubversionSwitch(QWidget *parent )
+: QDialog(parent)
+{
+   setupUi( this );
+   connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+Subversion_Diff::Subversion_Diff(QWidget *parent )
+: QDialog(parent)
+{
+   setupUi( this );
+   connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+}
+
+
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
