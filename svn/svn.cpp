@@ -206,7 +206,7 @@ svn_error_t* kio_svnProtocol::checkAuth(svn_auth_cred_simple_t **cred, void *bat
 	p->info.url = p->myURL;
 	p->info.username = username; //( const char* )svn_auth_get_parameter( p->ctx->auth_baton, SVN_AUTH_PARAM_DEFAULT_USERNAME );
 //	if ( !p->checkCachedAuthentication( p->info ) ){
-		p->openPassDlg( p->info );
+		p->openPasswordDialog( p->info );
 //	}
 	ret->username = apr_pstrdup(pool, p->info.username.toUtf8());
 	ret->password = apr_pstrdup(pool, p->info.password.toUtf8());
