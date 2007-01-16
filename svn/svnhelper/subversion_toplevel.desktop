@@ -7,6 +7,7 @@ X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KUrl::List)
 
 [Desktop Action Update]
 Name=SVN Update
+Name[el]=Ενημέρωση SVN
 Name[fr]=Mise à jour SVN
 Name[x-test]=xxSVN Updatexx
 Icon=redo
@@ -14,6 +15,7 @@ Exec=kio_svn_helper -u %U
 
 [Desktop Action Commit]
 Name=SVN Commit
+Name[el]=Καταχώρηση SVN
 Name[fr]=Validation SVN
 Name[x-test]=xxSVN Commitxx
 Icon=undo
