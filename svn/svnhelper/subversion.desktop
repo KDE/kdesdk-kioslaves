@@ -3,6 +3,7 @@ Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
 X-KDE-Submenu=Subversion
 X-KDE-Submenu[fa]=زیرنسخه
+X-KDE-Submenu[pa]=ਸਬ-ਵਰਜਨ
 X-KDE-Submenu[pt_BR]=Subversão
 #X-KDE-ShowIfDcopCall=kded ksvnd anyValidWorkingCopy(KURL::List)
 
