@@ -31,7 +31,7 @@
 #include <kapplication.h>
 #include <kdebug.h>
 #include <kmessagebox.h>
-#include <kinstance.h>
+#include <kcomponentdata.h>
 #include <kglobal.h>
 #include <kstandarddirs.h>
 #include <klocale.h>
@@ -1566,7 +1566,7 @@ void kio_svnProtocol::wc_resolve( const KUrl& wc, bool recurse ) {
 extern "C"
 {
 	KDE_EXPORT int kdemain(int argc, char **argv)    {
-		KInstance instance( "kio_svn" );
+		KComponentData componentData( "kio_svn" );
 
 		kDebug(7128) << "*** Starting kio_svn " << endl;
 
