@@ -49,7 +49,7 @@ Exec=kio_svn_helper -u %U
 
 [Desktop Action Commit]
 Name=SVN Commit
-Name[bg]=Предаване SVN
+Name[bg]=Изпращане SVN
 Name[ca]=Entrega SVN
 Name[cs]=SVN commit
 Name[de]=Einspielen (SVN)

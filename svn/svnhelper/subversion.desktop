@@ -100,7 +100,7 @@ Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert Local Changes
-Name[bg]=Игнориране на локалните промени
+Name[bg]=Връщане на локалните промени
 Name[ca]=Reverteix els canvis locals
 Name[cs]=Vrátit místní změny
 Name[da]=Vend lokale ændringer om
@@ -140,7 +140,7 @@ Name[zh_TW]=回復本地端變更
 Icon=undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
-Comment[bg]=Премахване на локалните промени, които са направени. Забележете, че данните ще се загубят безвъзвратно.
+Comment[bg]=Премахване на направените локални промени. Предупреждение - данните ще се загубят безвъзвратно.
 Comment[ca]=Elimina qualsevol canvi local. Avís: No es pot desfer.
 Comment[cs]=Odstraní změny provedené lokálně; nelze vrátit, pozor.
 Comment[da]=Fjern alle ændringer der er lavet lokalt. Advarsel - dette kan ikke fortrydes.
@@ -258,7 +258,7 @@ Comment[zh_TW]=在本地端與主目錄中重新命名檔案。不必先新增�
 
 [Desktop Action Import]
 Name=Import Repository
-Name[bg]=Импорт на директория
+Name[bg]=Импортиране на директория
 Name[br]=Enporzh an daveiñ
 Name[ca]=Importa repositori
 Name[cs]=Importovat repository
@@ -299,7 +299,7 @@ Name[zh_TW]=匯入主目錄
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
-Comment[bg]=Импорт на директория в съществуващо хранилище.
+Comment[bg]=Поставяне на директория в съществуващо хранилище.
 Comment[ca]=Situa la carpeta en un repositori existent per a posar-la sota el control de revisions.
 Comment[cs]=Zařadit složku do repository a správy verzí
 Comment[da]=Put mappe ind i et eksisterende lager for at få den ind under revisionskontrol.
@@ -607,7 +607,7 @@ Name[zh_CN]=历史...
 Name[zh_TW]=最後狀態註記...
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
-Comment[bg]=Информация за файла.
+Comment[bg]=Информация за това кой е написал файла и в коя версия
 Comment[ca]=Veu qui va escriure cada línia del fitxer i en qui l'ha revisat
 Comment[cs]=Zobrazit, kdo napsal kterou řádku souboru spolu s revizí
 Comment[da]=Se hvem der skrev hver linje i filen og i hvilken revision
@@ -687,7 +687,7 @@ Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
-Name[bg]=Експорт...
+Name[bg]=Експортиране...
 Name[br]=Ezporzh ...
 Name[ca]=Exporta...
 Name[cs]=Exportovat...
