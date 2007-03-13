@@ -878,9 +878,19 @@ svn_opt_revision_t kio_svnProtocol::createRevision( int revision, const QString&
 		result.kind = svn_opt_revision_working;
 	} else if ( revkind == "BASE" ) {
 		result.kind = svn_opt_revision_base;
-	} else if ( !revkind.isNull() ) {
+	} else if ( revkind == "HEAD" ) {
+        result.kind = svn_opt_revision_head;
+    } else if ( revkind == "COMMITTED" ) {
+        result.kind = svn_opt_revision_committed;
+    } else if ( revkind == "PREV" ) {
+        result.kind = svn_opt_revision_previous;
+    }
+
+    else if ( !revkind.isNull() ) {
 		svn_opt_parse_revision(&result,&endrev,revkind.toUtf8(),pool);
-	}
+	}else {
+        result.kind = svn_opt_revision_unspecified;
+    }
 	return result;
 }
 
