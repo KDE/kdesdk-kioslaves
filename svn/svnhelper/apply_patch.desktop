@@ -1,5 +1,5 @@
 [Desktop Entry]
-ServiceTypes=text/x-diff
+ServiceTypes=text/x-patch
 #uncomment when Exec is implemented
 #Actions=Apply
 X-KDE-Priority=TopLevel
