@@ -34,7 +34,7 @@
 #include "kio_svn_helper.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
-#include <kprocess.h>
+#include <k3process.h>
 #include <ktemporaryfile.h>
 #include <qtextstream.h>
 #include <q3textedit.h>
@@ -145,7 +145,7 @@ SvnHelper::SvnHelper():KApplication() {
 						stream << ( *it2 ) << "\n";
 					}
 					stream.flush();
-					KProcess *p = new KProcess;
+					K3Process *p = new K3Process;
 					*p << "kompare" << "-n" << "-o" << tmp->fileName();
 					p->start();
 				} else { //else do it with message box
