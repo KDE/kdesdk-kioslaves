@@ -69,8 +69,12 @@ Subversion_Diff::Subversion_Diff(QWidget *parent )
 
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+#ifdef Q_WS_X11
 	KWinModule wm ( this );
 	m_id = wm.activeWindow();
+#else
+	m_id = 0;
+#endif
 
 	KUrl::List list;
 	for ( int i = 0 ; i < args->count() ; i++ )
