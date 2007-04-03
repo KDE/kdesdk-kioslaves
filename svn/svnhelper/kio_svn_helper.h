@@ -22,7 +22,7 @@
 
 #include <kapplication.h>
 #include <kio/job.h>
-#include <kwinmodule.h>
+#include <kwm.h>
 #include <qstringlist.h>
 #include "ui_subversioncheckout.h"
 #include "ui_subversionswitch.h"
