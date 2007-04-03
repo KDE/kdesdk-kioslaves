@@ -70,7 +70,8 @@ Subversion_Diff::Subversion_Diff(QWidget *parent )
 SvnHelper::SvnHelper():KApplication() {
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 #ifdef Q_WS_X11
-	KWM::activeWindow();
+	m_id=KWM::activeWindow();
+	KWM::activateWindow(m_id);
 #else
 	m_id = 0;
 #endif
