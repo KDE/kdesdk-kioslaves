@@ -1336,9 +1336,8 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 	message = svn_stringbuf_create( result.toUtf8(), pool );
 	*log_msg = message->data;
 
-	return SVN_NO_ERROR;
 #endif
-
+	return SVN_NO_ERROR;
 }
 
 void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action_t action, svn_node_kind_t kind, const char *mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, svn_revnum_t revision) {
