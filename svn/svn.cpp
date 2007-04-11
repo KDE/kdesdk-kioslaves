@@ -273,7 +273,7 @@ void kio_svnProtocol::get(const KUrl& url ){
 	// Send the mimeType as soon as it is known
 	QByteArray *cp = new QByteArray();
 	cp->setRawData( bt->target_string->data, bt->target_string->len );
-	KMimeType::Ptr mt = KMimeType::findByContent(*cp);
+	KMimeType::Ptr mt = KMimeType::findByNameAndContent(url.fileName(), *cp);
 	kDebug(7128) << "KMimeType returned : " << mt->name() << endl;
 	mimeType( mt->name() );
 
@@ -841,7 +841,7 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 void kio_svnProtocol::popupMessage( const QString& message ) {
 #ifdef __GNUC__
 #warning "kde4: port dbus stuff"
-#endif	
+#endif
 #if 0
     QByteArray params;
 	QDataStream stream(&params, QIODevice::WriteOnly);
@@ -1268,7 +1268,7 @@ svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_ce
 svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **/*file*/, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
 #ifdef __GNUC__
 #warning "kde4 port dbus stuff"
-#endif	
+#endif
 #if 0
     DCOPCString replyType;
 	QByteArray params;
