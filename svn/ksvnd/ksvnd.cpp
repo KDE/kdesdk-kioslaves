@@ -26,7 +26,6 @@
 #include <qfile.h>
 #include <QTextStream>
 #include "ksvndadaptor.h"
-#include "config.h"
 
 #include "ksvnd.h"
 #include "commitdlg.h"
