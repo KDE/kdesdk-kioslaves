@@ -38,21 +38,19 @@ public:
 
   public Q_SLOTS: //dbus function for me KUrl::List must be changed
 //  void addAuthInfo(KIO::AuthInfo, long);
-  QString commitDialog(QString);
-  bool anyNotValidWorkingCopy( const KUrl::List& wclist );
-  bool anyValidWorkingCopy( const KUrl::List& wclist );
-  bool AreAnyFilesNotInSvn( const KUrl::List& wclist );
-  bool AreAnyFilesInSvn( const KUrl::List& wclist );
-  bool AreAllFilesNotInSvn( const KUrl::List& wclist );
-  bool AreAllFilesInSvn( const KUrl::List& wclist );
-  QStringList getActionMenu ( const KUrl::List& list );
-  QStringList getTopLevelActionMenu ( const KUrl::List &list );
-
-public slots:
+  QString commitDialog(const QString&);
+  bool anyNotValidWorkingCopy( const QStringList& wclist );
+  bool anyValidWorkingCopy( const QStringList& wclist );
+  bool AreAnyFilesNotInSvn( const QStringList& wclist );
+  bool AreAnyFilesInSvn( const QStringList& wclist );
+  bool AreAllFilesNotInSvn( const QStringList& wclist );
+  bool AreAllFilesInSvn( const QStringList& wclist );
+  QStringList getActionMenu ( const QStringList& list );
+  QStringList getTopLevelActionMenu ( const QStringList &list );
 
 protected:
-  bool isFileInSvnEntries ( const QString filename, const QString entfile );
-  bool isFileInExternals ( const QString filename, const QString propfile );
+  bool isFileInSvnEntries ( const QString &filename, const QString &entfile );
+  bool isFileInExternals ( const QString &filename, const QString &propfile );
   bool isFolder( const KUrl& url );
   int getStatus( const KUrl::List& list );
 };

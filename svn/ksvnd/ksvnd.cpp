@@ -25,7 +25,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <QTextStream>
-
+#include "ksvndadaptor.h"
 #include "config.h"
 
 #include "ksvnd.h"
@@ -39,12 +39,13 @@ extern "C" {
 
 KSvnd::KSvnd()
  : KDEDModule() {
+   new KsvndAdaptor(this);
 }
 
 KSvnd::~KSvnd() {
 }
 
-QString KSvnd::commitDialog(QString modifiedFiles) {
+QString KSvnd::commitDialog(const QString &modifiedFiles) {
 	CommitDlg commitDlg;
 	commitDlg.setLog( modifiedFiles );
 	int result = commitDlg.exec();
@@ -54,7 +55,8 @@ QString KSvnd::commitDialog(QString modifiedFiles) {
 		return QString::null;
 }
 
-bool KSvnd::AreAnyFilesInSvn( const KUrl::List& wclist ) {
+bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
+	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
@@ -68,7 +70,8 @@ bool KSvnd::AreAnyFilesInSvn( const KUrl::List& wclist ) {
 	return false;
 }
 
-bool KSvnd::AreAnyFilesNotInSvn( const KUrl::List& wclist ) {
+bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
+	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
@@ -82,7 +85,8 @@ bool KSvnd::AreAnyFilesNotInSvn( const KUrl::List& wclist ) {
 	return false;
 }
 
-bool KSvnd::AreAllFilesInSvn( const KUrl::List& wclist ) {
+bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
+	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
@@ -96,7 +100,8 @@ bool KSvnd::AreAllFilesInSvn( const KUrl::List& wclist ) {
 	return true;
 }
 
-bool KSvnd::AreAllFilesNotInSvn( const KUrl::List& wclist ) {
+bool KSvnd::AreAllFilesNotInSvn( const QStringList& lst ) {
+	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
 		QDir bdir ( ( *it ).path() );
@@ -110,7 +115,7 @@ bool KSvnd::AreAllFilesNotInSvn( const KUrl::List& wclist ) {
 	return true;
 }
 
-bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile ) {
+bool KSvnd::isFileInSvnEntries ( const QString &filename, const QString &entfile ) {
 	QFile file( entfile );
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
@@ -127,7 +132,7 @@ bool KSvnd::isFileInSvnEntries ( const QString filename, const QString entfile )
 	return false;
 }
 
-bool KSvnd::isFileInExternals ( const QString filename, const QString propfile ) {
+bool KSvnd::isFileInExternals ( const QString &filename, const QString &propfile ) {
 	QFile file( propfile );
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
@@ -158,7 +163,8 @@ bool KSvnd::isFileInExternals ( const QString filename, const QString propfile )
 	return false;
 }
 
-bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
+bool KSvnd::anyNotValidWorkingCopy( const QStringList& lst ) {
+	KUrl::List wclist(lst);
 	bool result = true; //one negative match is enough
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//exception for .svn dirs
@@ -178,7 +184,8 @@ bool KSvnd::anyNotValidWorkingCopy( const KUrl::List& wclist ) {
 	return result;
 }
 
-bool KSvnd::anyValidWorkingCopy( const KUrl::List& wclist ) {
+bool KSvnd::anyValidWorkingCopy( const QStringList &lst ) {
+	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		//skip .svn dirs
 		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
@@ -255,7 +262,8 @@ bool KSvnd::isFolder( const KUrl& url ) {
 	return d.exists();
 }
 
-QStringList KSvnd::getActionMenu ( const KUrl::List &list ) {
+QStringList KSvnd::getActionMenu ( const QStringList &lst ) {
+	KUrl::List list(lst);
 	QStringList result;
 	int listStatus = getStatus( list );
 
@@ -305,9 +313,10 @@ QStringList KSvnd::getActionMenu ( const KUrl::List &list ) {
 	return result;
 }
 
-QStringList KSvnd::getTopLevelActionMenu ( const KUrl::List &list ) {
+QStringList KSvnd::getTopLevelActionMenu ( const QStringList &lst ) {
+	KUrl::List wclist(lst);
 	QStringList result;
-	int listStatus = getStatus( list );
+	int listStatus = getStatus( lst );
 
 
 	if ( ( listStatus & AllParentsHaveSvn &&
