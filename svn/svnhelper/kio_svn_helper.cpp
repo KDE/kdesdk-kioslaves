@@ -34,7 +34,7 @@
 #include "kio_svn_helper.h"
 #include <kurlrequester.h>
 #include <qspinbox.h>
-#include <k3process.h>
+#include <QProcess>
 #include <ktemporaryfile.h>
 #include <qtextstream.h>
 #include <q3textedit.h>
@@ -149,9 +149,10 @@ SvnHelper::SvnHelper():KApplication() {
 						stream << ( *it2 ) << "\n";
 					}
 					stream.flush();
-					K3Process *p = new K3Process;
-					*p << "kompare" << "-n" << "-o" << tmp->fileName();
-					p->start();
+					QProcess *p = new QProcess;
+					QStringList arguments;
+					arguments << "-n" << "-o" << tmp->fileName();
+					p->start("kompare", arguments);
 				} else { //else do it with message box
 					Subversion_Diff df;
 					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
