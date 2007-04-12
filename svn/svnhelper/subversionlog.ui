@@ -20,12 +20,12 @@
     </property>
     <layout class="QVBoxLayout" >
       <item>
-        <widget class="Q3TextBrowser" name="text" >
+        <widget class="QTextBrowser" name="text" >
           <property name="textFormat" >
             <enum>Qt::PlainText</enum>
           </property>
-          <property name="wordWrap" >
-            <enum>NoWrap</enum>
+          <property name="wordWrapMode" >
+            <enum>QTextOption::NoWrap</enum>
           </property>
         </widget>
       </item>
