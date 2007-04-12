@@ -37,9 +37,7 @@
 #include <QProcess>
 #include <ktemporaryfile.h>
 #include <qtextstream.h>
-#include <q3textedit.h>
 #include <kstandarddirs.h>
-#include <q3textbrowser.h>
 #include <qtextcodec.h>
 
 SubversionCheckout::SubversionCheckout(QWidget *parent )
