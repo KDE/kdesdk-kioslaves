@@ -1230,7 +1230,7 @@ QString kio_svnProtocol::makeSvnURL ( const KUrl& url ) const {
 		tpURL.setProtocol("file");
 		svnUrl = tpURL.url( KUrl::RemoveTrailingSlash );
 		//hack : add one more / after file:/
-		int idx = svnUrl.find("/");
+		int idx = svnUrl.indexOf('/');
 		svnUrl.insert( idx, "//" );
 		return svnUrl;
 	}
