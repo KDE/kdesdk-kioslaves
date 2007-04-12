@@ -36,7 +36,7 @@
 #include <kstandarddirs.h>
 #include <klocale.h>
 #include <kurl.h>
-
+#include <ksvndinterface.h>
 #include <subversion-1/svn_sorts.h>
 #include <subversion-1/svn_path.h>
 #include <subversion-1/svn_utf.h>
@@ -1266,13 +1266,6 @@ svn_error_t *kio_svnProtocol::clientCertPasswdPrompt(svn_auth_cred_ssl_client_ce
 }
 
 svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char **/*file*/, apr_array_header_t *commit_items, void *baton, apr_pool_t *pool ) {
-#ifdef __GNUC__
-#warning "kde4 port dbus stuff"
-#endif
-#if 0
-    DCOPCString replyType;
-	QByteArray params;
-	DCOPCString reply;
 	QString result;
 	QStringList slist;
 	kio_svnProtocol *p = ( kio_svnProtocol* )baton;
@@ -1311,32 +1304,27 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		kDebug(7128) << " Commiting items : " << list << endl;
 		slist << list;
 	}
-
-	QDataStream stream(&params, QIODevice::WriteOnly);
-	stream << slist.join("\n");
-
-	if ( !p->dcopClient()->call( "kded","ksvnd","commitDialog(QString)", params, replyType, reply ) ) {
-		kWarning() << "Communication with KDED:KSvnd failed" << endl;
-		return SVN_NO_ERROR;
+	OrgKdeKsvndInterface ksvndInterface( "org.kde.kded", "/modules/ksvnd", QDBusConnection::sessionBus() );
+	if(!ksvndInterface.isValid())
+	{
+	   kWarning() << "Communication with KDED:KSvnd failed" << endl;
+	   return SVN_NO_ERROR;
 	}
 
-	if ( replyType != "QString" ) {
+	QString lst = slist.join("\n");
+	QDBusReply<QString> reply = ksvndInterface.commitDialog(lst);
+	if ( !reply.isValid() ) 
+	{
 		kWarning() << "Unexpected reply type" << endl;
 		return SVN_NO_ERROR;
 	}
-
-	QDataStream stream2 ( &reply, QIODevice::ReadOnly );
-	stream2 >> result;
-
+	result = reply;
 	if ( result.isNull() ) { //cancelled
 		*log_msg = NULL;
 		return SVN_NO_ERROR;
 	}
-
 	message = svn_stringbuf_create( result.toUtf8(), pool );
 	*log_msg = message->data;
-
-#endif
 	return SVN_NO_ERROR;
 }
 
