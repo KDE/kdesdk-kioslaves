@@ -19,7 +19,6 @@
 
 #include <kcmdlineargs.h>
 #include <klocale.h>
-#include <kapplication.h>
 #include <kurl.h>
 #include <kmessagebox.h>
 #include <kdebug.h>
@@ -281,7 +280,7 @@ void SvnHelper::slotResult( KJob* job ) {
 }
 
 void SvnHelper::finished() {
-	kapp->quit();
+	qApp->quit();
 }
 
 static KCmdLineOptions options[] = {

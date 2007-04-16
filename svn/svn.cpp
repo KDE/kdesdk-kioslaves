@@ -28,7 +28,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include <kapplication.h>
 #include <kdebug.h>
 #include <kmessagebox.h>
 #include <kcomponentdata.h>
