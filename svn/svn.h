@@ -20,7 +20,7 @@
 #ifndef _svn_H_
 #define _svn_H_
 
-#include <QString>
+
 
 #include <kurl.h>
 #include <kio/global.h>
