@@ -1,3 +1,5 @@
+macro_optional_find_package(SVN)
+
 if(SVN_FOUND)
     add_subdirectory(svn)
 else(SVN_FOUND)
