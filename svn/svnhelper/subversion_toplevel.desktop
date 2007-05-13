@@ -7,7 +7,6 @@ X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KUrl::List)
 
 [Desktop Action Update]
 Name=SVN Update
-Name[bg]=Обновяване SVN
 Name[ca]=Actualitza SVN
 Name[cs]=SVN update
 Name[da]=SVN Opdatér
@@ -48,7 +47,6 @@ Exec=kio_svn_helper -u %U
 
 [Desktop Action Commit]
 Name=SVN Commit
-Name[bg]=Изпращане SVN
 Name[ca]=Entrega SVN
 Name[cs]=SVN commit
 Name[de]=Einspielen (SVN)
