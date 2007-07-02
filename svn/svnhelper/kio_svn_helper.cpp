@@ -283,22 +283,31 @@ void SvnHelper::finished() {
 	qApp->quit();
 }
 
-static KCmdLineOptions options[] = {
-	{ "u", I18N_NOOP("Update given URL"), 0 },
-	{ "c", I18N_NOOP("Commit given URL"), 0 },
-	{ "C", I18N_NOOP("Checkout in given directory"), 0 },
-	{ "a", I18N_NOOP("Add given URL to the working copy"), 0 },
-	{ "d", I18N_NOOP("Delete given URL from the working copy"), 0 },
-	{ "s", I18N_NOOP("Switch given working copy to another branch"), 0 },
-	{ "r", I18N_NOOP("Revert local changes"), 0 },
-	{ "m", I18N_NOOP("Merge changes between two branches"), 0 },
-	{ "D", I18N_NOOP("Show locally made changements with diff"), 0 },
-	{"!+URL",   I18N_NOOP("URL to update/commit/add/delete from Subversion"), 0 },
-	KCmdLineLastOption
-};
-
 int main(int argc, char **argv) {
-	KCmdLineArgs::init(argc, argv, "kio_svn_helper", I18N_NOOP("Subversion Helper"), "KDE frontend for SVN", "0.1");
+	KCmdLineArgs::init(argc, argv, "kio_svn_helper", 0, ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
+
+
+	KCmdLineOptions options;
+
+	options.add("u", ki18n("Update given URL"));
+
+	options.add("c", ki18n("Commit given URL"));
+
+	options.add("C", ki18n("Checkout in given directory"));
+
+	options.add("a", ki18n("Add given URL to the working copy"));
+
+	options.add("d", ki18n("Delete given URL from the working copy"));
+
+	options.add("s", ki18n("Switch given working copy to another branch"));
+
+	options.add("r", ki18n("Revert local changes"));
+
+	options.add("m", ki18n("Merge changes between two branches"));
+
+	options.add("D", ki18n("Show locally made changements with diff"));
+
+	options.add("!+URL", ki18n("URL to update/commit/add/delete from Subversion"));
 
 	KCmdLineArgs::addCmdLineOptions( options );
 	KGlobal::locale()->setMainCatalog("kio_svn");
