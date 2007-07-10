@@ -4,7 +4,6 @@
 set(kded_ksvnd_PART_SRCS ksvnd.cpp )
 qt4_add_dbus_adaptor( kded_ksvnd_PART_SRCS org.kde.ksvnd.xml ksvnd.h KSvnd )
 
-kde4_automoc(${kded_ksvnd_PART_SRCS})
 
 kde4_add_ui3_files(kded_ksvnd_PART_SRCS commitdlg.ui )
 
