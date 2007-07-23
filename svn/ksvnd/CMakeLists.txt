@@ -19,5 +19,5 @@ install(TARGETS kded_ksvnd  DESTINATION ${PLUGIN_INSTALL_DIR} )
 ########### install files ###############
 
 install( FILES ksvnd.desktop  DESTINATION  ${SERVICES_INSTALL_DIR}/kded )
-install( FILES org.kde.ksvnd.xml DESTINATION ${DBUS_INTERFACES_DIR} )
+install( FILES org.kde.ksvnd.xml DESTINATION ${DBUS_INTERFACES_INSTALL_DIR} )
 
