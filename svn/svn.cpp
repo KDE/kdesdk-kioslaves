@@ -481,15 +481,15 @@ void kio_svnProtocol::listDir(const KUrl& url){
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long long int size, bool isdir, time_t mtime, UDSEntry& entry) {
 	kDebug(7128) << "MTime : " << ( long )mtime << endl;
 	kDebug(7128) << "UDS filename : " << filename << endl;
-	entry.insert(KIO::UDS_NAME,filename);
+	entry.insert(KIO::UDSEntry::UDS_NAME,filename);
 
-	entry.insert(KIO::UDS_FILE_TYPE,isdir ? S_IFDIR : S_IFREG);
+	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE,isdir ? S_IFDIR : S_IFREG);
 
-	entry.insert(KIO::UDS_SIZE,size);
+	entry.insert(KIO::UDSEntry::UDS_SIZE,size);
 
-	entry.insert(KIO::UDS_MODIFICATION_TIME,mtime);
+	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME,mtime);
 
-	entry.insert(KIO::UDS_USER,user);
+	entry.insert(KIO::UDSEntry::UDS_USER,user);
 
 	return true;
 }
