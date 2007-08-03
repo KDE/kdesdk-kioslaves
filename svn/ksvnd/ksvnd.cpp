@@ -56,7 +56,7 @@ QString KSvnd::commitDialog(const QString &modifiedFiles) {
 bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
-		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return true;
@@ -71,7 +71,7 @@ bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
 bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
-		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return true;
@@ -86,7 +86,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
 bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
-		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return false;
@@ -101,7 +101,7 @@ bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
 bool KSvnd::AreAllFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
-		kDebug( 7128 ) << "Checking file " << ( *it ) << endl;
+		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).path() );
 		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
 			return false;
@@ -330,7 +330,7 @@ QStringList KSvnd::getTopLevelActionMenu ( const QStringList &lst ) {
 
 #if 0
 void KSvnd::notify(const QString& path, int action, int kind, const QString& mime_type, int content_state, int prop_state, long int revision, const QString& userstring) {
-	kDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring << endl;
+	kDebug(7128) << "KDED/Subversion : notify " << path << " action : " << action << " mime_type : " << mime_type << " content_state : " << content_state << " prop_state : " << prop_state << " revision : " << revision << " userstring : " << userstring;
 	QByteArray params;
 
 	QDataStream stream( &params,QIODevice::WriteOnly);
@@ -351,7 +351,7 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 }
 
 void KSvnd::popupMessage( const QString& message ) {
-	kDebug(7128) << "KDED/Subversion : popupMessage" << message << endl;
+	kDebug(7128) << "KDED/Subversion : popupMessage" << message;
 	KMessageBox::information(0, message, i18n( "Subversion" ) );
 }
 #endif

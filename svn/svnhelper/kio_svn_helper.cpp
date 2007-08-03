@@ -78,7 +78,7 @@ SvnHelper::SvnHelper():KApplication() {
 		list << args->url(i);
 
 	if (args->isSet("u")) {
-		kDebug(7128) << "update " << list << endl;
+		kDebug(7128) << "update " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		//FIXME when 1.2 is out (move the loop inside kio_svn's ::update)
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
@@ -86,47 +86,47 @@ SvnHelper::SvnHelper():KApplication() {
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 2;
 			int rev = -1;
-			kDebug(7128) << "updating : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "updating : " << (*it).prettyUrl();
 			s << cmd << *it << rev << QString( "HEAD" );
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
 		}
 	} else if (args->isSet("c")) {
-		kDebug(7128) << "commit " << list << endl;
+		kDebug(7128) << "commit " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 3;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "commiting : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "commiting : " << (*it).prettyUrl();
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("a")) {
-		kDebug(7128) << "add " << list << endl;
+		kDebug(7128) << "add " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 6;
-			kDebug(7128) << "adding : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "adding : " << (*it).prettyUrl();
 			s << cmd << *it;
 			KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 			connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 			KIO::NetAccess::synchronousRun( job, 0 );
 		}
 	} else if (args->isSet("D")) {
-		kDebug(7128) << "diff " << list << endl;
+		kDebug(7128) << "diff " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 13;
-			kDebug(7128) << "diffing : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "diffing : " << (*it).prettyUrl();
 			int rev1=-1;
 			int rev2=-1;
 			QString revkind1 = "BASE";
@@ -164,26 +164,26 @@ SvnHelper::SvnHelper():KApplication() {
 			diffresult.clear();
 		}
 	} else if (args->isSet("d")) {
-		kDebug(7128) << "delete " << list << endl;
+		kDebug(7128) << "delete " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 7;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "deleting : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "deleting : " << (*it).prettyUrl();
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("s")) {
-		kDebug(7128) << "switch " << list << endl;
+		kDebug(7128) << "switch " << list;
 		SubversionSwitch d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-				kDebug(7128) << "switching : " << (*it).prettyUrl() << endl;
+				kDebug(7128) << "switching : " << (*it).prettyUrl();
 				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
 				QDataStream s( &parms, QIODevice::WriteOnly );
@@ -207,21 +207,21 @@ SvnHelper::SvnHelper():KApplication() {
 			}
 		}
 	} else if (args->isSet("r")) {
-		kDebug(7128) << "revert " << list << endl;
+		kDebug(7128) << "revert " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		QByteArray parms;
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 8;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "reverting : " << (*it).prettyUrl() << endl;
+			kDebug(7128) << "reverting : " << (*it).prettyUrl();
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("C")) {
-		kDebug(7128) << "checkout " << list << endl;
+		kDebug(7128) << "checkout " << list;
 		SubversionCheckout d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
@@ -241,7 +241,7 @@ SvnHelper::SvnHelper():KApplication() {
 				s << ( *it );
 				s << rev;
 				s << revkind;
-				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyUrl() << " at rev : " << rev << " or " << revkind << endl;
+				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyUrl() << " at rev : " << rev << " or " << revkind;
 				KIO::SimpleJob * job = KIO::special(servURL, parms, true);
 				connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 				KIO::NetAccess::synchronousRun( job, 0 );
@@ -264,7 +264,7 @@ void SvnHelper::slotResult( KJob* job ) {
 
 	QStringList message;
 	for ( it = begin; it != end; ++it ) {
-	//	kDebug(7128) << "METADATA helper : " << *it << ":" << ma[ *it ] << endl;
+	//	kDebug(7128) << "METADATA helper : " << *it << ":" << ma[ *it ];
 		if ( ( *it ).endsWith( "string" ) ) {
 			if ( ma[ *it ].length() > 2 ) {
 				message << ma[ *it ];
