@@ -50,7 +50,7 @@ QString KSvnd::commitDialog(const QString &modifiedFiles) {
 	if ( result == QDialog::Accepted ) {
 		return commitDlg.logMessage();
 	} else
-		return QString::null;
+		return QString();
 }
 
 bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
