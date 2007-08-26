@@ -90,7 +90,7 @@ open_tmp_file (apr_file_t **fp,
 
   /* Open a unique file;  use APR_DELONCLOSE. */
   SVN_ERR (svn_io_open_unique_file (fp, &ignored_filename,
-                                    truepath, ".tmp", TRUE, pool));
+                                    truepath, ".tmp", true, pool));
 
   return SVN_NO_ERROR;
 }
@@ -182,13 +182,13 @@ void kio_svnProtocol::initNotifier(bool is_checkout, bool is_export, bool suppre
 	ctx->notify_func = kio_svnProtocol::notify;
 	struct notify_baton *nb = ( struct notify_baton* )apr_palloc(spool, sizeof( *nb ) );
 	nb->master = this;
-	nb->received_some_change = FALSE;
-	nb->sent_first_txdelta = FALSE;
+	nb->received_some_change = false;
+	nb->sent_first_txdelta = false;
 	nb->is_checkout = is_checkout;
 	nb->is_export = is_export;
 	nb->suppress_final_line = suppress_final_line;
-	nb->in_external = FALSE;
-	nb->had_print_error = FALSE;
+	nb->in_external = false;
+	nb->had_print_error = false;
 	nb->pool = svn_pool_create (spool);
 
 	ctx->notify_baton = nb;
@@ -899,7 +899,7 @@ void kio_svnProtocol::svn_diff(const KUrl & url1, const KUrl& url2,int rev1, int
 		<< endl ;
 
 	apr_pool_t *subpool = svn_pool_create (pool);
-	apr_array_header_t *options = svn_cstring_split( "", "\t\r\n", TRUE, subpool );
+	apr_array_header_t *options = svn_cstring_split( "", "\t\r\n", true, subpool );
 
 	KUrl nurl1 = url1;
 	KUrl nurl2 = url2;
@@ -1176,7 +1176,7 @@ void kio_svnProtocol::wc_status(const KUrl& wc, bool checkRepos, bool fullRecurs
 
 	apr_pool_t *subpool = svn_pool_create (pool);
 	svn_revnum_t result_rev;
-	bool no_ignore = FALSE;
+	bool no_ignore = false;
 
 	KUrl nurl = wc;
 	nurl.setProtocol( "file" );
@@ -1248,7 +1248,7 @@ QString kio_svnProtocol::chooseProtocol ( const QString& kproto ) const {
 svn_error_t *kio_svnProtocol::trustSSLPrompt(svn_auth_cred_ssl_server_trust_t **cred_p, void *, const char */*realm*/, apr_uint32_t /*failures*/, const svn_auth_ssl_server_cert_info_t */*cert_info*/, svn_boolean_t /*may_save*/, apr_pool_t *pool) {
 	//when ksvnd is ready make it prompt for the SSL certificate ... XXX
 	*cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
-	(*cred_p)->may_save = FALSE;
+	(*cred_p)->may_save = false;
 	return SVN_NO_ERROR;
 }
 
@@ -1344,7 +1344,7 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 		case svn_wc_notify_copy: //copy
 			break;
 		case svn_wc_notify_delete: //delete
-			nb->received_some_change = TRUE;
+			nb->received_some_change = true;
 			userstring = i18n( "D %1", path );
 			break;
 		case svn_wc_notify_restore : //restore
@@ -1366,11 +1366,11 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 				userstring=i18n("Skipped  %1.", path );
 			break;
 		case svn_wc_notify_update_delete: //update_delete
-			nb->received_some_change = TRUE;
+			nb->received_some_change = true;
 			userstring=i18n( "D %1", path );
 			break;
 		case svn_wc_notify_update_add: //update_add
-			nb->received_some_change = TRUE;
+			nb->received_some_change = true;
 			userstring=i18n( "A %1", path );
 			break;
 		case svn_wc_notify_update_update: //update_update
@@ -1382,7 +1382,7 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 							&& ((prop_state == svn_wc_notify_state_inapplicable)
 								|| (prop_state == svn_wc_notify_state_unknown)
 								|| (prop_state == svn_wc_notify_state_unchanged)))) {
-					nb->received_some_change = TRUE;
+					nb->received_some_change = true;
 
 					if (kind == svn_node_file) {
 						if (content_state == svn_wc_notify_state_conflicted)
@@ -1458,10 +1458,10 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 				}
 			}
 			if (nb->in_external)
-				nb->in_external = FALSE;
+				nb->in_external = false;
 			break;
 		case svn_wc_notify_update_external: //update_external
-			nb->in_external = TRUE;
+			nb->in_external = true;
 			userstring = i18n("Fetching external item into %1.", path );
 			break;
 		case svn_wc_notify_status_completed: //status_completed
@@ -1489,7 +1489,7 @@ void kio_svnProtocol::notify(void *baton, const char *path, svn_wc_notify_action
 			break;
 		case svn_wc_notify_commit_postfix_txdelta: //commit_postfix_txdelta
 			if (! nb->sent_first_txdelta) {
-				nb->sent_first_txdelta = TRUE;
+				nb->sent_first_txdelta = true;
 				userstring=i18n("Transmitting file data ");
 			} else {
 				userstring=".";
