@@ -28,7 +28,6 @@
 #include <kio/jobclasses.h>
 #include <kio/netaccess.h>
 #include <qpixmap.h>
-#include <kmessagebox.h>
 
 #include "kio_svn_helper.h"
 #include <kurlrequester.h>

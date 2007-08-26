@@ -17,6 +17,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+#ifndef COMMITDLG_UI_H
+#define COMMITDLG_UI_H
 
 void CommitDlg::setLog( const QString & comment )
 {
@@ -28,3 +30,5 @@ QString CommitDlg::logMessage() const
 {
 return textMessage->text();
 }
+
+#endif // COMMITDLG_UI_H
