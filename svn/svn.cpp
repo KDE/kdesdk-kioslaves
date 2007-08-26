@@ -1300,7 +1300,7 @@ svn_error_t *kio_svnProtocol::commitLogPrompt( const char **log_msg, const char 
 		list += prop_mod;
 		list += "  ";
 		list += path;
-		kDebug(7128) << " Commiting items : " << list;
+		kDebug(7128) << " Committing items : " << list;
 		slist << list;
 	}
 	OrgKdeKsvndInterface ksvndInterface( "org.kde.kded", "/modules/ksvnd", QDBusConnection::sessionBus() );

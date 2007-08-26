@@ -100,7 +100,7 @@ SvnHelper::SvnHelper():KApplication() {
 		int cmd = 3;
 		s<<cmd;
 		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
-			kDebug(7128) << "commiting : " << (*it).prettyUrl();
+			kDebug(7128) << "committing : " << (*it).prettyUrl();
 			s << *it;
 		}
 		KIO::SimpleJob * job = KIO::special(servURL, parms, true);
