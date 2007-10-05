@@ -75,8 +75,8 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual void mkdir(const KUrl& url, int permissions);
 		virtual void mkdir(const KUrl::List& list, int permissions);
 		virtual void del( const KUrl& url, bool isfile );
-		virtual void copy(const KUrl & src, const KUrl& dest, int permissions, bool overwrite);
-		virtual void rename(const KUrl& src, const KUrl& dest, bool overwrite);
+		virtual void copy(const KUrl & src, const KUrl& dest, int permissions, KIO::JobFlags flags);
+		virtual void rename(const KUrl& src, const KUrl& dest, KIO::JobFlags flags);
 		void checkout( const KUrl& repos, const KUrl& wc, int revnumber, const QString& revkind );
 		void import( const KUrl& repos, const KUrl& wc );
 		void svn_switch( const KUrl& wc, const KUrl& url, int revnumber, const QString& revkind, bool recurse);

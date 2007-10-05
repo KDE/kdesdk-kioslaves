@@ -494,7 +494,7 @@ bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& us
 	return true;
 }
 
-void kio_svnProtocol::copy(const KUrl & src, const KUrl& dest, int /*permissions*/, bool /*overwrite*/) {
+void kio_svnProtocol::copy(const KUrl & src, const KUrl& dest, int /*permissions*/, KIO::JobFlags) {
 	kDebug(7128) << "kio_svnProtocol::copy() Source : " << src.url() << " Dest : " << dest.url();
 
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -614,7 +614,7 @@ void kio_svnProtocol::del( const KUrl& url, bool /*isfile*/ ) {
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::rename(const KUrl& src, const KUrl& dest, bool /*overwrite*/) {
+void kio_svnProtocol::rename(const KUrl& src, const KUrl& dest, KIO::JobFlags) {
 	kDebug(7128) << "kio_svnProtocol::rename() Source : " << src.url() << " Dest : " << dest.url();
 
 	apr_pool_t *subpool = svn_pool_create (pool);
