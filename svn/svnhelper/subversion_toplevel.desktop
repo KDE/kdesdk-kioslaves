@@ -1,6 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 ServiceTypes=inode/directory,all/all
+Type=Service
 X-KDE-Priority=TopLevel
 
 X-KDE-GetActionMenu=kded ksvnd getTopLevelActionMenu(KUrl::List)
