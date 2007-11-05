@@ -18,5 +18,6 @@ install(TARGETS kio_svn_helper  DESTINATION ${BIN_INSTALL_DIR} )
 
 ########### install files ###############
 
-install( FILES subversion.desktop subversion_toplevel.desktop  DESTINATION  ${DATA_INSTALL_DIR}/konqueror/servicemenus )
+install( FILES subversion.desktop subversion_toplevel.desktop  DESTINATION
+${SERVICES_INSTALL_DIR}/ServiceMenus )
 
