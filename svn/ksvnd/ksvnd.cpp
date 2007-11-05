@@ -29,14 +29,16 @@
 #include "ksvnd.h"
 #include "commitdlg.h"
 
-extern "C" {
-    KDE_EXPORT KDEDModule *create_ksvnd() {
-       return new KSvnd();
-    }
-}
+#include <kpluginfactory.h>
+#include <kpluginloader.h>
 
-KSvnd::KSvnd()
- : KDEDModule() {
+K_PLUGIN_FACTORY(KSvndFactory,
+                 registerPlugin<KSvnd>();
+    )
+K_EXPORT_PLUGIN(KSvndFactory("kio_svn"))
+
+KSvnd::KSvnd(QObject* parent, const QList<QVariant>&)
+ : KDEDModule(parent) {
    new KsvndAdaptor(this);
 }
 

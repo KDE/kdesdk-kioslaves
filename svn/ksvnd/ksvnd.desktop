@@ -43,5 +43,4 @@ Name[zh_TW]=KDED Subversion 模組
 ServiceTypes=KDEDModule
 X-KDE-ModuleType=Library
 X-KDE-Library=ksvnd
-X-KDE-FactoryName=ksvnd
 X-KDE-Kded-load-on-demand=true
