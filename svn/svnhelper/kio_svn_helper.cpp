@@ -27,6 +27,7 @@
 #include <kio/job.h>
 #include <kio/jobclasses.h>
 #include <kio/netaccess.h>
+#include <kio/jobuidelegate.h>
 #include <qpixmap.h>
 
 #include "kio_svn_helper.h"
@@ -254,7 +255,7 @@ SvnHelper::SvnHelper():KApplication() {
 
 void SvnHelper::slotResult( KJob* job ) {
 	if ( job->error() )
-		static_cast<KIO::Job*>( job )->showErrorDialog( );
+  	        static_cast<KIO::Job*>( job )->ui()->showErrorMessage();
 
 	KIO::MetaData ma = static_cast<KIO::Job*>(job )->metaData();
 	QList<QString> keys = ma.keys();
