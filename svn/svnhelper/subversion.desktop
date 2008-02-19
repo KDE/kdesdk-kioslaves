@@ -11,6 +11,7 @@ X-KDE-Submenu[x-test]=xxSubversionxx
 #Return type of below is a QStringList with a list of Actions which is appended to the Actions above
 #X-KDE-GetActionMenu=kded ksvnd getActionMenu(KUrl::List)
 X-KDE-GetActionMenu=org.kde.kded /modules/ksvnd org.kde.ksvnd getActionMenu
+Actions=Add;Delete;Revert;Rename;Import;Checkout;Switch;Merge;Blame;CreatePatch;Export;Diff;
 
 [Desktop Action Add]
 Name=Add to Repository

@@ -6,6 +6,8 @@ X-KDE-Priority=TopLevel
 
 X-KDE-GetActionMenu=org.kde.kded /modules/ksvnd org.kde.ksvnd getTopLevelActionMenu
 
+Actions=Update;Commit;
+
 [Desktop Action Update]
 Name=SVN Update
 Name[ca]=Actualitza SVN
