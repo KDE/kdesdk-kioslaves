@@ -28,7 +28,6 @@
 #include "ksvndadaptor.h"
 
 #include "ksvnd.h"
-#include "commitdlg.h"
 
 #include <kpluginfactory.h>
 #include <kpluginloader.h>
@@ -47,7 +46,7 @@ KSvnd::~KSvnd() {
 }
 
 QString KSvnd::commitDialog(const QString &modifiedFiles) {
-	CommitDlg commitDlg;
+	CommitDlg commitDlg(0);
 	commitDlg.setLog( modifiedFiles );
 	int result = commitDlg.exec();
 	if ( result == QDialog::Accepted ) {

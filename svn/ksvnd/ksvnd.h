@@ -26,6 +26,24 @@
 #include <kurl.h>
 #include <qstringlist.h>
 #include <QByteArray>
+#include <ui_commitdlg.h>
+#include <QDialog>
+
+class CommitDlg : public QDialog, public Ui::CommitDlg
+{
+public:
+  CommitDlg( QWidget *parent ) : QDialog( parent ) {
+    setupUi( this );
+  }
+  void setLog( const QString & comment )
+  {
+    listMessage->setText(comment);
+  }
+  QString logMessage() const
+  {
+    return textMessage->text();
+  }
+};
 
 class KSvnd : public KDEDModule
 {
