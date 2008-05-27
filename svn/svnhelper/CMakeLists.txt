@@ -13,7 +13,7 @@ kde4_add_executable(kio_svn_helper ${kio_svn_helper_SRCS})
 
 target_link_libraries(kio_svn_helper  ${KDE4_KIO_LIBS})
 
-install(TARGETS kio_svn_helper  DESTINATION ${BIN_INSTALL_DIR} )
+install(TARGETS kio_svn_helper  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 
 ########### install files ###############
