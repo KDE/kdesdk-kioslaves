@@ -248,7 +248,7 @@ SvnHelper::SvnHelper():KApplication() {
 			}
 		}
 	} else {
-		KMessageBox::sorry(0, "Sorry, request not recognised.  Perhaps not implemented yet?", "Feature Not Implemented");
+		KMessageBox::sorry(0, i18n("Sorry, request not recognised.  Perhaps not implemented yet?"), i18n("Feature Not Implemented"));
 	}
 	QTimer::singleShot( 0, this, SLOT( finished() ) );
 }
