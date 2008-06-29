@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,inode/directory,all/all
 X-KDE-Submenu=Subversion
