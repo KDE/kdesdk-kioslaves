@@ -276,7 +276,7 @@ void SvnHelper::slotResult( KJob* job ) {
 		}
 	}
 	if ( message.count() > 0 )
-		KMessageBox::informationListWId(m_id, "", message, "Subversion");
+		KMessageBox::informationListWId(m_id, "", message, i18n("Subversion"));
 }
 
 void SvnHelper::finished() {
@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
 		KCmdLineArgs::usage();
 	KApplication *app = new SvnHelper();
 
-	app->exec();
+	return app->exec();
 }
 
 #include "kio_svn_helper.moc"
