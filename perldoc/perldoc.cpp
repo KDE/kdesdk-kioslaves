@@ -43,7 +43,7 @@
 // Embed version info.  Using const char[] instead of const char* const
 // places it in a read-only section.
 const char __attribute__((__used__))
-kio_perldoc_version[] = "kio_perldoc4 v0.9";
+kio_perldoc_version[] = "kio_perldoc4 v0.9.1";
 
 // Helper class to handle pipes.
 class PipeManager
