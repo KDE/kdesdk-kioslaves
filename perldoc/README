@@ -1,6 +1,6 @@
 kio_perldoc - A kioslave interface to the imbedded Perl documentation.
 
-Version: 0.9
+Version: 0.9.1
 
 It requires Perl 5.8 and the perl standard perldoc program to be installed.
 
@@ -9,7 +9,7 @@ looks to me like it's also included with Perl 5.8, but if this doesn't work, try
 first.
 
 It uses a stripped-down version of the Pod::HtmlEasy module from CPAN, by M. P.
-Graciliano and Geoffrey Leach.
+Graciliano and Geoffrey Leach. (Specifically, the 0.9 version)
 
 This code started off as a KDevelop addon (and if you have KDevelop installed, you
 also already have a perldoc KIOSlave installed!!  Don't overwrite it unless you know

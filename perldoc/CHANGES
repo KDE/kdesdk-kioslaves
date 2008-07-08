@@ -1,3 +1,8 @@
+0.9.1:
+* Actually works on KDE 4.  A function needed to be specially exported, forgetting to do so
+  happened to work on KDE 3 and early versions of KDE 4 but that was never guaranteed.
+* Add guard to only use gcc extension if compiling with gcc.
+
 0.9: Initial KDE 4 release.
 * Port to KDE 4.
 * Add kio_perldoc to GENERATOR metainfo.
