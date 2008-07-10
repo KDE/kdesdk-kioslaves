@@ -44,7 +44,7 @@
 SubversionCheckoutDialog::SubversionCheckoutDialog( QWidget* parent)
   : KDialog( parent )
 {
-  setCaption( i18n( "Address Selection" ) );
+  setCaption( i18n( "Subversion Checkout" ) );
   setButtons( Ok|Cancel );
   setDefaultButton( Ok );
   setModal( true );
