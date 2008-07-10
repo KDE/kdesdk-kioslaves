@@ -63,13 +63,26 @@ KUrl SubversionCheckoutDialog::url() const
     return m_checkoutWidget->url->url();
 }
 
-
-SubversionSwitch::SubversionSwitch(QWidget *parent )
-: QDialog(parent)
+SubversionSwitchDialog::SubversionSwitchDialog( QWidget* parent)
+  : KDialog( parent )
 {
-   setupUi( this );
-   connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  setCaption( i18n( "Subversion Switch" ) );
+  setButtons( Ok|Cancel );
+  setDefaultButton( Ok );
+  setModal( true );
+  KVBox *page = new KVBox( this );
+  setMainWidget( page );
+  m_switchWidget = new SubversionSwitch( page );
+}
+
+int SubversionSwitchDialog::revisionValue() const
+{
+    return m_switchWidget->revision->value();
+}
+
+KUrl SubversionSwitchDialog::url() const
+{
+    return m_switchWidget->url->url();
 }
 
 Subversion_Diff::Subversion_Diff(QWidget *parent )
@@ -196,7 +209,7 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("s")) {
 		kDebug(7128) << "switch " << list;
-		SubversionSwitch d;
+		SubversionSwitchDialog d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
@@ -206,15 +219,15 @@ SvnHelper::SvnHelper():KApplication() {
 				QDataStream s( &parms, QIODevice::WriteOnly );
 				int revnumber = -1;
 				QString revkind = "HEAD";
-				if ( d.revision->value() != 0 ) {
-					revnumber = d.revision->value();
+				if ( d.revisionValue() != 0 ) {
+					revnumber = d.revisionValue();
 					revkind = "";
 				}
 				bool recurse=true;
 				int cmd = 12;
 				s << cmd;
 				s << *it;
-				s << KUrl( d.url->url() );
+				s << d.url();
 				s << recurse;
 				s << revnumber;
 				s << revkind;

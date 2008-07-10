@@ -36,10 +36,12 @@ public:
     }
 };
 
-class SubversionSwitch : public QDialog, public Ui::SubversionSwitch
+class SubversionSwitch : public QWidget, public Ui::SubversionSwitch
 {
 public:
-  SubversionSwitch( QWidget *parent = 0 );
+    SubversionSwitch( QWidget *parent = 0 ) :QWidget( parent ) {
+        setupUi( this );
+    }
 };
 
 class Subversion_Diff : public QDialog, public Ui::Subversion_Diff
@@ -58,6 +60,17 @@ public:
     KUrl url() const;
 private:
     SubversionCheckout *m_checkoutWidget;
+};
+
+class SubversionSwitchDialog : public KDialog
+{
+    Q_OBJECT
+public:
+    SubversionSwitchDialog( QWidget *parent = 0 );
+    int revisionValue() const;
+    KUrl url() const;
+private:
+    SubversionSwitch *m_switchWidget;
 };
 
 
