@@ -29,6 +29,7 @@
 #include <kio/netaccess.h>
 #include <kio/jobuidelegate.h>
 #include <qpixmap.h>
+#include <KVBox>
 
 #include "kio_svn_helper.h"
 #include <kurlrequester.h>
@@ -39,13 +40,29 @@
 #include <kstandarddirs.h>
 #include <qtextcodec.h>
 
-SubversionCheckout::SubversionCheckout(QWidget *parent )
-: QDialog(parent)
+
+SubversionCheckoutDialog::SubversionCheckoutDialog( QWidget* parent)
+  : KDialog( parent )
 {
-   setupUi( this );
-   connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  setCaption( i18n( "Address Selection" ) );
+  setButtons( Ok|Cancel );
+  setDefaultButton( Ok );
+  setModal( true );
+  KVBox *page = new KVBox( this );
+  setMainWidget( page );
+  m_checkoutWidget = new SubversionCheckout( page );
 }
+
+int SubversionCheckoutDialog::revisionValue() const
+{
+    return m_checkoutWidget->revision->value();
+}
+
+KUrl SubversionCheckoutDialog::url() const
+{
+    return m_checkoutWidget->url->url();
+}
+
 
 SubversionSwitch::SubversionSwitch(QWidget *parent )
 : QDialog(parent)
@@ -222,7 +239,7 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("C")) {
 		kDebug(7128) << "checkout " << list;
-		SubversionCheckout d;
+		SubversionCheckoutDialog d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
 			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
@@ -232,16 +249,16 @@ SvnHelper::SvnHelper():KApplication() {
 				int cmd = 1;
 				int rev = -1;
 				QString revkind = "HEAD";
-				if ( d.revision->value() != 0 ) {
-					rev = d.revision->value();
+				if ( d.revisionValue() != 0 ) {
+					rev = d.revisionValue();
 					revkind = "";
 				}
 				s<<cmd;
-				s << KUrl( d.url->url() );
+				s << d.url();
 				s << ( *it );
 				s << rev;
 				s << revkind;
-				kDebug(7128) << "checkouting : " << d.url->url() << " into " << (*it).prettyUrl() << " at rev : " << rev << " or " << revkind;
+				kDebug(7128) << "checkouting : " << d.url() << " into " << (*it).prettyUrl() << " at rev : " << rev << " or " << revkind;
 				KIO::SimpleJob * job = KIO::special(servURL, parms);
 				connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 				KIO::NetAccess::synchronousRun( job, 0 );

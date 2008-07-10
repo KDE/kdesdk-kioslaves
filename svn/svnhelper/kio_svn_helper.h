@@ -28,10 +28,12 @@
 #include "ui_subversionswitch.h"
 #include "ui_subversiondiff.h"
 
-class SubversionCheckout : public QDialog, public Ui::SubversionCheckout
+class SubversionCheckout : public QWidget, public Ui::SubversionCheckout
 {
 public:
-  SubversionCheckout( QWidget *parent = 0);
+    SubversionCheckout( QWidget *parent = 0) : QWidget( parent ) {
+        setupUi( this );
+    }
 };
 
 class SubversionSwitch : public QDialog, public Ui::SubversionSwitch
@@ -44,6 +46,18 @@ class Subversion_Diff : public QDialog, public Ui::Subversion_Diff
 {
 public:
   Subversion_Diff( QWidget *parent = 0 );
+};
+
+
+class SubversionCheckoutDialog : public KDialog
+{
+    Q_OBJECT
+public:
+    SubversionCheckoutDialog( QWidget *parent = 0 );
+    int revisionValue() const;
+    KUrl url() const;
+private:
+    SubversionCheckout *m_checkoutWidget;
 };
 
 
