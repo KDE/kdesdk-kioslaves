@@ -8,4 +8,4 @@ Class=:local
 reading=true
 listing=Name
 determineMimetypeFromExtension=false
-Icon=help
+Icon=application-x-perl
