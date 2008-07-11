@@ -120,7 +120,7 @@
               <item>
                 <widget class="QLabel" name="textLabel1" >
                   <property name="text" >
-                    <string>Revision (0 for HEAD) :</string>
+                    <string>Revision (0 for HEAD):</string>
                   </property>
                   <property name="wordWrap" >
                     <bool>false</bool>
