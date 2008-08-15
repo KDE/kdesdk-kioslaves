@@ -304,7 +304,7 @@ extern "C" {
             "0.9",
             ki18n("KIOSlave to provide access to perldoc documentation"),
             KAboutData::License_GPL_V2,
-            ki18n("Copyright 2007 Michael Pyne"),
+            ki18n("Copyright 2007, 2008 Michael Pyne"),
             ki18n("Uses Pod::HtmlEasy by M. P. Graciliano and Geoffrey Leach")
         );
 
@@ -315,8 +315,6 @@ extern "C" {
         aboutData.addCredit(ki18n("Geoffrey Leach"), ki18n("Pod::HtmlEasy current maintainer"));
         aboutData.setTranslator(ki18nc("NAME OF TRANSLATORS", "Your names"),
             ki18nc("EMAIL OF TRANSLATORS", "Your emails"));
-        aboutData.setBugAddress("michael.pyne@kdemail.net");
-        aboutData.setOrganizationDomain("http://purinchu.net");
 
         KComponentData componentData(aboutData);
 
