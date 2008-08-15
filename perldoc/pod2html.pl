@@ -4,7 +4,7 @@
 # Integrated and crap^H^H^H^H unnecessary dependencies removed by Michael Pyne
 # <michael.pyne@kdemail.net>
 #
-# Copyright 2007 Michael Pyne.
+# Copyright 2007, 2008 Michael Pyne.
 # Original source is licensed to be distributed under the same terms as Perl
 # itself.  All changes by Michael Pyne retain this license.
 #
@@ -818,6 +818,7 @@ my %OPTS = (
     body            => 1,
     common_entities => 1,
     css             => 1,
+    faq_page        => 0,
     function_page   => 0,
     index           => 1,
     index_item      => 1,
@@ -1217,6 +1218,10 @@ sub pod2html {
         }
     }
 
+    if ($args{'faq_page'}) {
+        push @html, qq{$NL<p>The following FAQ results were found:</p>$NL};
+    }
+
     # Avoid carry-over on multiple files
     delete $this->{IN_BEGIN};
     delete $this->{PACKAGE};
@@ -1237,8 +1242,12 @@ sub pod2html {
     if ( not exists $args{index} ) { $args{index} = $this->build_index(); }
     if ( exists $args{no_index} )  { $args{index} = $EMPTY; }
 
+    if ( $args{'faq_page'} && not @{$output} ) {
+        @{$output} = ("<b>None</b>");
+    }
+
     push @html, qq{$args{index}$NL};
-    push @html, qq{<div class='pod'><div>$NL};
+    push @html, qq{<div class='pod'>$NL};
     push @html, @{$output};                      # The pod converted to HTML
     push @html, qq{</div></body></html>$NL};
 
@@ -1757,4 +1766,7 @@ if(exists $ARGV[0] and $ARGV[0] eq '-f')
 
 my $podhtml = Pod::HtmlEasy->new();
 
-print $podhtml->pod2html($perlDocInput, 'function_page'=>$usingFunctionPage, title=>"$ARGV[-1]"), "\n";
+print $podhtml->pod2html($perlDocInput,
+                         'function_page'=>$usingFunctionPage,
+                         'faq_page' => exists $ARGV[0] && $ARGV[0] eq '-q',
+                         title=>"$ARGV[-1]"), "\n";
