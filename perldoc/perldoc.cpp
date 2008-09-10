@@ -272,7 +272,7 @@ bool PerldocProtocol::topicExists(const QString &topic)
     pid_t childPid = fork();
 
     if(childPid < 0) {
-        data(QByteArray("Failed to fork"));
+        data(QByteArray(i18n("Failed to fork").toLocal8Bit()));
         return false; // Failed to fork
     }
 
