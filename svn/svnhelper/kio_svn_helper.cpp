@@ -172,7 +172,7 @@ SvnHelper::SvnHelper():KApplication() {
 					tmp->open();
 					QTextStream stream ( tmp );
 					stream.setCodec( QTextCodec::codecForName( "utf8" ) );
-					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					for ( QStringList::const_iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
 						stream << ( *it2 ) << "\n";
 					}
 					stream.flush();
@@ -182,7 +182,7 @@ SvnHelper::SvnHelper():KApplication() {
 					p->start("kompare", arguments);
 				} else { //else do it with message box
 					Subversion_Diff df;
-					for ( QStringList::Iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					for ( QStringList::const_iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
 						df.text->append( *it2 );
 					}
 					QFont f = df.font();

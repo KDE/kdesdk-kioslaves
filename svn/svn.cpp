@@ -946,7 +946,7 @@ void kio_svnProtocol::svn_diff(const KUrl & url1, const KUrl& url2,int rev1, int
 		}
 		file.close();
 	}
-	for ( QStringList::Iterator itt = tmp.begin(); itt != tmp.end(); itt++ ) {
+	for ( QStringList::const_iterator itt = tmp.begin(); itt != tmp.end(); itt++ ) {
 		setMetaData(QString::number( m_counter ).rightJustified( 10,'0' )+ "diffresult", ( *itt ) );
 		m_counter++;
 	}
