@@ -17,6 +17,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
 #include <kurl.h>
@@ -284,7 +285,9 @@ void SvnHelper::finished() {
 }
 
 int main(int argc, char **argv) {
-	KCmdLineArgs::init(argc, argv, "kio_svn_helper", 0, ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
+	KAboutData aboutData("kio_svn_helper", 0, ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
+	aboutData.setProgramIconName("folder-remote");
+	KCmdLineArgs::init(argc, argv, &aboutData);
 
 
 	KCmdLineOptions options;
