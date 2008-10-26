@@ -128,7 +128,7 @@ void PerldocProtocol::get(const KUrl& url)
 
     mimeType("text/html");
 
-    if(l[0].isEmpty() or url.path() == "/") {
+    if(l[0].isEmpty() || url.path() == "/") {
         QByteArray output = i18n("<html><head><title>No page requested</title>"
             "<body>No page was requested.  You can search for:<ul><li>functions"
             "using perldoc:/functions/foo</li>\n\n"
@@ -144,7 +144,7 @@ void PerldocProtocol::get(const KUrl& url)
         return;
     }
 
-    if(l[0] != "functions" and l[0] != "faq") {
+    if(l[0] != "functions" && l[0] != "faq") {
         // See if it exists first.
         if(!topicExists(l[0])) {
             // Failed
@@ -286,7 +286,7 @@ bool PerldocProtocol::topicExists(const QString &topic)
         int status = 0;
 
         ::waitpid(childPid, &status, 0);
-        if(WIFEXITED(status) and WEXITSTATUS(status) == 0)
+        if(WIFEXITED(status) && WEXITSTATUS(status) == 0)
             return true;
     }
 
