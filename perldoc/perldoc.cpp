@@ -130,7 +130,7 @@ void PerldocProtocol::get(const KUrl& url)
 
     if(l[0].isEmpty() || url.path() == "/") {
         QByteArray output = i18n("<html><head><title>No page requested</title>"
-            "<body>No page was requested.  You can search for:<ul><li>functions"
+            "<body>No page was requested.  You can search for:<ul><li>functions "
             "using perldoc:/functions/foo</li>\n\n"
             "<li>faq entries using perldoc:/faq/search_terms</li>"
             "<li>All other perldoc documents using the name of the document, like"
