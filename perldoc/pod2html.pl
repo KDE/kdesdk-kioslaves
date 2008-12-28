@@ -1208,9 +1208,8 @@ sub pod2html {
 
     delete $this->{UPARROW};
     delete $this->{UPARROW_FILE};
-    my $kde_dir = q{/home/kde-svn/kde-4/share/doc/HTML/en};
     push @html, qq{<div id="header"><div id="header_top"><div><div>$NL};
-    push @html, qq{<img src="file://$kde_dir/common/top-kde.jpg"> $title - KDE Perldoc Viewer</div></div></div></div>};
+    push @html, qq{<img src="help:/common/top-kde.jpg"> $title - KDE Perldoc Viewer</div></div></div></div>};
     push @html, q{<div class="pod">};
 
     if ( exists $args{top} ) {
