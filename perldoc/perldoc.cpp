@@ -301,7 +301,7 @@ extern "C" {
             "kio_perldoc",
             "kio_perldoc",
             ki18n("perldoc KIOSlave"),
-            "0.9",
+            "0.9.1",
             ki18n("KIOSlave to provide access to perldoc documentation"),
             KAboutData::License_GPL_V2,
             ki18n("Copyright 2007, 2008 Michael Pyne"),
