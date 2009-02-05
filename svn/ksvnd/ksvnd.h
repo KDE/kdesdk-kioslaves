@@ -66,6 +66,7 @@ public:
   bool AreAllFilesInSvn( const QStringList& wclist );
   QStringList getActionMenu ( const QStringList& list );
   QStringList getTopLevelActionMenu ( const QStringList &list );
+  void popupMessage(const QString&);
 
 protected:
   bool isFileInSvnEntries ( const QString &filename, const QString &entfile );

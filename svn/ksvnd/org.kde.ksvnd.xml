@@ -37,5 +37,8 @@
       <arg type="as" direction="out"/>
       <arg name="wclist" type="as" direction="in"/>
     </method>
+    <method name="popupMessage">
+      <arg name="file" type="s" direction="in"/>
+    </method>
   </interface>
 </node>

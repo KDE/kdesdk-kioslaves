@@ -374,11 +374,11 @@ void KSvnd::status(const QString& path, int text_status, int prop_status, int re
 
 	emitDCOPSignal( "subversionStatus(QString,int,int,int,int,long int)", params );
 }
+#endif
 
 void KSvnd::popupMessage( const QString& message ) {
 	kDebug(7128) << "KDED/Subversion : popupMessage" << message;
 	KMessageBox::information(0, message, i18n( "Subversion" ) );
 }
-#endif
 
 #include "ksvnd.moc"

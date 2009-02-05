@@ -481,14 +481,11 @@ void kio_svnProtocol::listDir(const KUrl& url){
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long long int size, bool isdir, time_t mtime, UDSEntry& entry) {
 	kDebug(7128) << "MTime : " << ( long )mtime;
 	kDebug(7128) << "UDS filename : " << filename;
+	
 	entry.insert(KIO::UDSEntry::UDS_NAME,filename);
-
 	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE,isdir ? S_IFDIR : S_IFREG);
-
 	entry.insert(KIO::UDSEntry::UDS_SIZE,size);
-
 	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME,mtime);
-
 	entry.insert(KIO::UDSEntry::UDS_USER,user);
 
 	return true;
@@ -833,17 +830,16 @@ void kio_svnProtocol::special( const QByteArray& data ) {
 }
 
 void kio_svnProtocol::popupMessage( const QString& message ) {
-#ifdef __GNUC__
-#warning "kde4: port dbus stuff"
-#endif
-#if 0
-    QByteArray params;
-	QDataStream stream(&params, QIODevice::WriteOnly);
-	stream << message;
-
-	if ( !dcopClient()->send( "kded","ksvnd","popupMessage(QString)", params ) )
-		kWarning() << "Communication with KDED:KSvnd failed";
-#endif
+	OrgKdeKsvndInterface ksvndInterface( "org.kde.kded", "/modules/ksvnd", QDBusConnection::sessionBus() );
+	if(!ksvndInterface.isValid()) {
+	   kWarning() << "Communication with KDED:KSvnd failed";
+	   return;
+	}
+	QDBusReply<void> reply = ksvndInterface.popupMessage(message);
+	if ( !reply.isValid() ) {
+		kWarning() << "Unexpected reply type";
+		return;
+	}
 }
 
 void kio_svnProtocol::svn_log( int revstart, const QString& revkindstart, int revend, const QString& revkindend, const KUrl::List& targets ) {
