@@ -286,7 +286,7 @@ void kio_svnProtocol::get(const KUrl& url ){
 	svn_pool_destroy (subpool);
 }
 
-void kio_svnProtocol::stat(const KUrl & url){
+void kio_svnProtocol::stat(const KUrl & url) {
 	kDebug(7128) << "kio_svn::stat(const KUrl& url) : " << url.url();
 
 	void *ra_baton, *session;
@@ -327,12 +327,16 @@ void kio_svnProtocol::stat(const KUrl & url){
 	svn_error_t *err = svn_ra_init_ra_libs(&ra_baton,subpool);
 	if ( err ) {
 		kDebug(7128) << "init RA libs failed : " << err->message;
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
 		return;
 	}
 	//find RA libs
 	err = svn_ra_get_ra_library(&ra_lib,ra_baton,svn_path_canonicalize( target.toUtf8(), subpool ),subpool);
 	if ( err ) {
 		kDebug(7128) << "RA get libs failed : " << err->message;
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
 		return;
 	}
 	kDebug(7128) << "RA init completed";
@@ -354,6 +358,8 @@ void kio_svnProtocol::stat(const KUrl & url){
 	err = ra_lib->open(&session,svn_path_canonicalize( target.toUtf8(), subpool ),cbtable,callbackbt,ctx->config,subpool);
 	if ( err ) {
 		kDebug(7128)<< "Open session " << err->message;
+		error( KIO::ERR_SLAVE_DEFINED, err->message );
+		svn_pool_destroy( subpool );
 		return;
 	}
 	kDebug(7128) << "Session opened to " << target;
@@ -362,13 +368,19 @@ void kio_svnProtocol::stat(const KUrl & url){
 		err = ra_lib->get_latest_revnum(session,&rev.value.number,subpool);
 		if ( err ) {
 			kDebug(7128)<< "Latest RevNum " << err->message;
+			error( KIO::ERR_SLAVE_DEFINED, err->message );
+			svn_pool_destroy( subpool );
 			return;
 		}
 		kDebug(7128) << "Got rev " << rev.value.number;
 	}
 
 	//get it
-	ra_lib->check_path(session,"",rev.value.number,&kind,subpool);
+	err = ra_lib->check_path(session,"",rev.value.number,&kind,subpool);
+	if ( err ) {
+			error( KIO::ERR_SLAVE_DEFINED, err->message );
+			svn_pool_destroy( subpool );
+	}
 	kDebug(7128) << "Checked Path";
 	UDSEntry entry;
 	switch ( kind ) {
