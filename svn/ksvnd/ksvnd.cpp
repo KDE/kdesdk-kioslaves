@@ -117,12 +117,29 @@ bool KSvnd::AreAllFilesNotInSvn( const QStringList& lst ) {
 
 bool KSvnd::isFileInSvnEntries ( const QString &filename, const QString &entfile ) {
 	QFile file( entfile );
+	bool potential = false;
 	if ( file.open( QIODevice::ReadOnly ) ) {
 		QTextStream stream( &file );
 		QString line;
 		while ( !stream.atEnd() ) {
 			line = stream.readLine().simplified();
-			if ( line == "name=\""+ filename + "\"" ) {
+
+			if ( potential == true ) {
+			// Check that filename is really a file or dir
+				if ( line == "dir" || line == "file" ) {
+					file.close();
+					return true;
+				} else {
+			// Reset potential to false
+				potential=false;
+				}
+			}
+
+			if ( line == filename ) {
+			// Assume we're using SVN >= 1.4
+				potential=true;
+			} else if ( line == "name=\""+ filename + "\"" ) {
+			// We could still be using SVN <= 1.3 (XML format)
 				file.close();
 				return true;
 			}
@@ -270,6 +287,12 @@ QStringList KSvnd::getActionMenu ( const QStringList &lst ) {
 	if ( !(listStatus & SomeAreInParentsEntries) &&
 	     !(listStatus & SomeAreExternalToParent) &&
 	     !(listStatus & SomeHaveSvn)) {
+		if ( (listStatus & AllParentsHaveSvn) ) {
+			// These files can only be added to SVN
+			result << "Add";
+			result << "_SEPARATOR_";
+		}
+
 		if( list.size() == 1 && listStatus & SomeAreFolders) {
 			result << "Checkout";
 			result << "Export";
