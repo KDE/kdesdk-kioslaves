@@ -252,7 +252,7 @@ SvnHelper::SvnHelper():KApplication() {
 		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
 	} else if (args->isSet("R")) {
-		kDebug(7128) << "rename TODO " << list;
+		kDebug(7128) << "rename/move TODO " << list;
 	} else if (args->isSet("C")) {
 		kDebug(7128) << "checkout " << list;
 		SubversionCheckoutDialog d;
