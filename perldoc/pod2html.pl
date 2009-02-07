@@ -577,7 +577,7 @@ sub _parse_section {
     }    # new leading/trailing
 
 # Perlpodspec observes that and acceptable way to distinguish between L<name> and
-# L<section> is that if the link contains any whitespace, then its a section.
+# L<section> is that if the link contains any whitespace, then it is a section.
 # The construct L<section> is deprecated.
     if ( $name && $name =~ m{\s}sm && !defined $section ) {
         $section = $name;
