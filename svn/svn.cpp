@@ -43,10 +43,14 @@
 #include <subversion-1/svn_utf.h>
 #include <subversion-1/svn_ra.h>
 #include <subversion-1/svn_time.h>
+#include <subversion-1/svn_fs.h>
 
 #include <kmimetype.h>
 #include <QFile>
-
+#include <kde_file.h>
+#include <time.h>
+#include <utime.h>
+ 
 #include "svn.h"
 #include <apr_portable.h>
 
@@ -286,6 +290,137 @@ void kio_svnProtocol::get(const KUrl& url ){
 	data(QByteArray()); // empty array means we're done sending the data
 	finished();
 	svn_pool_destroy (subpool);
+}
+
+//this is PUT-ing to a -remote- repository for now
+//we are using the "svnput" hack, that is we just overwrite what's in the repository
+//THIS IS BAD, we have no safety check that nobody committed something else just before we do the put
+//but there is no other way to do it for now, still better than nothing, but use with REAL CARE
+void kio_svnProtocol::put(const KUrl& url, int /*permissions*/, KIO::JobFlags /*flags*/) {
+	//putting things is actually just commiting to a repository, so let's do it
+	kDebug(7128) << "kio_svn::put : " << url.url();
+	QByteArray ba;
+	QTemporaryFile tFile;
+	int result=0;
+
+	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_error_t *err;
+	svn_ra_callbacks_t *cbtable;
+	const char *parent_URL, *basename;
+	svn_ra_plugin_t *ra_lib;
+	void *session,*ra_baton;
+	svn_revnum_t rev;
+	apr_hash_t *dirents;
+	svn_dirent_t *dirent;
+	void *root_baton, *file_baton, *handler_baton;
+	svn_txdelta_window_handler_t handler;
+	svn_stream_t *contents;
+	apr_file_t *f = NULL;
+	const QString mtimeStr = metaData( "modified" );
+
+	err = svn_fs_initialize (subpool);
+	if (err) goto handleerror;
+
+	cbtable = (svn_ra_callbacks_t *)apr_pcalloc (subpool, sizeof(*cbtable));
+	cbtable->auth_baton = ctx->auth_baton;
+	cbtable->open_tmp_file = open_tmp_file;
+
+	svn_path_split (url.url().toUtf8(), &parent_URL, &basename, subpool);
+
+	err = svn_ra_init_ra_libs (&ra_baton, pool);
+	if (err) goto handleerror;
+
+	err = svn_ra_get_ra_library (&ra_lib, ra_baton, parent_URL, subpool);
+	if (err) goto handleerror;
+	err = ra_lib->open (&session, parent_URL, cbtable, NULL, ctx->config, subpool);
+	if (err) goto handleerror;
+	err = ra_lib->get_latest_revnum (session, &rev, subpool);
+	if (err) goto handleerror;
+	err = ra_lib->get_dir (session, "", rev, &dirents, NULL, NULL, subpool);
+	if (err) goto handleerror;
+	dirent = (svn_dirent_t *)apr_hash_get (dirents, basename, APR_HASH_KEY_STRING);
+	if (dirent && dirent->kind == svn_node_dir) {
+		kDebug(7128) << "Sorry, a directory already exists at that URL.";
+		error( KIO::ERR_SLAVE_DEFINED, i18n("We don't support directories yet, for safety :)") );
+		svn_pool_destroy( subpool );
+		return;
+	}
+/*	if (dirent && dirent->kind == svn_node_file)
+	{
+		//confirm XXX
+	}*/
+	const svn_delta_editor_t *editor;
+	void *edit_baton;
+	err = ra_lib->get_commit_editor (session, &editor, &edit_baton, "Automated commit from KDE KIO Subversion\n", NULL/*commitcb*/, NULL, subpool);
+	if (err) goto handleerror;
+
+	err = editor->open_root (edit_baton, rev, subpool, &root_baton);
+	if (err) goto handleerror;
+	if (! dirent) {
+		err = editor->add_file (basename, root_baton, NULL, SVN_INVALID_REVNUM, subpool, &file_baton);
+	} else {
+		err = editor->open_file (basename, root_baton, rev, subpool, &file_baton);
+	}
+	if (err) goto handleerror;
+	err = editor->apply_textdelta (file_baton, NULL, subpool, &handler, &handler_baton);
+	if (err) goto handleerror;
+
+	if (!tFile.open()) {
+		kDebug(7128) << "Failed creating temp file";
+		return;
+	}
+
+	do {
+		dataReq();
+		result = readData(ba);
+		if ( result >= 0 ) {
+			tFile.write(ba);
+//			kDebug(7128) << "Sending bytes : " << result;
+//			err = svn_txdelta_send_string ( svn_string_ncreate(ba.constData(),ba.size(),subpool), handler, handler_baton, subpool);
+//			if (err) goto handleerror;
+//			kDebug(7128) << "Done sending bytes";
+		}
+	} while (result > 0);
+	tFile.flush();
+	kDebug(7128) << "Temp file flushed to " << tFile.fileName();
+	err = svn_io_file_open (&f, tFile.fileName().toUtf8(), APR_READ, APR_OS_DEFAULT, subpool);
+	if (err) goto handleerror;
+	contents = svn_stream_from_aprfile (f, pool);
+	err = svn_txdelta_send_stream (contents, handler, handler_baton, NULL, subpool);
+	if (err) goto handleerror;
+	err = svn_io_file_close (f, subpool);
+	if (err) goto handleerror;
+	err = editor->close_file (file_baton, NULL, subpool);
+	if (err) goto handleerror;
+	err = editor->close_edit (edit_baton, subpool);
+	if (err) goto handleerror;
+
+	//all good	
+    // set modification time
+	// XXX wtf this is never called ...
+	if ( !mtimeStr.isEmpty() ) {
+		QDateTime dt = QDateTime::fromString( mtimeStr, Qt::ISODate );
+		kDebug(7128) << "MOD TIME : " << dt ;
+		if ( dt.isValid() ) {
+			KDE_struct_stat dest_statbuf;
+			kDebug(7128) << "KDE_stat : " << url;
+			if (KDE_stat( url.url().toUtf8().constData(), &dest_statbuf ) == 0) {
+				struct utimbuf utbuf;
+				utbuf.actime = dest_statbuf.st_atime; // access time, unchanged
+				utbuf.modtime = dt.toTime_t(); // modification time
+				kDebug(7128) << "SHOULD update mtime remotely ? " << dt;
+//				utime( url.url().toUtf8().constData(), &utbuf );
+			}
+		}
+	}
+
+	finished();
+	return;
+
+handleerror:
+	error( KIO::ERR_SLAVE_DEFINED, err->message );
+	svn_pool_destroy( subpool );
+	return;
 }
 
 void kio_svnProtocol::stat(const KUrl & url) {

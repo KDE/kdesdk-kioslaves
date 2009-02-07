@@ -70,6 +70,7 @@ class kio_svnProtocol : public KIO::SlaveBase
 		virtual ~kio_svnProtocol();
 		virtual void special( const QByteArray& data );
 		virtual void get(const KUrl& url);
+		virtual void put(const KUrl& url, int permissions, KIO::JobFlags flags);
 		virtual void listDir(const KUrl& url);
 		virtual void stat(const KUrl& url);
 		virtual void mkdir(const KUrl& url, int permissions);
