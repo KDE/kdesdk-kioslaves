@@ -17,6 +17,8 @@
    Boston, MA 02110-1301, USA.
 */
 
+#define __STDC_CONSTANT_MACROS
+#include <stdint.h>
 #include <QDateTime>
 #include <QBitArray>
 #include <QTextStream>
@@ -456,34 +458,29 @@ void kio_svnProtocol::listDir(const KUrl& url){
   UDSEntry entry;
   for (i = 0; i < array->nelts; ++i) {
 	  entry.clear();
-      const char *utf8_entryname, *native_entryname;
-      svn_dirent_t *dirent;
-      svn_sort__item_t *item;
+	  const char *utf8_entryname, *native_entryname;
+	  svn_dirent_t *dirent;
+	  svn_sort__item_t *item;
 
-      item = &APR_ARRAY_IDX (array, i, svn_sort__item_t);
+	  item = &APR_ARRAY_IDX (array, i, svn_sort__item_t);
 
-      utf8_entryname = (const char*)item->key;
+	  utf8_entryname = (const char*)item->key;
 
-      dirent = (svn_dirent_t*)apr_hash_get (dirents, utf8_entryname, item->klen);
+	  dirent = (svn_dirent_t*)apr_hash_get (dirents, utf8_entryname, item->klen);
 
-      svn_utf_cstring_from_utf8 (&native_entryname, utf8_entryname, subpool);
-			const char *native_author = NULL;
+	  svn_utf_cstring_from_utf8 (&native_entryname, utf8_entryname, subpool);
+	  const char *native_author = NULL;
+	  time_t mtime = apr_time_sec(dirent->time);
+	  if (dirent->last_author)
+		  svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
 
-			//XXX BUGGY
-/*			apr_time_exp_t timexp;
-			apr_time_exp_lt(&timexp, dirent->time);
-			apr_os_exp_time_t *ostime;
-			apr_os_exp_time_get( &ostime, &timexp);
+	  if (dirent->last_author)
+		  svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
 
-			time_t mtime = mktime( ostime );*/
-
-			if (dirent->last_author)
-				svn_utf_cstring_from_utf8 (&native_author, dirent->last_author, subpool);
-
-			if ( createUDSEntry(QString( native_entryname ), QString( native_author ), dirent->size,
-						dirent->kind==svn_node_dir ? true : false, 0, entry) )
-				listEntry( entry, false );
-	}
+	  if ( createUDSEntry(QString( native_entryname ), QString( native_author ), dirent->size,
+				  dirent->kind==svn_node_dir ? true : false, mtime, entry) )
+		  listEntry( entry, false );
+  }
 	listEntry( entry, true );
 
 	finished();
