@@ -291,12 +291,13 @@ void kio_svnProtocol::get(const KUrl& url ){
 void kio_svnProtocol::stat(const KUrl & url) {
 	kDebug(7128) << "kio_svn::stat(const KUrl& url) : " << url.url();
 
-	void *ra_baton, *session;
-	svn_ra_plugin_t *ra_lib;
-	svn_node_kind_t kind;
 	apr_pool_t *subpool = svn_pool_create (pool);
+	svn_ra_session_t	*session;
+	svn_error_t *err;
+	UDSEntry entry;
+	const char *author;
 
-	QString target = makeSvnURL( url);
+	QString target = makeSvnURL(url);
 	kDebug(7128) << "SvnURL: " << target;
 	recordCurrentURL( KUrl( target ) );
 
@@ -306,17 +307,6 @@ void kio_svnProtocol::stat(const KUrl & url) {
 	int idx = target.lastIndexOf( "?rev=" );
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
-#if 0
-		kDebug(7128) << "revision string found " << revstr;
-		if ( revstr == "HEAD" ) {
-			rev.kind = svn_opt_revision_head;
-			kDebug(7128) << "revision searched : HEAD";
-		} else {
-			rev.kind = svn_opt_revision_number;
-			rev.value.number = revstr.toLong();
-			kDebug(7128) << "revision searched : " << rev.value.number;
-		}
-#endif
 		svn_opt_parse_revision( &rev, &endrev, revstr.toUtf8( ), subpool );
 		target = target.left( idx );
 		kDebug(7128) << "new target : " << target;
@@ -326,17 +316,9 @@ void kio_svnProtocol::stat(const KUrl & url) {
 	}
 
 	//init
-	svn_error_t *err = svn_ra_init_ra_libs(&ra_baton,subpool);
+	err = svn_ra_initialize(subpool);
 	if ( err ) {
 		kDebug(7128) << "init RA libs failed : " << err->message;
-		error( KIO::ERR_SLAVE_DEFINED, err->message );
-		svn_pool_destroy( subpool );
-		return;
-	}
-	//find RA libs
-	err = svn_ra_get_ra_library(&ra_lib,ra_baton,svn_path_canonicalize( target.toUtf8(), subpool ),subpool);
-	if ( err ) {
-		kDebug(7128) << "RA get libs failed : " << err->message;
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
 		svn_pool_destroy( subpool );
 		return;
@@ -357,7 +339,7 @@ void kio_svnProtocol::stat(const KUrl & url) {
 	callbackbt->pool = subpool;
 	callbackbt->config = ctx->config;
 
-	err = ra_lib->open(&session,svn_path_canonicalize( target.toUtf8(), subpool ),cbtable,callbackbt,ctx->config,subpool);
+	err = svn_ra_open(&session,svn_path_canonicalize( target.toUtf8(), subpool ),cbtable,callbackbt,ctx->config,subpool);
 	if ( err ) {
 		kDebug(7128)<< "Open session " << err->message;
 		error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -367,7 +349,7 @@ void kio_svnProtocol::stat(const KUrl & url) {
 	kDebug(7128) << "Session opened to " << target;
 	//find number for HEAD
 	if (rev.kind == svn_opt_revision_head) {
-		err = ra_lib->get_latest_revnum(session,&rev.value.number,subpool);
+		err = svn_ra_get_latest_revnum(session, &rev.value.number, subpool);
 		if ( err ) {
 			kDebug(7128)<< "Latest RevNum " << err->message;
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
@@ -378,36 +360,28 @@ void kio_svnProtocol::stat(const KUrl & url) {
 	}
 
 	//get it
-	err = ra_lib->check_path(session,"",rev.value.number,&kind,subpool);
+	svn_dirent_t *dirent;
+	err = svn_ra_stat (session, "", rev.value.number, &dirent, subpool);
 	if ( err ) {
+			kDebug(7128)<< "RA Stat " << err->message;
 			error( KIO::ERR_SLAVE_DEFINED, err->message );
 			svn_pool_destroy( subpool );
+			return;
 	}
-	kDebug(7128) << "Checked Path";
-	UDSEntry entry;
-	switch ( kind ) {
-		case svn_node_file:
-			kDebug(7128) << "::stat result : file";
-			createUDSEntry(url.fileName(),"",0,false,0,entry);
+	kDebug(7128) << "Checked Path" << svn_path_canonicalize( target.toUtf8(), subpool );
+	if (dirent) {
+		svn_utf_cstring_from_utf8 (&author, dirent->last_author, subpool);
+		if (dirent->kind==svn_node_dir || dirent->kind==svn_node_file) {
+			kDebug(7128) << "Creating UDSEntry " << url.fileName();
+			createUDSEntry(url.fileName(),author,dirent->size,dirent->kind==svn_node_dir?true:false, apr_time_sec(dirent->time),entry);
 			statEntry( entry );
-			break;
-		case svn_node_dir:
-			kDebug(7128) << "::stat result : directory";
-			createUDSEntry(url.fileName(),"",0,true,0,entry);
-			statEntry( entry );
-			break;
-		case svn_node_unknown:
-		case svn_node_none:
-			//error XXX
-		default:
-			kDebug(7128) << "::stat result : UNKNOWN ==> WOW :)";
-			;
+		}
 	}
 	finished();
 	svn_pool_destroy( subpool );
 }
 
-void kio_svnProtocol::listDir(const KUrl& url){
+void kio_svnProtocol::listDir(const KUrl& url) {
 	kDebug(7128) << "kio_svn::listDir(const KUrl& url) : " << url.url();
 
 	apr_pool_t *subpool = svn_pool_create (pool);
@@ -424,17 +398,6 @@ void kio_svnProtocol::listDir(const KUrl& url){
 	if ( idx != -1 ) {
 		QString revstr = target.mid( idx+5 );
 		svn_opt_parse_revision( &rev, &endrev, revstr.toUtf8(), subpool );
-#if 0
-		kDebug(7128) << "revision string found " << revstr;
-		if ( revstr == "HEAD" ) {
-			rev.kind = svn_opt_revision_head;
-			kDebug(7128) << "revision searched : HEAD";
-		} else {
-			rev.kind = svn_opt_revision_number;
-			rev.value.number = revstr.toLong();
-			kDebug(7128) << "revision searched : " << rev.value.number;
-		}
-#endif
 		target = target.left( idx );
 		kDebug(7128) << "new target : " << target;
 	} else {
@@ -490,9 +453,14 @@ void kio_svnProtocol::listDir(const KUrl& url){
 bool kio_svnProtocol::createUDSEntry( const QString& filename, const QString& user, long long int size, bool isdir, time_t mtime, UDSEntry& entry) {
 	kDebug(7128) << "MTime : " << ( long )mtime;
 	kDebug(7128) << "UDS filename : " << filename;
+
+	mode_t access;
+	mode_t type = isdir?S_IFDIR:S_IFREG;
+	access = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 	
 	entry.insert(KIO::UDSEntry::UDS_NAME,filename);
-	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE,isdir ? S_IFDIR : S_IFREG);
+	entry.insert(KIO::UDSEntry::UDS_ACCESS,access);
+	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE,type);
 	entry.insert(KIO::UDSEntry::UDS_SIZE,size);
 	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME,mtime);
 	entry.insert(KIO::UDSEntry::UDS_USER,user);
