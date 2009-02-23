@@ -233,7 +233,7 @@ void PerldocProtocol::get(const KUrl& url)
         ::waitpid(childPid, &status, 0);
 
         if(WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            error(KIO::ERR_CANNOT_LAUNCH_PROCESS, 0);
+            error(KIO::ERR_CANNOT_LAUNCH_PROCESS, m_pod2htmlPath);
 
         finished();
     }
