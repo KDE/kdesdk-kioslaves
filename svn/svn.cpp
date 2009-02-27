@@ -341,7 +341,7 @@ void kio_svnProtocol::put(const KUrl& url, int /*permissions*/, KIO::JobFlags /*
 	dirent = (svn_dirent_t *)apr_hash_get (dirents, basename, APR_HASH_KEY_STRING);
 	if (dirent && dirent->kind == svn_node_dir) {
 		kDebug(7128) << "Sorry, a directory already exists at that URL.";
-		error( KIO::ERR_SLAVE_DEFINED, i18n("We don't support directories yet, for safety :)") );
+		error( KIO::ERR_SLAVE_DEFINED, i18n("For reasons of safety, directories are not yet supported.") );
 		svn_pool_destroy( subpool );
 		return;
 	}
