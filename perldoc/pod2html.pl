@@ -1398,7 +1398,7 @@ sub _organize_body {
 ################
 
 sub _organize_css {
-    my $perldoc_css = `kde4-config --path data --locate kio_perldoc/kio_perldoc.css`;
+    my $perldoc_css = `kde4-config --path data --locate kio_docfilter/kio_docfilter.css`;
     chomp $perldoc_css;
 
     return <<"EOL";
