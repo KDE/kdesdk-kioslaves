@@ -59,8 +59,8 @@ bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
-		QDir bdir ( ( *it ).path() );
-		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
+		QDir bdir ( ( *it ).toLocalFile() );
+		if ( bdir.exists() && QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
 			return true;
 		} else if ( !bdir.exists() ) {
 			if ( isFileInSvnEntries( ( *it ).fileName(), ( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
@@ -74,8 +74,8 @@ bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
-		QDir bdir ( ( *it ).path() );
-		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
+		QDir bdir ( ( *it ).toLocalFile() );
+		if ( bdir.exists() && !QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
 			return true;
 		} else if ( !bdir.exists() ) {
 			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
@@ -89,8 +89,8 @@ bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
-		QDir bdir ( ( *it ).path() );
-		if ( bdir.exists() && !QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
+		QDir bdir ( ( *it ).toLocalFile() );
+		if ( bdir.exists() && !QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
 			return false;
 		} else if ( !bdir.exists() ) {
 			if ( !isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) && !isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" )  )
@@ -104,8 +104,8 @@ bool KSvnd::AreAllFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
-		QDir bdir ( ( *it ).path() );
-		if ( bdir.exists() && QFile::exists( ( *it ).path() + "/.svn/entries" ) ) {
+		QDir bdir ( ( *it ).toLocalFile() );
+		if ( bdir.exists() && QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
 			return false;
 		} else if ( !bdir.exists() ) {
 			if ( isFileInSvnEntries( ( *it ).fileName(),( *it ).directory() + "/.svn/entries" ) || isFileInExternals ( ( *it ).fileName(), ( *it ).directory()+"/.svn/dir-props" ) )
@@ -188,9 +188,9 @@ bool KSvnd::anyNotValidWorkingCopy( const QStringList& lst ) {
 		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			return true;
 		//if is a directory check whether it contains a .svn/entries file
-		QDir dir( ( *it ).path() );
+		QDir dir( ( *it ).toLocalFile() );
 		if ( dir.exists() ) { //it's a dir
-			if ( !QFile::exists( ( *it ).path() + "/.svn/entries" ) )
+			if ( !QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) )
 				result = false;
 		}
 
@@ -208,9 +208,9 @@ bool KSvnd::anyValidWorkingCopy( const QStringList &lst ) {
 		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			continue;
 		//if is a directory check whether it contains a .svn/entries file
-		QDir dir( ( *it ).path() );
+		QDir dir( ( *it ).toLocalFile() );
 		if ( dir.exists() ) { //it's a dir
-			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) )
+			if ( QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) )
 				return true;
 		}
 
@@ -233,7 +233,7 @@ int KSvnd::getStatus( const KUrl::List& list ) {
 		if ( isFileInSvnEntries ( (*it).fileName(),( *it ).directory() + "/.svn/entries" ) ) { // normal subdir known in the working copy
 			parentsentries++;
 		} else if ( isFolder( *it ) ) { // other subfolders (either another module checkouted or an external, or something not known at all)
-			if ( QFile::exists( ( *it ).path() + "/.svn/entries" ) )
+			if ( QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) )
 				subdirhavesvn++;
 			if ( isFileInExternals( (*it).fileName(), ( *it ).directory() + "/.svn/dir-props" ) ) {
 				external++;
