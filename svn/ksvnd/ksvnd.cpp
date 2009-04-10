@@ -275,7 +275,7 @@ int KSvnd::getStatus( const KUrl::List& list ) {
 }
 
 bool KSvnd::isFolder( const KUrl& url ) {
-	QDir d( url.path() );
+	QDir d( url.toLocalFile() );
 	return d.exists();
 }
 
