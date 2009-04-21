@@ -1,7 +1,4 @@
 <ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
   <class>CommitDlg</class>
   <widget class="QDialog" name="CommitDlg" >
     <property name="geometry" >
@@ -66,7 +63,6 @@
       </item>
     </layout>
   </widget>
-  <layoutdefault spacing="6" margin="11" />
     <includes>
     <include location="local" >ktextedit.h</include>
   </includes>
