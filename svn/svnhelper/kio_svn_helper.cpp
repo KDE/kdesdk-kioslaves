@@ -112,7 +112,7 @@ SvnHelper::SvnHelper():KApplication() {
 		kDebug(7128) << "update " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 		//FIXME when 1.2 is out (move the loop inside kio_svn's ::update)
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 2;
@@ -130,7 +130,7 @@ SvnHelper::SvnHelper():KApplication() {
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 3;
 		s<<cmd;
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			kDebug(7128) << "committing : " << (*it).prettyUrl();
 			s << *it;
 		}
@@ -140,7 +140,7 @@ SvnHelper::SvnHelper():KApplication() {
 	} else if (args->isSet("a")) {
 		kDebug(7128) << "add " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 6;
@@ -153,7 +153,7 @@ SvnHelper::SvnHelper():KApplication() {
 	} else if (args->isSet("D")) {
 		kDebug(7128) << "diff " << list;
 		const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			QByteArray parms;
 			QDataStream s( &parms, QIODevice::WriteOnly );
 			int cmd = 13;
@@ -173,7 +173,7 @@ SvnHelper::SvnHelper():KApplication() {
 					tmp->open();
 					QTextStream stream ( tmp );
 					stream.setCodec( QTextCodec::codecForName( "utf8" ) );
-					for ( QStringList::const_iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					for ( QStringList::const_iterator it2 = diffresult.constBegin();it2 != diffresult.constEnd() ; ++it2 ) {
 						stream << ( *it2 ) << "\n";
 					}
 					stream.flush();
@@ -183,7 +183,7 @@ SvnHelper::SvnHelper():KApplication() {
 					p->start("kompare", arguments);
 				} else { //else do it with message box
 					Subversion_Diff df;
-					for ( QStringList::const_iterator it2 = diffresult.begin();it2 != diffresult.end() ; ++it2 ) {
+					for ( QStringList::const_iterator it2 = diffresult.constBegin();it2 != diffresult.constEnd() ; ++it2 ) {
 						df.text->append( *it2 );
 					}
 					QFont f = df.font();
@@ -201,7 +201,7 @@ SvnHelper::SvnHelper():KApplication() {
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 7;
 		s<<cmd;
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			kDebug(7128) << "deleting : " << (*it).prettyUrl();
 			s << *it;
 		}
@@ -213,7 +213,7 @@ SvnHelper::SvnHelper():KApplication() {
 		SubversionSwitchDialog d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
-			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+			for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 				kDebug(7128) << "switching : " << (*it).prettyUrl();
 				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
@@ -244,7 +244,7 @@ SvnHelper::SvnHelper():KApplication() {
 		QDataStream s( &parms, QIODevice::WriteOnly );
 		int cmd = 8;
 		s<<cmd;
-		for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+		for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 			kDebug(7128) << "reverting : " << (*it).prettyUrl();
 			s << *it;
 		}
@@ -258,7 +258,7 @@ SvnHelper::SvnHelper():KApplication() {
 		SubversionCheckoutDialog d;
 		int result = d.exec();
 		if ( result == QDialog::Accepted ) {
-			for ( QList<KUrl>::const_iterator it = list.begin(); it != list.end() ; ++it ) {
+			for ( QList<KUrl>::const_iterator it = list.constBegin(); it != list.constEnd() ; ++it ) {
 				const KUrl servURL("svn+http://this_is_a_fake_URL_and_this_is_normal/");
 				QByteArray parms;
 				QDataStream s( &parms, QIODevice::WriteOnly );

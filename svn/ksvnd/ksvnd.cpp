@@ -57,7 +57,7 @@ QString KSvnd::commitDialog(const QString &modifiedFiles) {
 
 bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).toLocalFile() );
 		if ( bdir.exists() && QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
@@ -72,7 +72,7 @@ bool KSvnd::AreAnyFilesInSvn( const QStringList& lst ) {
 
 bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).toLocalFile() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
@@ -87,7 +87,7 @@ bool KSvnd::AreAnyFilesNotInSvn( const QStringList& lst ) {
 
 bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).toLocalFile() );
 		if ( bdir.exists() && !QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
@@ -102,7 +102,7 @@ bool KSvnd::AreAllFilesInSvn( const QStringList& lst ) {
 
 bool KSvnd::AreAllFilesNotInSvn( const QStringList& lst ) {
 	KUrl::List wclist(lst);
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		kDebug( 7128 ) << "Checking file " << ( *it );
 		QDir bdir ( ( *it ).toLocalFile() );
 		if ( bdir.exists() && QFile::exists( ( *it ).toLocalFile() + "/.svn/entries" ) ) {
@@ -183,7 +183,7 @@ bool KSvnd::isFileInExternals ( const QString &filename, const QString &propfile
 bool KSvnd::anyNotValidWorkingCopy( const QStringList& lst ) {
 	KUrl::List wclist(lst);
 	bool result = true; //one negative match is enough
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		//exception for .svn dirs
 		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			return true;
@@ -203,7 +203,7 @@ bool KSvnd::anyNotValidWorkingCopy( const QStringList& lst ) {
 
 bool KSvnd::anyValidWorkingCopy( const QStringList &lst ) {
 	KUrl::List wclist(lst);
-	for ( QList<KUrl>::const_iterator it = wclist.begin(); it != wclist.end() ; ++it ) {
+	for ( QList<KUrl>::const_iterator it = wclist.constBegin(); it != wclist.constEnd() ; ++it ) {
 		//skip .svn dirs
 		if ( ( *it ).path(KUrl::RemoveTrailingSlash).endsWith( "/.svn" ) )
 			continue;
