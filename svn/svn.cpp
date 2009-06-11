@@ -276,16 +276,15 @@ void kio_svnProtocol::get(const KUrl& url ){
 	}
 
 	// Send the mimeType as soon as it is known
-	QByteArray *cp = new QByteArray();
-	cp->setRawData( bt->target_string->data, bt->target_string->len );
-	KMimeType::Ptr mt = KMimeType::findByNameAndContent(url.fileName(), *cp);
+	QByteArray cp = QByteArray::fromRawData(bt->target_string->data, bt->target_string->len);
+	KMimeType::Ptr mt = KMimeType::findByNameAndContent(url.fileName(), cp);
 	kDebug(7128) << "KMimeType returned : " << mt->name();
 	mimeType( mt->name() );
 
 	totalSize(bt->target_string->len);
 
 	//send data
-	data(*cp);
+	data(cp);
 
 	data(QByteArray()); // empty array means we're done sending the data
 	finished();

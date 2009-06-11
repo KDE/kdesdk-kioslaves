@@ -1,5 +1,3 @@
-# TODO port away from QT3_SUPPORT
-add_definitions(-DQT3_SUPPORT)
 
 if(SUBVERSION14)
 include_directories(${SVN_INCLUDES})

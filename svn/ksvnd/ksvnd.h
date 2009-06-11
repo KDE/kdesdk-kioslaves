@@ -41,7 +41,7 @@ public:
   }
   QString logMessage() const
   {
-    return textMessage->text();
+    return textMessage->toPlainText();
   }
 };
 
