@@ -10,6 +10,7 @@ Actions=Update;Commit;
 [Desktop Action Update]
 Name=SVN Update
 Name[ca]=Actualitza SVN
+Name[ca@valencia]=Actualitza SVN
 Name[cs]=SVN update
 Name[da]=SVN Opdatér
 Name[de]=Aktualisieren (SVN)
@@ -61,6 +62,7 @@ Exec=kio_svn_helper -u %U
 [Desktop Action Commit]
 Name=SVN Commit
 Name[ca]=Entrega SVN
+Name[ca@valencia]=Entrega SVN
 Name[cs]=SVN commit
 Name[da]=SVN Commit
 Name[de]=Einspielen (SVN)
