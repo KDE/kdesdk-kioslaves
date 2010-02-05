@@ -16,6 +16,7 @@ Description=Subversion ioslave
 Description[bg]=Subversion ioslave
 Description[br]=Sklav E/D Subversion
 Description[ca]=Ioslave de Subversion
+Description[ca@valencia]=Ioslave de Subversion
 Description[cs]=Subversion protokol
 Description[da]=Subversion ioslave
 Description[de]=Ein-/Ausgabemodul für Subversion
