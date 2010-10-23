@@ -2,6 +2,7 @@
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,inode/directory,all/all
 X-KDE-Submenu=Subversion
+X-KDE-Submenu[ast]=Subversion
 X-KDE-Submenu[bg]=Subversion
 X-KDE-Submenu[br]=Subversion
 X-KDE-Submenu[ca]=Subversion
@@ -63,6 +64,7 @@ Actions=Add;Delete;Revert;Rename;Checkout;Switch;Merge;Blame;CreatePatch;Diff;
 
 [Desktop Action Add]
 Name=Add to Repository
+Name[ast]=Amestar al repositoriu
 Name[bg]=Добавяне в хранилището
 Name[br]=Ouzhpennañ d'an daveiñ
 Name[ca]=Afegeix al repositori
@@ -118,6 +120,7 @@ Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete From Repository
+Name[ast]=Desaniciar del repositoriu
 Name[bg]=Изтриване от хранилището
 Name[br]=Lemel eus an daveiñ
 Name[ca]=Elimina del repositori
@@ -173,6 +176,7 @@ Exec=kio_svn_helper -d %U
 
 [Desktop Action Revert]
 Name=Revert Local Changes
+Name[ast]=Revertir cambeos llocales
 Name[bg]=Връщане на локалните промени
 Name[ca]=Reverteix els canvis locals
 Name[ca@valencia]=Reverteix els canvis locals
@@ -225,6 +229,7 @@ Name[zh_TW]=回復本地端變更
 Icon=edit-undo
 Exec=kio_svn_helper -r %U
 Comment=Remove any changes made locally. Warning - this cannot be undone.
+Comment[ast]=Desaniciar cualesquier cambéu llocal. Atención: esto nun puede desfacese.
 Comment[bg]=Премахване на направените локални промени. Предупреждение: данните ще се загубят безвъзвратно.
 Comment[ca]=Elimina qualsevol canvi local. Avís: No es pot desfer.
 Comment[ca@valencia]=Elimina qualsevol canvi local. Avís: No es pot desfer.
@@ -274,6 +279,7 @@ Comment[zh_TW]=移除任何已做的變更。警告：無法再復原。
 
 [Desktop Action Rename]
 Name=Rename...
+Name[ast]=Renomar...
 Name[bg]=Преименуване...
 Name[br]=Adenvel ...
 Name[ca]=Reanomena...
@@ -331,6 +337,7 @@ Name[zh_TW]=重新命名...
 Icon=edit-rename
 Exec=kio_svn_helper -R %U
 Comment=Rename a file locally and in the repository.  Use this rather than adding and deleting to rename a file.
+Comment[ast]=Renomar un ficheru llocalmente y nel repositoriu. Use esto n'arróu d'amestar y desaniciar pa renomar un ficheru.
 Comment[bg]=Преименуване на файл локално и в хранилището. За предпочитане е да използвате този метод вместо изтриване и добавяне.
 Comment[ca]=Reanomena un fitxer localment i en el repositori. Use-ho en comptes d'afegir i eliminar per a reanomenar un fitxer.
 Comment[ca@valencia]=Reanomena un fitxer localment i en el repositori. Use-ho en comptes d'afegir i eliminar per a reanomenar un fitxer.
@@ -380,6 +387,7 @@ Comment[zh_TW]=在本地端與主目錄中重新命名檔案。不必先新增�
 
 [Desktop Action Import]
 Name=Import Repository
+Name[ast]=Importar repositoriu
 Name[bg]=Внасяне на хранилище
 Name[br]=Enporzh an daveiñ
 Name[ca]=Importa repositori
@@ -433,6 +441,7 @@ Name[zh_TW]=匯入主目錄
 Icon=svn_import
 Exec=kio_svn_helper -i %U
 Comment=Put folder into an existing repository to put it under revision control.
+Comment[ast]=Allugar la carpeta nún repositoriu esistente p'allugala baxo control de revisión.
 Comment[bg]=Поставяне на директория в съществуващо хранилище за включване в управлението на версии.
 Comment[ca]=Situa la carpeta en un repositori existent per a posar-la sota el control de revisions.
 Comment[ca@valencia]=Situa la carpeta en un repositori existent per a posar-la sota el control de revisions.
@@ -482,6 +491,7 @@ Comment[zh_TW]=將資料夾放進現存的主目錄，並開始做版本控制�
 
 [Desktop Action Checkout]
 Name=Checkout From Repository...
+Name[ast]=Obtener del repositoriu...
 Name[bg]=Изтегляне от хранилището...
 Name[ca]=Obtenir del repositori...
 Name[ca@valencia]=Obtindre del repositori...
@@ -533,6 +543,7 @@ Name[zh_TW]=從主目錄取出...
 Icon=svn_checkout
 Exec=kio_svn_helper -C %U
 Comment=Checkout out files from an existing repository into this folder.
+Comment[ast]=Descargar ficheros d'un repositoriu esistente nesta carpeta.
 Comment[bg]=Изтегляне на файлове от хранилището в текущата директория.
 Comment[ca]=Recupera fitxers des d'un repositori existent cap aquesta carpeta.
 Comment[ca@valencia]=Recupera fitxers des d'un repositori existent cap esta carpeta.
@@ -582,6 +593,7 @@ Comment[zh_TW]=從現存的主目錄取出檔案到此資料夾。
 
 [Desktop Action Switch]
 Name=Switch...
+Name[ast]=Camudar...
 Name[bg]=Превключване...
 Name[br]=Gwintañ ...
 Name[ca]=Canvia...
@@ -635,6 +647,7 @@ Name[zh_CN]=切换...
 Name[zh_TW]=切換...
 Icon=svn_switch
 Comment=Switch given working copy to another branch
+Comment[ast]=Camudar una determinada copia de trabayu a otra rama
 Comment[bg]=Превключване на работното копие към друго разклонение.
 Comment[ca]=Canvia una còpia de treball indicada a una altra branca
 Comment[ca@valencia]=Canvia una còpia de treball indicada a una altra branca
@@ -685,6 +698,7 @@ Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
 Name=Merge...
+Name[ast]=Entemecer
 Name[bg]=Сливане...
 Name[ca]=Fusiona...
 Name[ca@valencia]=Fusiona...
@@ -738,6 +752,7 @@ Name[zh_CN]=合并...
 Name[zh_TW]=合併...
 Icon=svn_merge
 Comment=Merge changes between this and another branch
+Comment[ast]=Entemecer los cambeos ente ésta y otra rama
 Comment[bg]=Сливане на промените от това разклонение с друго разклонение.
 Comment[ca]=Fusiona els canvis entre aquesta i una altra branca
 Comment[ca@valencia]=Fusiona els canvis entre esta i una altra branca
@@ -788,6 +803,7 @@ Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
 Name=Blame...
+Name[ast]=Responsabilizar...
 Name[ca]=Responsabilitza...
 Name[ca@valencia]=Responsabilitza...
 Name[cs]=Obvinit...
@@ -837,6 +853,7 @@ Name[zh_CN]=历史...
 Name[zh_TW]=最後狀態註記...
 Icon=svn_blame
 Comment=See who wrote each line of the file and in what revision
+Comment[ast]=Ver quién escribió cada llinia del ficheru y en qué revisión
 Comment[ca]=Veu qui va escriure cada línia del fitxer i en qui l'ha revisat
 Comment[ca@valencia]=Veu qui va escriure cada línia del fitxer i en qui l'ha revisat
 Comment[cs]=Zobrazit, kdo napsal kterou řádku souboru spolu s revizí
@@ -887,6 +904,7 @@ Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
 Name=Create Patch...
+Name[ast]=Crear parche...
 Name[bg]=Създаване на кръпка...
 Name[ca]=Crea pedaç...
 Name[ca@valencia]=Crea pedaç...
@@ -941,6 +959,7 @@ Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
+Name[ast]=Esportar...
 Name[bg]=Изнасяне...
 Name[br]=Ezporzh ...
 Name[ca]=Exporta...
@@ -999,6 +1018,7 @@ Name[zh_TW]=匯出...
 Icon=svn_export
 Exec=kio_svn_helper -e %U
 Comment=Checkout out an unversioned copy of a tree from a repository
+Comment[ast]=Esporta una copia non versionada d'un árbol d'un repositoriu
 Comment[bg]=Изтегляне на копие на дървото от хранилището.
 Comment[ca]=Exporta una còpia sense versió d'un arbre del repositori
 Comment[ca@valencia]=Exporta una còpia sense versió d'un arbre del repositori
@@ -1048,6 +1068,7 @@ Comment[zh_TW]=從主目錄中取出不含版本資訊的工作複本
 
 [Desktop Action Diff]
 Name=Diff (local)
+Name[ast]=Diferencies (llocales)
 Name[bg]=Разлика (локално)
 Name[ca]=Diff (local)
 Name[ca@valencia]=Diff (local)
@@ -1101,6 +1122,7 @@ Name[zh_TW]=比較（本地端）
 Icon=svn_diff
 Exec=kio_svn_helper -D %U
 Comment=Show local changes since last update
+Comment[ast]=Amosar los cambeos llocales dende'l caberu anovamientu
 Comment[bg]=Показване на локалните промени след последното обновяване.
 Comment[ca]=Mostra els canvis locals des de l'última actualització
 Comment[ca@valencia]=Mostra els canvis locals des de l'última actualització
