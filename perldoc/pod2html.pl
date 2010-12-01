@@ -1253,7 +1253,7 @@ sub pod2html {
     my @kde_version_output = `kde4-config --version`;
     my $kde_version;
     for (@kde_version_output) {
-        ($kde_version) = m/^KDE:\s*(.*)$/;
+        ($kde_version) = m/^KDE[^:]*:\s*(.*)$/;
         last if defined $kde_version;
     }
 
