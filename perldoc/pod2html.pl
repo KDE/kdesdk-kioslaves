@@ -76,7 +76,7 @@ use base qw{ Pod::Parser };
 
 use Carp;
 use English qw{ -no_match_vars };
-use Switch qw{ Perl6 };
+use feature "switch";
 
 use strict;
 use warnings;
@@ -256,43 +256,43 @@ sub command {
 
     my $html;
     given ($command) {
-        when q{head1} {
+        when ("head1") {
             _add_tree_point( $parser, $expansion, 1 );
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_HEAD1}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{head2} {
+        when ("head2") {
             _add_tree_point( $parser, $expansion, 2 );
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_HEAD2}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{head3} {
+        when ("head3") {
             _add_tree_point( $parser, $expansion, 3 );
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_HEAD3}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{head4} {
+        when ("head4") {
             _add_tree_point( $parser, $expansion, 4 );
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_HEAD4}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{begin} {
+        when ("begin") {
             _add_tree_point( $parser, $expansion, 4 );
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_BEGIN}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{end} {
+        when ("end") {
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_END}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{over} {
+        when ("over") {
             if ( $parser->{INDEX_ITEM} ) {
                 $parser->{INDEX_ITEM_LEVEL}++;
             }
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_OVER}( $parser->{POD_HTMLEASY}, $expansion );
         }
-        when q{item} {
+        when ("item") {
             if ( $parser->{INDEX_ITEM} ) {
                 _add_tree_point( $parser, $expansion,
                     ( 3 + ( $parser->{INDEX_ITEM_LEVEL} || 1 ) ) );
@@ -300,18 +300,18 @@ sub command {
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_ITEM}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{back} {
+        when ("back") {
             if ( $parser->{INDEX_ITEM} ) {
                 $parser->{INDEX_ITEM_LEVEL}--;
             }
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_BACK}( $parser->{POD_HTMLEASY}, $expansion );
         }
-        when q{for} {
+        when ("for") {
             $html = $parser->{POD_HTMLEASY}
                 ->{ON_FOR}( $parser->{POD_HTMLEASY}, $expansion, $a_name );
         }
-        when q{include} {
+        when ("include") {
             my $file = $parser->{POD_HTMLEASY}
                 ->{ON_INCLUDE}( $parser->{POD_HTMLEASY}, $expansion );
             if (   -e $file
@@ -435,27 +435,27 @@ sub interior_sequence {
     }
 
     given ($seq_command) {
-        when q{B} {
+        when ("B") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_B}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{C} {
+        when ("C") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_C}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{E} {
+        when ("E") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_E}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{F} {
+        when ("F") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_F}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{I} {
+        when ("I") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_I}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{L} {
+        when ("L") {
             my ( $text, $name, $section, $type ) = _parselink($seq_argument);
 
             # Held off on escaping these earlier, take care of it now.
@@ -468,11 +468,11 @@ sub interior_sequence {
                 $seq_argument, $text, $name, $section, $type, $fnPage,
             );
         }
-        when q{S} {
+        when ("S") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_S}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
-        when q{Z} {
+        when ("Z") {
             $ret = $parser->{POD_HTMLEASY}
                 ->{ON_Z}( $parser->{POD_HTMLEASY}, $seq_argument );
         }
