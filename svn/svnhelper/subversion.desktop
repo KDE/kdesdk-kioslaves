@@ -2,6 +2,7 @@
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin,inode/directory,all/all
 X-KDE-Submenu=Subversion
+X-KDE-Submenu[ar]=Subversion
 X-KDE-Submenu[ast]=Subversion
 X-KDE-Submenu[bg]=Subversion
 X-KDE-Submenu[br]=Subversion
@@ -67,6 +68,7 @@ Actions=Add;Delete;Revert;Rename;Checkout;Switch;Merge;Blame;CreatePatch;Diff;
 
 [Desktop Action Add]
 Name=Add to Repository
+Name[ar]=أضِف إلى لمستودع
 Name[ast]=Amestar al repositoriu
 Name[bg]=Добавяне в хранилището
 Name[br]=Ouzhpennañ d'an daveiñ
@@ -125,6 +127,7 @@ Exec=kio_svn_helper -a %U
 
 [Desktop Action Delete]
 Name=Delete From Repository
+Name[ar]=أزل من المستودع
 Name[ast]=Desaniciar del repositoriu
 Name[bg]=Изтриване от хранилището
 Name[br]=Lemel eus an daveiñ
@@ -287,6 +290,7 @@ Comment[zh_TW]=移除任何已做的變更。警告：無法再復原。
 
 [Desktop Action Rename]
 Name=Rename...
+Name[ar]=أعد تسمية...
 Name[ast]=Renomar...
 Name[bg]=Преименуване...
 Name[br]=Adenvel ...
@@ -399,6 +403,7 @@ Comment[zh_TW]=在本地端與主目錄中重新命名檔案。不必先新增�
 
 [Desktop Action Import]
 Name=Import Repository
+Name[ar]=استيراد المستودع
 Name[ast]=Importar repositoriu
 Name[bg]=Внасяне на хранилище
 Name[br]=Enporzh an daveiñ
@@ -716,6 +721,7 @@ Exec=kio_svn_helper -s %U
 
 [Desktop Action Merge]
 Name=Merge...
+Name[ar]=ادمج...
 Name[ast]=Entemecer
 Name[bg]=Сливане...
 Name[bs]=Sjedini...
@@ -824,6 +830,7 @@ Exec=kio_svn_helper -m %U
 
 [Desktop Action Blame]
 Name=Blame...
+Name[ar]=لُم...
 Name[ast]=Responsabilizar...
 Name[bs]=Krivica...
 Name[ca]=Responsabilitza...
@@ -928,6 +935,7 @@ Exec=kio_svn_helper -b %U
 
 [Desktop Action CreatePatch]
 Name=Create Patch...
+Name[ar]=أنشئ رقعة...
 Name[ast]=Crear parche...
 Name[bg]=Създаване на кръпка...
 Name[bs]=Napravi zakrpu...
@@ -986,6 +994,7 @@ Exec=kio_svn_helper -p %U
 
 [Desktop Action Export]
 Name=Export...
+Name[ar]=صدِّر...
 Name[ast]=Esportar...
 Name[bg]=Изнасяне...
 Name[br]=Ezporzh ...
@@ -1099,6 +1108,7 @@ Comment[zh_TW]=從主目錄中取出不含版本資訊的工作複本
 
 [Desktop Action Diff]
 Name=Diff (local)
+Name[ar]=الاختلافات (محلي)
 Name[ast]=Diferencies (llocales)
 Name[bg]=Разлика (локално)
 Name[bs]=Diff (lokalno)
