@@ -9,6 +9,7 @@ Actions=Update;Commit;
 
 [Desktop Action Update]
 Name=SVN Update
+Name[ar]=حدِّث SVN
 Name[ast]=Anovar SVN
 Name[bg]=Обновяване на SVN
 Name[bs]=SVN Ažuriranje
@@ -67,6 +68,7 @@ Exec=kio_svn_helper -u %U
 
 [Desktop Action Commit]
 Name=SVN Commit
+Name[ar]=أودِع SVN
 Name[ast]=Entrega SVN
 Name[bg]=Изпращане в SVN
 Name[bs]=SVN Potvrda
