@@ -502,6 +502,7 @@ Comment[sr@ijekavian]=Стави фасциклу у постојећу ризн
 Comment[sr@ijekavianlatin]=Stavi fasciklu u postojeću riznicu, tj. pod kontrolu revizija.
 Comment[sr@latin]=Stavi fasciklu u postojeću riznicu, tj. pod kontrolu revizija.
 Comment[sv]=Lägg till katalog i ett befintligt arkiv för att få den under versionskontroll
+Comment[tr]=Bir dizini sürüm kontrolüne almak için onu var olan bir deponun içerisine koyun.
 Comment[uk]=Вставити теку в існуюче сховище, щоб уможливити для неї керування версіями.
 Comment[x-test]=xxPut folder into an existing repository to put it under revision control.xx
 Comment[zh_CN]=将文件夹放入现有仓库，使其受到版本控制。
