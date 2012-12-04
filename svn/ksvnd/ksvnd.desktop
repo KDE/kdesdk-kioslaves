@@ -56,5 +56,4 @@ X-KDE-ServiceTypes=KDEDModule
 X-KDE-ModuleType=Library
 X-KDE-Library=ksvnd
 X-KDE-DBus-ModuleName=ksvnd
-X-KDE-Library=ksvnd
 X-KDE-Kded-load-on-demand=true
