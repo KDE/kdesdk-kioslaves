@@ -1,3 +1,13 @@
+cmake_minimum_required(VERSION 2.6)
+project(kioslave)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules )
+
+# search packages used by KDE
+find_package(KDE4 REQUIRED)
+include(KDE4Defaults)
+include(MacroLibrary)
+include_directories (${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+
 macro_optional_find_package(SVN)
 macro_optional_find_package(Perl 5.10)
 
