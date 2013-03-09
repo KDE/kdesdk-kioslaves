@@ -65,6 +65,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximum">
+          <number>10000000</number>
+         </property>
         </widget>
        </item>
       </layout>
