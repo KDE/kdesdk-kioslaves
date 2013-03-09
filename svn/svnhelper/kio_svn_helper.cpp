@@ -251,8 +251,6 @@ SvnHelper::SvnHelper():KApplication() {
 		KIO::SimpleJob * job = KIO::special(servURL, parms);
 		connect( job, SIGNAL( result( KJob * ) ), this, SLOT( slotResult( KJob * ) ) );
 		KIO::NetAccess::synchronousRun( job, 0 );
-	} else if (args->isSet("R")) {
-		kDebug(7128) << "rename/move TODO " << list;
 	} else if (args->isSet("C")) {
 		kDebug(7128) << "checkout " << list;
 		SubversionCheckoutDialog d;
@@ -317,7 +315,7 @@ void SvnHelper::finished() {
 }
 
 int main(int argc, char **argv) {
-	KAboutData aboutData("kio_svn_helper", 0, ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
+	KAboutData aboutData("kio_svn_helper", "kio_svn", ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
 	aboutData.setProgramIconName("folder-remote");
 	KCmdLineArgs::init(argc, argv, &aboutData);
 
@@ -345,7 +343,6 @@ int main(int argc, char **argv) {
 	options.add("!+URL", ki18n("URL to update/commit/add/delete from Subversion"));
 
 	KCmdLineArgs::addCmdLineOptions( options );
-	KGlobal::locale()->setMainCatalog("kio_svn");
 	KCmdLineArgs::addStdCmdLineOptions();
 
 	if ( KCmdLineArgs::parsedArgs()->count()==0 )
