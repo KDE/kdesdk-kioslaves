@@ -317,7 +317,7 @@ void SvnHelper::finished() {
 }
 
 int main(int argc, char **argv) {
-	KAboutData aboutData("kio_svn_helper", 0, ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
+	KAboutData aboutData("kio_svn_helper", "kio_svn", ki18n("Subversion Helper"), "0.1", ki18n("KDE frontend for SVN"));
 	aboutData.setProgramIconName("folder-remote");
 	KCmdLineArgs::init(argc, argv, &aboutData);
 
@@ -345,7 +345,6 @@ int main(int argc, char **argv) {
 	options.add("!+URL", ki18n("URL to update/commit/add/delete from Subversion"));
 
 	KCmdLineArgs::addCmdLineOptions( options );
-	KGlobal::locale()->setMainCatalog("kio_svn");
 	KCmdLineArgs::addStdCmdLineOptions();
 
 	if ( KCmdLineArgs::parsedArgs()->count()==0 )
