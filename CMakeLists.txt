@@ -14,7 +14,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 
-find_package(Qt5 REQUIRED NO_MODULE
+find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE
     COMPONENTS
     Core
 )
