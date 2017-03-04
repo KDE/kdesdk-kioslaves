@@ -38,6 +38,12 @@
 #include <KAboutData>
 #include <klocalizedstring.h>
 
+class KIOPluginForMetaData : public QObject
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.kde.kio.slave.perldoc" FILE "perldoc.json")
+};
+
 // Embed version info.  Using const char[] instead of const char* const
 // places it in a read-only section.
 static const char
@@ -331,5 +337,7 @@ extern "C" {
         return 0;
     }
 }
+
+#include "perldoc.moc"
 
 // vim: set et sw=4 ts=8:

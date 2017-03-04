@@ -1,0 +1,18 @@
+{
+    "KDE-KIO-Protocols": {
+        "perldoc": {
+            "Class": ":internet",
+            "Icon": "application-x-perl",
+            "defaultMimetype": "text/html",
+            "determineMimetypeFromExtension": false,
+            "exec": "kf5/kio/perldoc",
+            "input": "none",
+            "listing": [
+                "Name"
+            ],
+            "output": "filesystem",
+            "protocol": "perldoc",
+            "reading": true
+        }
+    }
+}
