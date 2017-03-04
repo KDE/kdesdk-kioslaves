@@ -1,17 +1,34 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 project(kioslave)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules )
 
-# search packages used by KDE
-find_package(KDE4 REQUIRED)
-include(KDE4Defaults)
-include(MacroLibrary)
-include_directories (${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
+set(QT_MIN_VERSION 5.5.0)
+set(KF5_MIN_VERSION 5.27.0)
 
-macro_optional_find_package(Perl 5.10)
+find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
 
-macro_log_feature(PERL_FOUND "Perl" "Perl Programming Language" "http://www.perl.org/" FALSE "5.10" "Required in order to use the perldoc KIOSlave.")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+
+include(FeatureSummary)
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
+
+find_package(Qt5 REQUIRED NO_MODULE
+    COMPONENTS
+    Core
+)
+
+find_package(KF5 ${KF5_MIN_VERSION} REQUIRED
+    COMPONENTS
+    I18n
+    KIO
+)
+
+find_package(Perl 5.10)
 
 if(PERL_FOUND)
-  macro_optional_add_subdirectory(perldoc)
+    add_subdirectory(perldoc)
 endif(PERL_FOUND)
+
+feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

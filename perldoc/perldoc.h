@@ -29,9 +29,9 @@ public:
     PerldocProtocol(const QByteArray &pool, const QByteArray &app);
     virtual ~PerldocProtocol();
 
-    virtual void get(const KUrl& url);
-    virtual void stat(const KUrl& url);
-    virtual void listDir(const KUrl& url);
+    virtual void get(const QUrl &url);
+    virtual void stat(const QUrl &url);
+    virtual void listDir(const QUrl &url);
 
     bool topicExists(const QString &topic);
 

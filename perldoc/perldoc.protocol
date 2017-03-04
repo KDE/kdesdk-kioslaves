@@ -1,5 +1,5 @@
 [Protocol]
-exec=kio_perldoc
+exec=kf5/kio/perldoc
 protocol=perldoc
 input=none
 output=filesystem

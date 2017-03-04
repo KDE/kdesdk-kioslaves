@@ -29,16 +29,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QStringList>
+#include <QByteArray>
+#include <QCoreApplication>
+#include <QStandardPaths>
+#include <QStringList>
+#include <QUrl>
 
-#include <kdebug.h>
-#include <kurl.h>
-#include <klocale.h>
-#include <kstandarddirs.h>
-#include <kaboutdata.h>
-#include <kcomponentdata.h>
-#include <kdemacros.h>
+#include <KAboutData>
+#include <klocalizedstring.h>
 
 // Embed version info.  Using const char[] instead of const char* const
 // places it in a read-only section.
@@ -103,20 +101,20 @@ class PipeManager
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
 {
-    m_pod2htmlPath = KStandardDirs::locate("data", "kio_perldoc/pod2html.pl");
+    m_pod2htmlPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kio_perldoc/pod2html.pl");
 }
 
 PerldocProtocol::~PerldocProtocol()
 {
 }
 
-void PerldocProtocol::get(const KUrl& url)
+void PerldocProtocol::get(const QUrl &url)
 {
     QStringList l = url.path().split('/', QString::SkipEmptyParts);
 
     // Check for perldoc://foo
     if(!url.host().isEmpty()) {
-        KUrl newURL(url);
+        QUrl newURL(url);
 
         newURL.setPath(url.host() + url.path());
         newURL.setHost(QString());
@@ -252,7 +250,7 @@ QByteArray PerldocProtocol::errorMessage()
            "</body></html>");
 }
 
-void PerldocProtocol::stat(const KUrl &/*url*/)
+void PerldocProtocol::stat(const QUrl &/*url*/)
 {
     KIO::UDSEntry uds_entry;
     uds_entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG | S_IRWXU | S_IRWXG | S_IRWXO);
@@ -261,7 +259,7 @@ void PerldocProtocol::stat(const KUrl &/*url*/)
     finished();
 }
 
-void PerldocProtocol::listDir(const KUrl &url)
+void PerldocProtocol::listDir(const QUrl &url)
 {
     error( KIO::ERR_CANNOT_ENTER_DIRECTORY, url.path() );
 }
@@ -295,28 +293,32 @@ bool PerldocProtocol::topicExists(const QString &topic)
 
 extern "C" {
 
-    int KDE_EXPORT kdemain(int argc, char **argv)
+    int Q_DECL_EXPORT kdemain(int argc, char **argv)
     {
+        QCoreApplication app(argc, argv);
+
         KAboutData aboutData(
-            "kio_perldoc",
-            "kio_perldoc",
-            ki18n("perldoc KIOSlave"),
-            "0.9.1",
-            ki18n("KIOSlave to provide access to perldoc documentation"),
-            KAboutData::License_GPL_V2,
-            ki18n("Copyright 2007, 2008 Michael Pyne"),
-            ki18n("Uses Pod::HtmlEasy by M. P. Graciliano and Geoffrey Leach")
+            QStringLiteral("kio_perldoc"),
+            i18n("perldoc KIOSlave"),
+            QStringLiteral("0.9.1"),
+            i18n("KIOSlave to provide access to perldoc documentation"),
+            KAboutLicense::GPL_V2,
+            i18n("Copyright 2007, 2008 Michael Pyne"),
+            i18n("Uses Pod::HtmlEasy by M. P. Graciliano and Geoffrey Leach")
         );
 
-        aboutData.addAuthor(ki18n("Michael Pyne"), ki18n("Maintainer, port to KDE 4"),
+        aboutData.addAuthor(i18n("Michael Pyne"), i18n("Maintainer, port to KDE 4"),
             "michael.pyne@kdemail.net", "http://purinchu.net/wp/");
-        aboutData.addAuthor(ki18n("Bernd Gehrmann"), ki18n("Initial implementation"));
-        aboutData.addCredit(ki18n("M. P. Graciliano"), ki18n("Pod::HtmlEasy"));
-        aboutData.addCredit(ki18n("Geoffrey Leach"), ki18n("Pod::HtmlEasy current maintainer"));
-        aboutData.setTranslator(ki18nc("NAME OF TRANSLATORS", "Your names"),
-            ki18nc("EMAIL OF TRANSLATORS", "Your emails"));
+        aboutData.addAuthor(i18n("Bernd Gehrmann"), i18n("Initial implementation"));
+        aboutData.addCredit(i18n("M. P. Graciliano"), i18n("Pod::HtmlEasy"));
+        aboutData.addCredit(i18n("Geoffrey Leach"), i18n("Pod::HtmlEasy current maintainer"));
+        aboutData.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"),
+            i18nc("EMAIL OF TRANSLATORS", "Your emails"));
 
-        KComponentData componentData(aboutData);
+        app.setOrganizationDomain(QStringLiteral("kde.org"));
+        app.setOrganizationName(QStringLiteral("KDE"));
+
+        KAboutData::setApplicationData(aboutData);
 
         if (argc != 4) {
             fprintf(stderr, "Usage: kio_perldoc protocol domain-socket1 domain-socket2\n");
