@@ -80,6 +80,7 @@ use feature "switch";
 
 use strict;
 use warnings;
+no warnings 'experimental::smartmatch';
 
 our $VERSION = 0.03;
 
