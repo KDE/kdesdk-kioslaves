@@ -3,6 +3,7 @@
  *
  * Borrowed from KDevelop's perldoc ioslave, and improved.
  * Copyright 2007 Michael Pyne <michael.pyne@kdemail.net>
+ * Copyright 2017 Luigi Toscano <luigi.toscano@tiscali.it>
  *
  * No copyright header was present in KDevelop's perldoc io slave source
  * code.  However, source code revision history indicates it was written and
@@ -20,17 +21,9 @@
 
 #include "perldoc.h"
 
-// Constants for ::stat()
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <QByteArray>
 #include <QCoreApplication>
+#include <QProcess>
 #include <QStandardPaths>
 #include <QStringList>
 #include <QUrl>
@@ -50,59 +43,7 @@ static const char
 #ifdef __GNUC__ /* force this into final object files */
 __attribute__((__used__))
 #endif
-kio_perldoc_version[] = "kio_perldoc4 v0.9.1";
-
-// Helper class to handle pipes.
-class PipeManager
-{
-    public:
-    PipeManager(): m_fdRead(-1), m_fdWrite(-1)
-    {
-        int pipes[2] = { -1, -1 };
-
-        if(::pipe(pipes) == -1)
-            return;
-
-        m_fdRead = pipes[0];
-        m_fdWrite = pipes[1];
-    }
-
-    ~PipeManager()
-    {
-        closeReader();
-        closeWriter();
-    }
-
-    void closeReader()
-    {
-        if(m_fdRead != -1) {
-            ::close(m_fdRead);
-            m_fdRead = -1;
-        }
-    }
-
-    void closeWriter()
-    {
-        if(m_fdWrite != -1) {
-            ::close(m_fdWrite);
-            m_fdWrite = -1;
-        }
-    }
-
-    int readerFd() const
-    {
-        return m_fdRead;
-    }
-
-    int writerFd() const
-    {
-        return m_fdWrite;
-    }
-
-    private:
-    int m_fdRead;
-    int m_fdWrite;
-};
+kio_perldoc_version[] = "kio_perldoc v0.10.0";
 
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
@@ -163,84 +104,29 @@ void PerldocProtocol::get(const QUrl &url)
         }
     }
 
-    // Uses pipe(2) to implement some basic IPC
-    PipeManager pipes;
+    QStringList pod2htmlArguments;
+    if (l[0] == "functions") {
+        pod2htmlArguments << "-f" << l[1];
+    } else if (l[0] == "faq") {
+        pod2htmlArguments << "-q" << l[1];
+    } else if (!l[0].isEmpty()) {
+        pod2htmlArguments << l[0];
+    }
 
-    // Start the helper process and simply dump its output to data().
-    pid_t childPid = ::fork();
-
-    if(childPid < 0) {
+    QProcess pod2htmlProcess;
+    pod2htmlProcess.start(m_pod2htmlPath, pod2htmlArguments);
+    if (!pod2htmlProcess.waitForFinished()) {
         failAndQuit();
         return;
     }
 
-    if(childPid == 0) {
-        // Child, run the helper.  We have no need for the input pipe
-        pipes.closeReader();
-
-        // Make the output pipe also be STDOUT.
-        ::close(STDOUT_FILENO);
-        if(::dup2(pipes.writerFd(), STDOUT_FILENO) < 0)
-            ::exit(1);
-
-        // Close pipes.writerFd(), which is now stdout.  stdout still refers
-        // to the pipe's write end, and we only want one reference to it.
-        pipes.closeWriter();
-
-        // When using toLocal8Bit.data(), there must be a QByteArray object that survives long
-        // enough for the call to complete.
-        QByteArray executablePath = m_pod2htmlPath.toLocal8Bit();
-
-        // For execl(3), the first two arguments are for the path to the
-        // program, and the program name respectively.  Normally they should be
-        // the same.
-        if (l[0] == "functions") {
-            QByteArray podName = l[1].toLocal8Bit();
-            ::execl(executablePath.data(), executablePath.data(), "-f", podName.data(), (char*) NULL);
-        }
-        else if (l[0] == "faq") {
-            QByteArray podName = l[1].toLocal8Bit();
-            ::execl(executablePath.data(), executablePath.data(), "-q", podName.data(), (char*) NULL);
-        }
-        else if (!l[0].isEmpty()) {
-            QByteArray podName = l[0].toLocal8Bit();
-            ::execl(executablePath.data(), executablePath.data(), podName.data(), (char*) NULL);
-        }
-
-        ::exit(1); // Shouldn't make it here.
+    if ((pod2htmlProcess.exitStatus() != QProcess::NormalExit) ||
+        (pod2htmlProcess.exitCode() < 0)) {
+        error(KIO::ERR_CANNOT_LAUNCH_PROCESS, m_pod2htmlPath);
     }
-    else {
-        // Parent.  We will read from the pipe, have no need for write end.
-        pipes.closeWriter();
 
-        char buffer[1024];
-        ssize_t bufSize = -1;
-
-        // We use QByteArray::fromRawData instead of just reading into a QByteArray
-        // buffer in case bufSize is less than buffer.size().  In that case we would
-        // have to resize, and then resize back to the required buffer size after the
-        // call to data, which I don't feel like doing.
-        bufSize = ::read(pipes.readerFd(), buffer, sizeof buffer);
-        while(bufSize > 0) {
-            data(QByteArray::fromRawData(buffer, bufSize));
-
-            if(wasKilled()) // someone killed us!
-                return;
-
-            bufSize = ::read(pipes.readerFd(), buffer, bufSize);
-        }
-
-        if(bufSize < 0)
-            failAndQuit(); // Don't return on purpose, cleanup happens either way
-
-        int status = 0;
-        ::waitpid(childPid, &status, 0);
-
-        if(WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            error(KIO::ERR_CANNOT_LAUNCH_PROCESS, m_pod2htmlPath);
-
-        finished();
-    }
+    data(pod2htmlProcess.readAllStandardOutput());
+    finished();
 }
 
 void PerldocProtocol::failAndQuit()
@@ -273,28 +159,18 @@ void PerldocProtocol::listDir(const QUrl &url)
 bool PerldocProtocol::topicExists(const QString &topic)
 {
     // Run perldoc in query mode to see if the given manpage exists.
-    pid_t childPid = fork();
-
-    if(childPid < 0) {
-        data(QByteArray(i18n("Failed to fork").toLocal8Bit()));
-        return false; // Failed to fork
+    QProcess perldocProcess;
+    perldocProcess.start(QStringLiteral("perldoc"), QStringList() << "-l" << topic);
+    if (!perldocProcess.waitForFinished()) {
+        return false;
     }
 
-    if(childPid == 0) {
-        // Child
-        QByteArray topicData = topic.toLocal8Bit();
-        if(execlp("perldoc", "perldoc", "-l", topicData.data(), (char *) NULL) < 0)
-            ::exit(errno);
-    }
-    else {
-        int status = 0;
-
-        ::waitpid(childPid, &status, 0);
-        if(WIFEXITED(status) && WEXITSTATUS(status) == 0)
-            return true;
+    if ((perldocProcess.exitStatus() != QProcess::NormalExit) ||
+        (perldocProcess.exitCode() < 0)) {
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 extern "C" {
