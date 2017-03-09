@@ -49,6 +49,7 @@ PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
 {
     m_pod2htmlPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kio_perldoc/pod2html.pl");
+    m_cssLocation = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kio_docfilter/kio_docfilter.css" );
 }
 
 PerldocProtocol::~PerldocProtocol()
@@ -114,6 +115,12 @@ void PerldocProtocol::get(const QUrl &url)
     }
 
     QProcess pod2htmlProcess;
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("KIO_PERLDOC_VERSION", kio_perldoc_version);
+    env.insert("KIO_PERLDOC_CSSLOCATION", m_cssLocation);
+    pod2htmlProcess.setProcessEnvironment(env);
+
     pod2htmlProcess.start(m_pod2htmlPath, pod2htmlArguments);
     if (!pod2htmlProcess.waitForFinished()) {
         failAndQuit();

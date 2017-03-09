@@ -40,6 +40,7 @@ protected:
     void failAndQuit();
 
     QString m_pod2htmlPath;
+    QString m_cssLocation;
 };
 
 #endif
