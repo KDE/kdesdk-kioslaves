@@ -43,7 +43,7 @@ static const char
 #ifdef __GNUC__ /* force this into final object files */
 __attribute__((__used__))
 #endif
-kio_perldoc_version[] = "kio_perldoc v0.10.0";
+kio_perldoc_version[] = "0.10.0";
 
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
@@ -182,7 +182,7 @@ extern "C" {
         KAboutData aboutData(
             QStringLiteral("kio_perldoc"),
             i18n("perldoc KIOSlave"),
-            QStringLiteral("0.9.1"),
+            kio_perldoc_version,
             i18n("KIOSlave to provide access to perldoc documentation"),
             KAboutLicense::GPL_V2,
             i18n("Copyright 2007, 2008 Michael Pyne"),
