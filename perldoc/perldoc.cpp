@@ -152,7 +152,7 @@ QByteArray PerldocProtocol::errorMessage()
 void PerldocProtocol::stat(const QUrl &/*url*/)
 {
     KIO::UDSEntry uds_entry;
-    uds_entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG | S_IRWXU | S_IRWXG | S_IRWXO);
+    uds_entry.fastInsert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG | S_IRWXU | S_IRWXG | S_IRWXO);
 
     statEntry(uds_entry);
     finished();
