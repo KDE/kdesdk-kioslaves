@@ -26,10 +26,8 @@ find_package(KF5 ${KF5_MIN_VERSION} REQUIRED
 )
 
 find_package(Perl 5.10)
-if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
-   add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
-   add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x060000)
-endif()
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050e00)
+add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x054700)
 
 if(PERL_FOUND)
     add_subdirectory(perldoc)
