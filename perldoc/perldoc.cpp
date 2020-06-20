@@ -58,7 +58,11 @@ PerldocProtocol::~PerldocProtocol()
 
 void PerldocProtocol::get(const QUrl &url)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    QStringList l = url.path().split('/', Qt::SkipEmptyParts);
+#else
     QStringList l = url.path().split('/', QString::SkipEmptyParts);
+#endif
 
     // Check for perldoc://foo
     if(!url.host().isEmpty()) {
