@@ -1,12 +1,10 @@
-project(kio_perldoc)
-
 add_definitions(-DTRANSLATION_DOMAIN=\"kio5_perldoc\")
 
-set(kio_perldoc_SRCS
+add_library(kio_perldoc MODULE)
+
+target_sources(kio_perldoc PRIVATE
     perldoc.cpp
 )
-
-add_library(kio_perldoc MODULE ${kio_perldoc_SRCS})
 
 target_link_libraries(kio_perldoc
     KF5::I18n
