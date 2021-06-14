@@ -19,5 +19,5 @@ target_link_libraries(kio_perldoc
     KF5::KIOCore
 )
 
-install(TARGETS kio_perldoc DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kio)
-install(PROGRAMS pod2html.pl DESTINATION ${DATA_INSTALL_DIR}/kio_perldoc)
+install(TARGETS kio_perldoc DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kio)
+install(PROGRAMS pod2html.pl DESTINATION ${KDE_INSTALL_DATADIR}/kio_perldoc)
