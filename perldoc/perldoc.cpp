@@ -42,8 +42,8 @@ class KIOPluginForMetaData : public QObject
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
 {
-    m_pod2htmlPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kio_perldoc/pod2html.pl");
-    m_cssLocation = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kio_docfilter/kio_docfilter.css" );
+    m_pod2htmlPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kio_perldoc/pod2html.pl"));
+    m_cssLocation = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kio_docfilter/kio_docfilter.css"));
 }
 
 PerldocProtocol::~PerldocProtocol()
@@ -52,7 +52,7 @@ PerldocProtocol::~PerldocProtocol()
 
 void PerldocProtocol::get(const QUrl &url)
 {
-    QStringList l = url.path().split('/', Qt::SkipEmptyParts);
+    const QStringList l = url.path().split(QLatin1Char('/'), Qt::SkipEmptyParts);
 
     // Check for perldoc://foo
     if(!url.host().isEmpty()) {
@@ -66,9 +66,9 @@ void PerldocProtocol::get(const QUrl &url)
         return;
     }
 
-    mimeType("text/html");
+    mimeType(QStringLiteral("text/html"));
 
-    if(l[0].isEmpty() || url.path() == "/") {
+    if(l[0].isEmpty() || url.path() == QLatin1String("/")) {
         QByteArray output = i18n("<html><head><title>No page requested</title>"
             "<body>No page was requested.  You can search for:<ul><li>functions "
             "using perldoc:/functions/foo</li>\n\n"
@@ -84,7 +84,7 @@ void PerldocProtocol::get(const QUrl &url)
         return;
     }
 
-    if(l[0] != "functions" && l[0] != "faq") {
+    if(l[0] != QLatin1String("functions") && l[0] != QLatin1String("faq")) {
         // See if it exists first.
         if(!topicExists(l[0])) {
             // Failed
@@ -100,19 +100,19 @@ void PerldocProtocol::get(const QUrl &url)
     }
 
     QStringList pod2htmlArguments;
-    if (l[0] == "functions") {
-        pod2htmlArguments << "-f" << l[1];
-    } else if (l[0] == "faq") {
-        pod2htmlArguments << "-q" << l[1];
+    if (l[0] == QLatin1String("functions")) {
+        pod2htmlArguments = QStringList{QStringLiteral("-f"), l[1]};
+    } else if (l[0] == QLatin1String("faq")) {
+        pod2htmlArguments = QStringList{QStringLiteral("-q"), l[1]};
     } else if (!l[0].isEmpty()) {
-        pod2htmlArguments << l[0];
+        pod2htmlArguments = QStringList{l[0]};
     }
 
     QProcess pod2htmlProcess;
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("KIO_PERLDOC_VERSION", QStringLiteral(KIO_PERLDOC_VERSION_STRING));
-    env.insert("KIO_PERLDOC_CSSLOCATION", m_cssLocation);
+    env.insert(QStringLiteral("KIO_PERLDOC_VERSION"), QStringLiteral(KIO_PERLDOC_VERSION_STRING));
+    env.insert(QStringLiteral("KIO_PERLDOC_CSSLOCATION"), m_cssLocation);
     pod2htmlProcess.setProcessEnvironment(env);
 
     pod2htmlProcess.start(m_pod2htmlPath, pod2htmlArguments);
@@ -161,7 +161,7 @@ bool PerldocProtocol::topicExists(const QString &topic)
 {
     // Run perldoc in query mode to see if the given manpage exists.
     QProcess perldocProcess;
-    perldocProcess.start(QStringLiteral("perldoc"), QStringList() << "-l" << topic);
+    perldocProcess.start(QStringLiteral("perldoc"), QStringList{QStringLiteral("-l"), topic});
     if (!perldocProcess.waitForFinished()) {
         return false;
     }
@@ -191,7 +191,7 @@ extern "C" {
         );
 
         aboutData.addAuthor(i18n("Michael Pyne"), i18n("Maintainer, port to KDE 4"),
-            "michael.pyne@kdemail.net", "http://purinchu.net/wp/");
+            QStringLiteral("michael.pyne@kdemail.net"), QStringLiteral("http://purinchu.net/wp/"));
         aboutData.addAuthor(i18n("Bernd Gehrmann"), i18n("Initial implementation"));
         aboutData.addCredit(i18n("M. P. Graciliano"), i18n("Pod::HtmlEasy"));
         aboutData.addCredit(i18n("Geoffrey Leach"), i18n("Pod::HtmlEasy current maintainer"));
