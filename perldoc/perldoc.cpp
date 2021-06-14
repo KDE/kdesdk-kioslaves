@@ -21,17 +21,18 @@
 
 #include "perldoc.h"
 
+// slave
 #include "version.h"
-
+// KF
+#include <KAboutData>
+#include <KLocalizedString>
+// Qt
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QProcess>
 #include <QStandardPaths>
 #include <QStringList>
 #include <QUrl>
-
-#include <KAboutData>
-#include <klocalizedstring.h>
 
 class KIOPluginForMetaData : public QObject
 {

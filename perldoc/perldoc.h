@@ -21,7 +21,8 @@
  * See pod2html.pl for more information.
  */
 
-#include <kio/slavebase.h>
+// KF
+#include <KIO/SlaveBase>
 
 class PerldocProtocol : public KIO::SlaveBase
 {
