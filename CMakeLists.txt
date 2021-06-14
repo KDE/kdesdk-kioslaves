@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
-project(kioslave)
+
+# Release service version, managed by release script
+set (RELEASE_SERVICE_VERSION_MAJOR "21")
+set (RELEASE_SERVICE_VERSION_MINOR "07")
+set (RELEASE_SERVICE_VERSION_MICRO "70")
+set (RELEASE_SERVICE_VERSION "${RELEASE_SERVICE_VERSION_MAJOR}.${RELEASE_SERVICE_VERSION_MINOR}.${RELEASE_SERVICE_VERSION_MICRO}")
+
+project(kio-kdesdk VERSION ${RELEASE_SERVICE_VERSION})
 
 set(QT_MIN_VERSION 5.15.0)
 set(KF5_MIN_VERSION 5.83.0)
@@ -13,6 +20,8 @@ include(FeatureSummary)
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
+
+include(ECMSetupVersion)
 
 find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE
     COMPONENTS

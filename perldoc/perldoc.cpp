@@ -21,6 +21,8 @@
 
 #include "perldoc.h"
 
+#include "version.h"
+
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QProcess>
@@ -36,14 +38,6 @@ class KIOPluginForMetaData : public QObject
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.kde.kio.slave.perldoc" FILE "perldoc.json")
 };
-
-// Embed version info.  Using const char[] instead of const char* const
-// places it in a read-only section.
-static const char
-#ifdef __GNUC__ /* force this into final object files */
-__attribute__((__used__))
-#endif
-kio_perldoc_version[] = "0.10.0";
 
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
     : KIO::SlaveBase("perldoc", pool, app)
@@ -117,7 +111,7 @@ void PerldocProtocol::get(const QUrl &url)
     QProcess pod2htmlProcess;
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("KIO_PERLDOC_VERSION", kio_perldoc_version);
+    env.insert("KIO_PERLDOC_VERSION", QStringLiteral(KIO_PERLDOC_VERSION_STRING));
     env.insert("KIO_PERLDOC_CSSLOCATION", m_cssLocation);
     pod2htmlProcess.setProcessEnvironment(env);
 
@@ -189,7 +183,7 @@ extern "C" {
         KAboutData aboutData(
             QStringLiteral("kio_perldoc"),
             i18n("perldoc KIOSlave"),
-            kio_perldoc_version,
+            QStringLiteral(KIO_PERLDOC_VERSION_STRING),
             i18n("KIOSlave to provide access to perldoc documentation"),
             KAboutLicense::GPL_V2,
             i18n("Copyright 2007, 2008 Michael Pyne"),
