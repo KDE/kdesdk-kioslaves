@@ -47,4 +47,6 @@ if(PERL_FOUND)
     add_subdirectory(perldoc)
 endif(PERL_FOUND)
 
+ki18n_install(po)
+
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
