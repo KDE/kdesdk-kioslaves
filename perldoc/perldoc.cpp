@@ -21,7 +21,7 @@
 
 #include "perldoc.h"
 
-// slave
+// KIO worker
 #include "version.h"
 // KF
 #include <KAboutData>
@@ -37,11 +37,11 @@
 class KIOPluginForMetaData : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kde.kio.slave.perldoc" FILE "perldoc.json")
+    Q_PLUGIN_METADATA(IID "org.kde.kio.worker.perldoc" FILE "perldoc.json")
 };
 
 PerldocProtocol::PerldocProtocol(const QByteArray &pool, const QByteArray &app)
-    : KIO::SlaveBase("perldoc", pool, app)
+    : KIO::WorkerBase("perldoc", pool, app)
 {
     m_pod2htmlPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kio_perldoc/pod2html.pl"));
     m_cssLocation = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kio_docfilter/kio_docfilter.css"));
@@ -51,7 +51,7 @@ PerldocProtocol::~PerldocProtocol()
 {
 }
 
-void PerldocProtocol::get(const QUrl &url)
+KIO::WorkerResult PerldocProtocol::get(const QUrl &url)
 {
     const QStringList l = url.path().split(QLatin1Char('/'), Qt::SkipEmptyParts);
 
@@ -63,8 +63,7 @@ void PerldocProtocol::get(const QUrl &url)
         newURL.setHost(QString());
 
         redirection(newURL);
-        finished();
-        return;
+        return KIO::WorkerResult::pass();
     }
 
     mimeType(QStringLiteral("text/html"));
@@ -81,8 +80,7 @@ void PerldocProtocol::get(const QUrl &url)
         ).toLocal8Bit();
 
         data(output);
-        finished();
-        return;
+        return KIO::WorkerResult::pass();
     }
 
     if(l[0] != QLatin1String("functions") && l[0] != QLatin1String("faq")) {
@@ -95,8 +93,7 @@ void PerldocProtocol::get(const QUrl &url)
                 l[0], l[0]).toLocal8Bit();
 
             data(errstr);
-            finished();
-            return;
+            return KIO::WorkerResult::pass();
         }
     }
 
@@ -118,23 +115,22 @@ void PerldocProtocol::get(const QUrl &url)
 
     pod2htmlProcess.start(m_pod2htmlPath, pod2htmlArguments);
     if (!pod2htmlProcess.waitForFinished()) {
-        failAndQuit();
-        return;
+        return failAndQuit();
     }
 
     if ((pod2htmlProcess.exitStatus() != QProcess::NormalExit) ||
         (pod2htmlProcess.exitCode() < 0)) {
-        error(KIO::ERR_CANNOT_LAUNCH_PROCESS, m_pod2htmlPath);
+        return KIO::WorkerResult::fail(KIO::ERR_CANNOT_LAUNCH_PROCESS, m_pod2htmlPath);
     }
 
     data(pod2htmlProcess.readAllStandardOutput());
-    finished();
+    return KIO::WorkerResult::pass();
 }
 
-void PerldocProtocol::failAndQuit()
+KIO::WorkerResult PerldocProtocol::failAndQuit()
 {
     data(errorMessage());
-    finished();
+    return KIO::WorkerResult::pass();
 }
 
 QByteArray PerldocProtocol::errorMessage()
@@ -144,18 +140,18 @@ QByteArray PerldocProtocol::errorMessage()
            "</body></html>");
 }
 
-void PerldocProtocol::stat(const QUrl &/*url*/)
+KIO::WorkerResult PerldocProtocol::stat(const QUrl &/*url*/)
 {
     KIO::UDSEntry uds_entry;
     uds_entry.fastInsert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG | S_IRWXU | S_IRWXG | S_IRWXO);
 
     statEntry(uds_entry);
-    finished();
+    return KIO::WorkerResult::pass();
 }
 
-void PerldocProtocol::listDir(const QUrl &url)
+KIO::WorkerResult PerldocProtocol::listDir(const QUrl &url)
 {
-    error( KIO::ERR_CANNOT_ENTER_DIRECTORY, url.path() );
+    return KIO::WorkerResult::fail( KIO::ERR_CANNOT_ENTER_DIRECTORY, url.path() );
 }
 
 bool PerldocProtocol::topicExists(const QString &topic)
@@ -183,9 +179,9 @@ extern "C" {
 
         KAboutData aboutData(
             QStringLiteral("kio_perldoc"),
-            i18n("perldoc KIOSlave"),
+            i18n("perldoc KIO worker"),
             QStringLiteral(KIO_PERLDOC_VERSION_STRING),
-            i18n("KIOSlave to provide access to perldoc documentation"),
+            i18n("KIO worker to provide access to perldoc documentation"),
             KAboutLicense::GPL_V2,
             i18n("Copyright 2007, 2008 Michael Pyne"),
             i18n("Uses Pod::HtmlEasy by M. P. Graciliano and Geoffrey Leach")
@@ -209,8 +205,8 @@ extern "C" {
             exit(5);
         }
 
-        PerldocProtocol slave(argv[2], argv[3]);
-        slave.dispatchLoop();
+        PerldocProtocol worker(argv[2], argv[3]);
+        worker.dispatchLoop();
 
         return 0;
     }

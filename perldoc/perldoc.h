@@ -22,23 +22,23 @@
  */
 
 // KF
-#include <KIO/SlaveBase>
+#include <KIO/WorkerBase>
 
-class PerldocProtocol : public KIO::SlaveBase
+class PerldocProtocol : public KIO::WorkerBase
 {
 public:
     PerldocProtocol(const QByteArray &pool, const QByteArray &app);
     ~PerldocProtocol() override;
 
-    void get(const QUrl &url) override;
-    void stat(const QUrl &url) override;
-    void listDir(const QUrl &url) override;
+    KIO::WorkerResult get(const QUrl &url) override;
+    KIO::WorkerResult stat(const QUrl &url) override;
+    KIO::WorkerResult listDir(const QUrl &url) override;
 
     bool topicExists(const QString &topic);
 
 protected:
     QByteArray errorMessage();
-    void failAndQuit();
+    KIO::WorkerResult failAndQuit();
 
     QString m_pod2htmlPath;
     QString m_cssLocation;
